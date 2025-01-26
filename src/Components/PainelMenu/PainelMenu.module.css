@@ -1,0 +1,19 @@
+.sider {
+    min-height: 100vh;
+    overflow: auto;
+}
+
+.userName {
+    font-weight: bold;
+    color: white;
+}
+
+.userType {
+    color: white;
+}
+
+.userData {
+    padding: 20px 0px;
+    width: 100%;
+    align-items: center;
+}

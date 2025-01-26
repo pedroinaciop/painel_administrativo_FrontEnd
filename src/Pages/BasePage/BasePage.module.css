@@ -1,0 +1,30 @@
+.basePage {
+    display: grid;
+    grid-template-areas:
+        "painel-menu main-content"
+        "painel-menu main-content";
+    grid-template-columns: 200px 1fr;
+    grid-template-rows: auto 1fr;
+    height: 100vh;
+}
+
+.painelMenu {
+    grid-area: painel-menu;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.content {
+    grid-area: main-content;
+    background-color: white;
+    border-radius: 15px;
+    margin: 12px;
+}
+
+
+@media (min-width: 1970px) {
+    .headerMenu {
+        width: 100vw;
+        
+    }
+}
