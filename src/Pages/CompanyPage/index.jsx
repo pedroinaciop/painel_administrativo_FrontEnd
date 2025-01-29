@@ -5,20 +5,19 @@ import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
 import * as React from 'react';
 import InputField from '../../Components/InputField';
-import TextAreaField from '../../Components/TextAreaField';
 
 const ProductForm = () => {
   const [value, setValue] = React.useState(0);
-  const {register, handleSubmit, formState: { errors }, trigger, watch} = useForm();
+  const { register, handleSubmit, formState: { errors }, trigger, watch } = useForm();
   const formData = watch();
-  
+
   function CustomTabPanel(props) {
     const { children, value, index, ...other } = props;
 
     return (
       <div role="tabpanel"
-        hidden={value !== index} 
-        id={`simple-tabpanel-${index}`} 
+        hidden={value !== index}
+        id={`simple-tabpanel-${index}`}
         aria-labelledby={`simple-tab-${index}`}
         {...other}
         style={{ display: value === index ? 'block' : 'none' }} // Esconde com CSS
@@ -30,7 +29,7 @@ const ProductForm = () => {
 
   function a11yProps(index) {
     return {
-      id: `simple-tab-${index}`,'aria-controls': `simple-tabpanel-${index}`,
+      id: `simple-tab-${index}`, 'aria-controls': `simple-tabpanel-${index}`,
     };
   };
 
@@ -66,106 +65,98 @@ const ProductForm = () => {
               <Tab label=" Imagem e outros" {...a11yProps(2)} />
             </Tabs>
           </Box>
-          
+
           <CustomTabPanel className={styled.contextForm} value={value} index={0}>
             <section className={styled.tabs}>
               <div className={styled.row}>
                 <InputField idInput="nome_produto"
-                  idDiv={styled.nameField} 
-                  label="Nome do Produto*" 
-                  type="text" 
-                  register={register} 
-                  validation={{ required: 'Campo obrigatório' }} 
-                  error={errors.nome_produto} 
+                  idDiv={styled.nameField}
+                  label="Nome do Produto*"
+                  type="text"
+                  register={register}
+                  validation={{ required: 'Campo obrigatório' }}
+                  error={errors.nome_produto}
                 />
 
                 <InputField
-                  idInput="codigo_referencia" 
-                  idDiv={styled.referenceCodeField} 
-                  label="Código de Referência*" 
-                  type="text" 
-                  register={register} 
-                  validation={{ required: 'Campo obrigatório' }} 
-                  error={errors.codigo_referencia} 
+                  idInput="codigo_referencia"
+                  idDiv={styled.referenceCodeField}
+                  label="Código de Referência*"
+                  type="text"
+                  register={register}
+                  validation={{ required: 'Campo obrigatório' }}
+                  error={errors.codigo_referencia}
                 />
               </div>
 
               <div className={styled.row}>
-                <InputField 
-                  idInput="preco_venda" 
-                  idDiv={styled.priceField} 
-                  label="Preço de Venda*" 
-                  type="number" 
-                  min={0} 
-                  register={register} validation={{ required: 'Campo obrigatório' }} error={errors.preco_venda} 
+                <InputField
+                  idInput="preco_venda"
+                  idDiv={styled.priceField}
+                  label="Preço de Venda*"
+                  type="number"
+                  min={0}
+                  register={register} validation={{ required: 'Campo obrigatório' }} error={errors.preco_venda}
                 />
 
-                <InputField 
-                  idInput="preco_promocional" 
-                  idDiv={styled.pricePromocionalField} 
-                  label="Preço Promocional" 
-                  type="number" 
-                  min={0} 
+                <InputField
+                  idInput="preco_promocional"
+                  idDiv={styled.pricePromocionalField}
+                  label="Preço Promocional"
+                  type="number"
+                  min={0}
                   register={register}
                 />
 
-                <InputField 
-                  idInput="marca" 
-                  idDiv={styled.brandField} 
-                  label="Marca*" 
-                  type="text" 
-                  register={register} 
-                  validation={{ required: 'Campo obrigatório' }} 
-                  error={errors.marca}  
+                <InputField
+                  idInput="marca"
+                  idDiv={styled.brandField}
+                  label="Marca*"
+                  type="text"
+                  register={register}
+                  validation={{ required: 'Campo obrigatório' }}
+                  error={errors.marca}
                 />
               </div>
 
               <div className={styled.row}>
-                <InputField  
-                  idInput="estoque_alertas"  
-                  idDiv={styled.stockAlertField} 
-                  label="Estoque p/ Alertas"  
-                  type="number"  
-                  min={0} 
+                <InputField
+                  idInput="estoque_alertas"
+                  idDiv={styled.stockAlertField}
+                  label="Estoque p/ Alertas"
+                  type="number"
+                  min={0}
                   register={register}
                 />
 
-                <InputField  
-                  idInput="color"  
-                  idDiv={styled.colorField}  
-                  label="Cor(es)"  
-                  type="text" 
+                <InputField
+                  idInput="color"
+                  idDiv={styled.colorField}
+                  label="Cor(es)"
+                  type="text"
                   register={register}
                 />
 
-                <InputField  
-                  idInput="tamanho"  
-                  idDiv={styled.sizeField} 
-                  label="Tamanho(s)"  
-                  type="text" 
+                <InputField
+                  idInput="tamanho"
+                  idDiv={styled.sizeField}
+                  label="Tamanho(s)"
+                  type="text"
                   register={register}
                 />
 
 
-                <InputField  
-                  idInput="codigo_barras"  
-                  idDiv={styled.barCodeField}  
-                  label="Código de Barras" 
-                  type="number" 
+                <InputField
+                  idInput="codigo_barras"
+                  idDiv={styled.barCodeField}
+                  label="Código de Barras"
+                  type="number"
                   min={0}
                   register={register}
                 />
               </div>
 
-              <TextAreaField 
-                idInput="descricao" 
-                idDiv={styled.descriptionField} 
-                label="Descrição do Produto*" 
-                type="textarea"
-                register={register} 
-                validation={{ required: 'Campo obrigatório' }} 
-                error={errors.descricao} 
-              />
+            
             </section>
 
           </CustomTabPanel>
@@ -173,33 +164,33 @@ const ProductForm = () => {
           <CustomTabPanel className={styled.contextForm} value={value} index={1}>
             <section className={styled.tabs}>
               <div className={styled.row}>
-                <InputField 
-                  idInput="categoria" 
-                  idDiv={styled.categoryField} 
-                  label="Categoria*" 
-                  type="text" 
-                  register={register} 
-                  validation={{ required: 'Campo obrigatório' }} 
-                  error={errors.categoria} 
+                <InputField
+                  idInput="categoria"
+                  idDiv={styled.categoryField}
+                  label="Categoria*"
+                  type="text"
+                  register={register}
+                  validation={{ required: 'Campo obrigatório' }}
+                  error={errors.categoria}
                 />
 
-                <InputField 
-                  idInput="subcategoria" 
-                  idDiv={styled.subCategoryField} 
-                  label="Subcategoria" 
-                  type="text" 
+                <InputField
+                  idInput="subcategoria"
+                  idDiv={styled.subCategoryField}
+                  label="Subcategoria"
+                  type="text"
                   register={register}
                 />
 
-                <InputField 
-                  idInput="localizacao_estoque" 
-                  idDiv={styled.stockLocationField} 
-                  label="Localização no estoque" 
-                  type="text" 
+                <InputField
+                  idInput="localizacao_estoque"
+                  idDiv={styled.stockLocationField}
+                  label="Localização no estoque"
+                  type="text"
                   register={register}
                 />
               </div>
-              
+
               <div className={styled.row}>
                 <div className={styled.formGroup} id={styled.unitField}>
                   <label htmlFor="unidade_medida">Unidade de Medida*</label>
@@ -216,46 +207,46 @@ const ProductForm = () => {
                   {errors?.unidade_medida?.type === 'validate' && (<p className={styled.errorMessage}>Esse campo é obrigatório</p>)}
                 </div>
 
-                <InputField 
-                  idInput="peso_liquido" 
-                  idDiv={styled.netWeight} 
-                  label="Peso Líquido(Kg)*" 
-                  type="number" 
-                  min={0} 
-                  register={register} 
-                  validation={{ required: 'Campo obrigatório' }} 
-                  error={errors.pesoLiquido} 
+                <InputField
+                  idInput="peso_liquido"
+                  idDiv={styled.netWeight}
+                  label="Peso Líquido(Kg)*"
+                  type="number"
+                  min={0}
+                  register={register}
+                  validation={{ required: 'Campo obrigatório' }}
+                  error={errors.pesoLiquido}
                 />
 
-                <InputField 
-                  idInput="peso_bruto" 
-                  idDiv={styled.grossWeight} 
-                  label="Peso Bruto(Kg)*" 
-                  type="number" 
-                  min={0} 
-                  register={register} 
-                  validation={{ required: 'Campo obrigatório' }} 
-                  error={errors.pesoBruto} 
+                <InputField
+                  idInput="peso_bruto"
+                  idDiv={styled.grossWeight}
+                  label="Peso Bruto(Kg)*"
+                  type="number"
+                  min={0}
+                  register={register}
+                  validation={{ required: 'Campo obrigatório' }}
+                  error={errors.pesoBruto}
                 />
 
-                <InputField 
-                  idInput="dimensoes" 
-                  idDiv={styled.dimensionField} 
-                  label="Dimensões" 
-                  type="text" 
+                <InputField
+                  idInput="dimensoes"
+                  idDiv={styled.dimensionField}
+                  label="Dimensões"
+                  type="text"
                   placeholder="C x L x A"
                   register={register}
                 />
               </div>
 
               <div className={styled.row}>
-                
-                <InputField 
-                  idInput="registro_anvisa" 
-                  idDiv={styled.anvisaRegisterField} 
-                  label="Registro ANVISA" 
+
+                <InputField
+                  idInput="registro_anvisa"
+                  idDiv={styled.anvisaRegisterField}
+                  label="Registro ANVISA"
                   type="text"
-                  register={register} 
+                  register={register}
                   error={errors.registro_anvisa}
                 />
 
@@ -275,39 +266,39 @@ const ProductForm = () => {
               </div>
 
               <div className={styled.row}>
-                <InputField 
-                  idInput="icms" 
-                  idDiv={styled.icmsField} 
-                  label="ICMS" 
-                  type="text" 
-                  register={register} 
-                  error={errors.icms} 
+                <InputField
+                  idInput="icms"
+                  idDiv={styled.icmsField}
+                  label="ICMS"
+                  type="text"
+                  register={register}
+                  error={errors.icms}
                 />
 
-                <InputField 
-                  idInput="cfop" 
-                  idDiv={styled.cfopField} 
-                  label="CFOP" 
-                  type="text" 
-                  register={register} 
+                <InputField
+                  idInput="cfop"
+                  idDiv={styled.cfopField}
+                  label="CFOP"
+                  type="text"
+                  register={register}
                   error={errors.cfop}
                 />
 
-                <InputField 
-                  idInput="ncm" 
-                  idDiv={styled.ncmField} 
-                  label="NCM" 
+                <InputField
+                  idInput="ncm"
+                  idDiv={styled.ncmField}
+                  label="NCM"
                   type="text"
-                  register={register} 
-                  error={errors.ncm} 
+                  register={register}
+                  error={errors.ncm}
                 />
 
-                <InputField 
-                  idInput="cst" 
-                  idDiv={styled.cstField} 
-                  label="CST" 
-                  type="text" 
-                  register={register} 
+                <InputField
+                  idInput="cst"
+                  idDiv={styled.cstField}
+                  label="CST"
+                  type="text"
+                  register={register}
                   error={errors.cst}
                 />
               </div>
@@ -317,57 +308,57 @@ const ProductForm = () => {
           <CustomTabPanel className={styled.contextForm} value={value} index={2}>
             <section className={styled.tabs}>
               <div className={styled.row}>
-                <InputField 
-                  idInput="imagens_produtos" 
-                  idDiv={styled.imageField} 
-                  label="Imagem do Produto" 
-                  type="file" 
-                  accept="image/*" 
-                  register={register} 
+                <InputField
+                  idInput="imagens_produtos"
+                  idDiv={styled.imageField}
+                  label="Imagem do Produto"
+                  type="file"
+                  accept="image/*"
+                  register={register}
                   error={errors.imagens_produtos}
                 />
 
                 <div id={styled.options}>
-                  <InputField 
-                    idInput={styled.activeField} 
-                    label="Ativo" 
+                  <InputField
+                    idInput={styled.activeField}
+                    label="Ativo"
                     type="checkbox"
-                    register={register} 
+                    register={register}
                     error={errors.produto_ativo}
-                    />
-
-                  <InputField 
-                    idInput={styled.sterilityField} 
-                    label="Esterilidade" 
-                    type="checkbox" 
-                    defaultChecked={false}
-                    register={register} 
-                    error={errors.esterilidade} 
                   />
 
-                  <InputField 
-                    idInput={styled.freeShippingField} 
-                    label="Frete Grátis" 
-                    type="checkbox" 
+                  <InputField
+                    idInput={styled.sterilityField}
+                    label="Esterilidade"
+                    type="checkbox"
                     defaultChecked={false}
-                    register={register} 
+                    register={register}
+                    error={errors.esterilidade}
+                  />
+
+                  <InputField
+                    idInput={styled.freeShippingField}
+                    label="Frete Grátis"
+                    type="checkbox"
+                    defaultChecked={false}
+                    register={register}
                     error={errors.frete_gratis}
                   />
 
-                  <InputField 
-                    idInput={styled.perishableField} 
-                    label="Produto Perecível" 
+                  <InputField
+                    idInput={styled.perishableField}
+                    label="Produto Perecível"
                     type="checkbox"
                     defaultChecked={false}
-                    register={register} 
-                    error={errors.produto_perecivel} 
+                    register={register}
+                    error={errors.produto_perecivel}
                   />
                 </div>
               </div>
             </section>
           </CustomTabPanel>
 
-          <button className={styled.btnRegister} type="submit">      
+          <button className={styled.btnRegister} type="submit">
             Adicionar Produto
           </button>
 

@@ -1,4 +1,4 @@
-import { FileOutlined, TeamOutlined, UserOutlined, AppstoreOutlined, BorderOutlined, ShoppingCartOutlined, HomeOutlined, AppstoreAddOutlined, TagsOutlined, SettingOutlined, ShopOutlined } from '@ant-design/icons';
+import { FileOutlined, TeamOutlined, UserOutlined, BorderOutlined, ShoppingCartOutlined, HomeOutlined, AppstoreAddOutlined, TagsOutlined, SettingOutlined, ShopOutlined } from '@ant-design/icons';
 import { Layout, Menu, Avatar, Space } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import styled from "./PainelMenu.module.css";
@@ -20,9 +20,8 @@ const items = [
     getItem('Empresa', '2', <ShopOutlined />, null, '/cadastros/empresa'),
     getItem('Usuários', '3', <UserOutlined />, null, '/cadastros/usuarios'),
     getItem('Produtos', '4', <ShoppingCartOutlined />, null, '/cadastros/produtos'),
-    getItem('Marca', '5', <TagsOutlined />, null, '/cadastros/marcas'),
+    getItem('Fornecedor', '5', <TagsOutlined />, null, '/cadastros/fornecedores'),
     getItem('Categoria', '6', <BorderOutlined />, null, '/cadastros/categorias'),
-    getItem('Subcategoria', '7', <AppstoreOutlined />, null, '/cadastros/subcategorias'),
   ]),
   getItem('Configurações', 'sub2', <SettingOutlined />, [
     getItem('Team 1', '8', <TeamOutlined />, null, '/team1'),
@@ -34,7 +33,7 @@ const PainelMenu = () => {
   const navigate = useNavigate();
 
   const handleClick = (e) => {
-    const item = e.item; 
+    const item = e.item;
     if (item.pathname) {
       navigate(item.pathname);
     }

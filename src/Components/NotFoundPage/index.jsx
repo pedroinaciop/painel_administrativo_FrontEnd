@@ -2,7 +2,7 @@ import erro from '../../assets/images/404.svg';
 import styled from './NaoEncontrada.module.css'
 
 const NotFoundPage = () => {
-     return (
+    return (
         <div className={styled.container_erro}>
             <img className={styled.img404} src={erro} alt="Imagem 'Erro - Página não encontrada'" />
             <h2>Página não encontrada</h2>

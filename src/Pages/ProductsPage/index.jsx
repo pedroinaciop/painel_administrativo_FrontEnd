@@ -7,7 +7,7 @@ import { NavLink } from 'react-router-dom';
 import styled from './ProductsPage.module.css';
 
 
-function ProductsPage() {
+const ProductsPage = () => {
   const [keywords, setKeywords] = useState('');
 
   const confirmDelete = (id) => {
@@ -28,7 +28,7 @@ function ProductsPage() {
     {
       title: 'Editar',
       render: (_, row) => (
-        <Button key="editar" href={`/cadastros/produtos/${row.id}`} onClick={() => window.alert('Confirmar atualização?')} icon={<EditOutlined/>} >
+        <Button key="editar" href={`/cadastros/produtos/${row.id}`} onClick={() => window.alert('Confirmar atualização?')} icon={<EditOutlined />} >
           Editar
         </Button>
       ),
@@ -36,7 +36,7 @@ function ProductsPage() {
     {
       title: 'Deletar',
       render: (_, row) => (
-        <Button key="deletar" href={`/cadastros/produtos/${row.id}`} onClick={() => confirmDelete(row.id)} icon={<DeleteOutlined/>}>
+        <Button key="deletar" href={`/cadastros/produtos/${row.id}`} onClick={() => confirmDelete(row.id)} icon={<DeleteOutlined />}>
           Deletar
         </Button>
       ),
@@ -76,7 +76,7 @@ function ProductsPage() {
           <p>{mockData.length} itens cadastrados</p>
         </header>
         <div className={styled.functions}>
-          <Input.Search className={styled.input} placeholder="Procure um produto" onSearch={(value) => setKeywords(value)}/>
+          <Input.Search className={styled.input} placeholder="Procure um produto" onSearch={(value) => setKeywords(value)} />
           <div className={styled.buttons}>
             <Button className={styled.button} type="primary" icon={<DownloadOutlined />} size="large" onClick={handleDownload}>
               Baixar Dados
@@ -90,29 +90,29 @@ function ProductsPage() {
         </div>
         <article className={styled.stockInfo}>
           <div>
-              <p className={styled.values}>R$ 893.512,99</p>
-              <p className={styled.description}>Valor em estoque</p>
+            <p className={styled.values}>R$ 893.512,99</p>
+            <p className={styled.description}>Valor em estoque</p>
           </div>
           <div>
-              <p className={styled.values}>R$ 1.253.512,99</p>
-              <p className={styled.description}>Lucro previsto</p>
+            <p className={styled.values}>R$ 1.253.512,99</p>
+            <p className={styled.description}>Lucro previsto</p>
           </div>
           <div>
-              <p className={styled.values}>153</p>
-              <p className={styled.description}>Estoque baixo</p>
+            <p className={styled.values}>153</p>
+            <p className={styled.description}>Estoque baixo</p>
           </div>
           <div>
-              <p className={styled.values}>29</p>
-              <p className={styled.description}>Sem estoque</p>
+            <p className={styled.values}>29</p>
+            <p className={styled.description}>Sem estoque</p>
           </div>
           <div>
-              <p className={styled.values}>895</p>
-              <p className={styled.description}>Em estoque</p>
-          </div> 
+            <p className={styled.values}>895</p>
+            <p className={styled.description}>Em estoque</p>
+          </div>
         </article>
       </section>
       <ConfigProvider locale={ptBR}>
-        <ProTable size="large" scroll={{ x: 1000, y: 220 }} 
+        <ProTable size="large" scroll={{ x: 1000, y: 220 }}
           search={false} bordered={false} columns={columns} rowKey="id" params={{ keywords }}
           request={async (params) => {
             const filteredData = filterData(mockData, params.keywords || keywords);
