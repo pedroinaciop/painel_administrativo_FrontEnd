@@ -1,0 +1,59 @@
+@import url("../../App.css");
+
+.appContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1.3rem;
+  padding: 1.25rem 1.25rem 0.125rem 1.25rem;
+}
+
+.contextForm {
+  height: 465px;
+  padding: 1.25rem 1.25rem 0.125rem 1.25rem;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+#cnpjField {
+  width: 36%;
+}
+
+#corporateReasonField {
+  width: 60%;
+}
+
+#stateRegistrationField, #emailAddressField, #phoneField {
+  width: 30.5%;
+}
+
+#cepField {
+  width: 20%;
+}
+
+#streetField {
+  width: 62%;
+}
+
+#numberAdressField {
+  width: 10%;
+}
+
+#neighborhoodField {
+  width: 25%;
+}
+
+#cityField {
+  width: 45%;
+}
+
+#stateField {
+  width: 20%;
+}
+
+#complementField {
+  width: 100%;
+}

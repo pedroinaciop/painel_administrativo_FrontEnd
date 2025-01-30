@@ -13,7 +13,7 @@ const CategoryPage = () => {
     const confirmDelete = (id) => {
         Modal.confirm({
             title: 'Confirmar exclusão?',
-            content: `Tem certeza que deseja excluir a categorias ID ${id}?`,
+            content: `Tem certeza que deseja excluir a categoria ID ${id}?`,
             onOk() {
                 console.log(`Categoria ID ${id} excluído`);
             },
@@ -21,7 +21,7 @@ const CategoryPage = () => {
     };
 
     const columns = [
-        { title: 'Código da Categoria', dataIndex: 'codigo_categoria', sorter: true },
+        { title: 'ID', dataIndex: 'id', sorter: true },
         { title: 'Categoria', dataIndex: 'categoria', sorter: true },
         {
             title: 'Editar',
@@ -43,8 +43,8 @@ const CategoryPage = () => {
 
     const handleDownload = () => {
         const data = [
-            { codigo_categoria: '1', categoria: 'Categoria 1' },
-            { codigo_categoria: '2', categoria: 'Categoria 1' },
+            { id: 1, categoria: 'Camisa' },
+            { id: 2, categoria: 'Bermuda' },
         ];
         const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
         const link = document.createElement('a');
@@ -54,14 +54,14 @@ const CategoryPage = () => {
     };
 
     const mockData = [
-        { id: 1, codigo_categoria: '1', categoria: 'Camisa' },
-        { id: 2, codigo_categoria: '2', categoria: 'Bermuda' },
+        { id: 1, categoria: 'Camisa' },
+        { id: 2, categoria: 'Bermuda' },
     ];
 
     const filterData = (data, keywords) =>
         data.filter(
             (item) =>
-                item.codigo_categoria.toLowerCase().includes(keywords.toLowerCase()) ||
+                item.id.toString().includes(keywords.toString()) ||
                 item.categoria.toLowerCase().includes(keywords.toLowerCase())
         );
 
@@ -70,12 +70,12 @@ const CategoryPage = () => {
             <section className={styled.mainContent}>
                 <header className={styled.header}>
                     <h1>Categorias</h1>
-                    <p>{mockData.length} fornecedores cadastradas</p>
+                    <p>{mockData.length} Categoria(s) cadastrada(s)</p>
                 </header>
                 <div className={styled.functions}>
                     <Input.Search
                         className={styled.input}
-                        placeholder="Procure uma categoria"
+                        placeholder="Procure uma Categoria"
                         onSearch={(value) => setKeywords(value)}
                     />
                     <div className={styled.buttons}>

@@ -3,7 +3,8 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import NotFoundPage from "./Components/NotFoundPage";
 import ProductsPage from "./Pages/ProductsPage";
 import ProductForm from "./Pages/ProductForm";
-import CompanyForm from "./Pages/CompanyPage";
+import CompanyPage from "./Pages/CompanyPage";
+import CompanyForm from "./Pages/CompanyForm";
 import BrandForm from "./Pages/BrandForm";
 import BrandPage from "./Pages/BrandPage";
 import CategoryPage from "./Pages/CategoryPage";
@@ -19,11 +20,16 @@ function App() {
           <Route path="/" element={<BasePage />}>
             <Route path="*" element={<NotFoundPage />} />
             <Route path="/cadastros/usuarios" element={<h1>Oi</h1>} />
+
             <Route path="/cadastros/produtos" element={<ProductsPage />} />
             <Route path="/cadastros/produtos/novo" element={<ProductForm />} />
-            <Route path="/cadastros/empresa" element={<CompanyForm />} />
+
+            <Route path="/cadastros/empresa" element={<CompanyPage/>} />
+            <Route path="/cadastros/empresa/novo" element={<CompanyForm />} />
+
             <Route path="/cadastros/fornecedores" element={<BrandPage />} />
             <Route path="/cadastros/fornecedores/novo" element={<BrandForm/>} />
+
             <Route path="/cadastros/categorias" element={<CategoryPage/>}/>
             <Route path="/cadastros/categorias/novo" element={<CategoryForm/>}/>
           </Route>

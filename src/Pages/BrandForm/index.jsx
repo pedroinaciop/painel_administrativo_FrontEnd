@@ -7,7 +7,7 @@ import { useForm } from 'react-hook-form';
 import { useState } from 'react';
 
 const BrandFrom = () => {
-    const { register, reset, handleSubmit, formState: { errors } } = useForm();
+    const { register, reset, handleSubmit, setValue, formState: { errors } } = useForm();
     const [cnpj, setCnpj] = useState();
 
     const handleKeyDown = (e) => {
@@ -16,15 +16,22 @@ const BrandFrom = () => {
         }
     };
 
-    const mascaraCNPJ = (e) => {
-        setCnpj(VMasker.toPattern(e.target.value, '99.999.999/9999-99'));
-        
-    };
-
     const createBrand = (data) => {
         console.log(data);
         reset();
-        setCnpj('');
+        setCnpj("");
+
+        const formattedData = {
+            ...data,
+            cnpj: data.cnpj.replace(/\D/g, ""),
+        };
+
+        console.log("Enviando dados do fornecedor:", formattedData);
+    };
+
+    const cnpjMask = (e) => {
+        const maskedValue = VMasker.toPattern(e.target.value, '99.999.999/9999-99');
+        setValue("cnpj", maskedValue);
     };
 
     return (
@@ -43,8 +50,7 @@ const BrandFrom = () => {
                         register={register}
                         validation={{ required: 'Esse campo é obrigatório' }}
                         error={errors?.cnpj}
-                        value={cnpj}
-                        onChange={mascaraCNPJ}
+                        onChange={cnpjMask}
                     />
                     <InputField
                         idInput="nome_fornecedor"

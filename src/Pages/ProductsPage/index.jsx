@@ -21,6 +21,7 @@ const ProductsPage = () => {
   };
 
   const columns = [
+    { title: 'ID', dataIndex: 'id', sorter: true },
     { title: 'Produto', dataIndex: 'produto', sorter: true },
     { title: 'Categoria', dataIndex: 'categoria', sorter: true },
     { title: 'Estoque', dataIndex: 'estoque', sorter: true },
@@ -45,8 +46,9 @@ const ProductsPage = () => {
 
   const handleDownload = () => {
     const data = [
-      { produto: 'Jack', categoria: 'Categoria 1', estoque: 20, preco: 100 },
-      { produto: 'Pedro', categoria: 'Categoria 1', estoque: 40, preco: 60 },
+      { id: 1, produto: 'Jack', categoria: 'Categoria 1', estoque: 20, preco: 100 },
+      { id: 2, produto: 'Pedro', categoria: 'Categoria 1', estoque: 40, preco: 60 },
+      { id: 3, produto: 'Ana', categoria: 'Categoria 2', estoque: 15, preco: 80 },
     ];
     const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
     const link = document.createElement('a');
@@ -64,6 +66,7 @@ const ProductsPage = () => {
   const filterData = (data, keywords) =>
     data.filter(
       (item) =>
+        item.id.toString().includes(keywords.toString()) ||
         item.produto.toLowerCase().includes(keywords.toLowerCase()) ||
         item.categoria.toLowerCase().includes(keywords.toLowerCase())
     );
@@ -73,10 +76,10 @@ const ProductsPage = () => {
       <section className={styled.mainContent}>
         <header className={styled.header}>
           <h1>Produtos</h1>
-          <p>{mockData.length} itens cadastrados</p>
+          <p>{mockData.length} Produto(s) cadastrado(s)</p>
         </header>
         <div className={styled.functions}>
-          <Input.Search className={styled.input} placeholder="Procure um produto" onSearch={(value) => setKeywords(value)} />
+          <Input.Search className={styled.input} placeholder="Procure um Produto" onSearch={(value) => setKeywords(value)} />
           <div className={styled.buttons}>
             <Button className={styled.button} type="primary" icon={<DownloadOutlined />} size="large" onClick={handleDownload}>
               Baixar Dados

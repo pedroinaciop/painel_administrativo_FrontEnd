@@ -21,12 +21,13 @@ const BrandPage = () => {
     };
 
     const columns = [
+        { title: 'ID', dataIndex: 'id', sorter: true },
         { title: 'CNPJ', dataIndex: 'cnpj', sorter: true },
         { title: 'Nome', dataIndex: 'nome', sorter: true },
         {
             title: 'Editar',
             render: (_, row) => (
-                <Button key="editar" href={`/cadastros/fornecedor/${row.id}`} onClick={() => window.alert('Confirmar atualização?')} icon={<EditOutlined />} >
+                <Button key="editar" href={`/cadastros/fornecedores/${row.id}`} onClick={() => window.alert('Confirmar atualização?')} icon={<EditOutlined />} >
                     Editar
                 </Button>
             ),
@@ -34,7 +35,7 @@ const BrandPage = () => {
         {
             title: 'Deletar',
             render: (_, row) => (
-                <Button key="deletar" href={`/cadastros/fornecedor/${row.id}`} onClick={() => confirmDelete(row.id)} icon={<DeleteOutlined />}>
+                <Button key="deletar" href={`/cadastros/fornecedores/${row.id}`} onClick={() => confirmDelete(row.id)} icon={<DeleteOutlined />}>
                     Deletar
                 </Button>
             ),
@@ -43,8 +44,8 @@ const BrandPage = () => {
 
     const handleDownload = () => {
         const data = [
-            { cnpj: '00.000.000/0000-00', nome: 'Categoria 1' },
-            { cnpj: '00.000.000/0000-01', nome: 'Categoria 1' },
+            { id: 1, cnpj: '00.000.000/0000-00', nome: 'Coca-cola' },
+            { id: 2, cnpj: '00.000.000/0000-01', nome: 'Dolly' },
         ];
         const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
         const link = document.createElement('a');
@@ -55,12 +56,13 @@ const BrandPage = () => {
 
     const mockData = [
         { id: 1, cnpj: '00.000.000/0000-00', nome: 'Coca-cola' },
-        { id: 2, cnpj: '00.000.000/0000-00', nome: 'Dolly' },
+        { id: 2, cnpj: '00.000.000/0000-01', nome: 'Dolly' },
     ];
 
     const filterData = (data, keywords) =>
         data.filter(
             (item) =>
+                item.id.toString().includes(keywords.toString()) ||
                 item.cnpj.toLowerCase().includes(keywords.toLowerCase()) ||
                 item.nome.toLowerCase().includes(keywords.toLowerCase())
         );
@@ -70,12 +72,12 @@ const BrandPage = () => {
             <section className={styled.mainContent}>
                 <header className={styled.header}>
                     <h1>Fornecedores</h1>
-                    <p>{mockData.length} fornecedores cadastradas</p>
+                    <p>{mockData.length} Fornecedor(es) cadastrado(s)</p>
                 </header>
                 <div className={styled.functions}>
                     <Input.Search
                         className={styled.input}
-                        placeholder="Procure um fornecedor"
+                        placeholder="Procure um Fornecedor"
                         onSearch={(value) => setKeywords(value)}
                     />
                     <div className={styled.buttons}>

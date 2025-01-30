@@ -1,175 +1,70 @@
-@import url("../../App.css");
-
-.appContainer {
-  display: flex;
-  flex-direction: column;
-  gap: 1.3rem;
-  padding: 1.25rem 1.25rem 0.125rem 1.25rem;
-}
-
-.tabs {
-  display: flex;
-  flex-direction: column;
-  gap: 1.5rem;
-}
-
-.header {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  font-weight: bold;
-}
-
-.header h1 {
-  font-size: 1.875rem;
-}
-
-.header p {
-  color: var(--red);
-}
-
-.contextForm {
-  height: 465px;
-}
-
-.row {
-  display: flex;
-  justify-content: space-between;
-}
-
-.formGroup {
-  display: flex;
-  flex-direction: column;
-}
-
-.formGroup label {
-  color: var(--textColor);
-  margin-bottom: 0.313rem;
-}
-
-.formGroup input,
-textarea,
-select {
-  padding: 0.5rem 0.625rem;
-  font-size: 0.875rem;
-  border: 0.063rem solid var(--gray);
-  border-radius: 0.313rem;
-  outline: none;
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
-}
-
-.btnRegister {
-  margin: 0rem 1.5rem;
-  padding: 1.2rem;
-  border: none;
-  font-weight: bold;
-  border-radius: 0.5rem;
-  background-color: var(--mainColor);
-  color: var(--white);
-  font-size: 0.9rem;
-  cursor: pointer;
-}
-
-.btnRegister:hover {
-  background-color: var(--activeButton);
-}
-
-#nameField {
-  width: 70%;
-}
-
-#referenceCodeField {
-  width: 27%;
-}
-
-#priceField,
-#pricePromocionalField {
-  width: 15%;
-}
-
-#brandField {
-  width: 65%;
-}
-
-#stockAlertField {
-  width: 11.1%;
-}
-
-#colorField,
-#sizeField {
-  width: 18%;
-}
-
-#barCodeField {
-  width: 45%;
-}
-
-#descriptionField textarea {
-  resize: none;
-  height: 9.375rem;
-}
-
-#categoryField,
-#subCategoryField {
-  width: 35%;
-}
-
-#stockLocationField {
-  width: 23%;
-}
-
-#unitField {
-  width: 22%;
-}
-
-#netWeight,
-#grossWeight {
-  width: 25%;
-}
-
-#weightField,
-#dimensionField {
-  width: 20%;
-}
-
-#anvisaRegisterField {
-  width: 57%;
-}
-
-#originField {
-  width: 40%;
-}
-
-#icmsField,
-#cfopField,
-#ncmField,
-#cstField {
-  width: 22.5%;
-}
-
-#options {
-  display: flex;
-  gap: 2.188rem;
-  width: 45%;
-}
-
-#imageField {
-  width: 45%;
-}
-
-#sterilityField,
-#activeField,
-#freeShippingField,
-#perishableField {
-  height: 20px;
-  width: 18px;
-}
-
-.errorMessage {
-  height: 0px;
-  color: var(--red);
-  font-size: 0.75rem;
-  position: relative;
-  top: 0.125rem;
-}
+.mainContent {
+    padding: 1.25em 1.25em 0.125em 1.25em;
+  
+    display: flex;
+    flex-direction: column;
+    gap: 1.25em;
+  }
+  
+  .header {
+    gap: 1.25em;
+    display: flex;
+    flex-direction: row;
+  }
+  
+  .header h1 {
+    font-size: 1.875rem;
+    font-weight: bold;
+  }
+  
+  .header p {
+    font-size: 0.875rem;
+    align-self: center;
+  }
+  
+  .functions {
+    height: 40px;
+    padding: 0.75em;
+    gap: 1.25em;
+    box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+  
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+  
+  .functions .buttons .button {
+    margin: 0em 0.625em;
+    background-color: var(--mainColor);
+  }
+  
+  .functions .input {
+    width: 15.625em;
+    align-self: center;
+  }
+  
+  .stockInfo {
+    height: 40px;
+    padding: 0.75em 2.5em;
+    border-radius: 0.625em;
+    box-shadow: 0px 1px 2px rgba(0, 0, 0, 0.2);
+    background-color: var(--background-secondary);
+  
+    display: flex;
+    flex-wrap: wrap;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .stockInfo .values {
+    font-weight: bold;
+    font-size: 0.875rem;
+    margin-bottom: 0.313em;
+  }
+  
+  .stockInfo .description {
+    font-size: 0.75rem;
+  }
+  
