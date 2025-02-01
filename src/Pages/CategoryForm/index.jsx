@@ -22,7 +22,7 @@ const CategoryForm = () => {
 
     return (
         <section className={styled.appContainer}>
-            <HeaderForm title={"Fornecedor"} />
+            <HeaderForm title={"Novo Fornecedor"} />
             <form onSubmit={handleSubmit(createCategory)} onKeyDown={handleKeyDown}>
                 <div className={styled.row}>
                     <InputField

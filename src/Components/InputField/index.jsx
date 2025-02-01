@@ -28,7 +28,7 @@ function InputField({
                 {...(register ? register(idInput, validation) : {})}
                 {...rest}
             />
-            {error && <p className={styled.errorMessage}>{error.message}</p>}
+            {error && <span className={styled.errorMessage}>{error.message}</span>}
         </div>
     );
 }

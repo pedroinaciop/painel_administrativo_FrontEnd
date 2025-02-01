@@ -44,7 +44,7 @@ const CompanyForm = () => {
 
   return (
     <section className={styled.appContainer}>
-      <HeaderForm title={"Empresa"} />
+      <HeaderForm title={"Nova Empresa"} />
       <form onSubmit={handleSubmit(createCompany)} className={styled.form} onKeyDown={handleKeyDown}>
         <section className={styled.contextForm}>
           <div className={styled.row}>

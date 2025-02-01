@@ -17,11 +17,11 @@ function getItem(label, key, icon, children, pathname) {
 const items = [
   getItem('Home', '1', <HomeOutlined />, null, '/home'),
   getItem('Cadastros', 'sub1', <AppstoreAddOutlined />, [
-    getItem('Empresa', '2', <ShopOutlined />, null, '/cadastros/empresa'),
+    getItem('Empresas', '2', <ShopOutlined />, null, '/cadastros/empresa'),
     getItem('Usuários', '3', <UserOutlined />, null, '/cadastros/usuarios'),
     getItem('Produtos', '4', <ShoppingCartOutlined />, null, '/cadastros/produtos'),
-    getItem('Fornecedor', '5', <TagsOutlined />, null, '/cadastros/fornecedores'),
-    getItem('Categoria', '6', <BorderOutlined />, null, '/cadastros/categorias'),
+    getItem('Fornecedores', '5', <TagsOutlined />, null, '/cadastros/fornecedores'),
+    getItem('Categorias', '6', <BorderOutlined />, null, '/cadastros/categorias'),
   ]),
   getItem('Configurações', 'sub2', <SettingOutlined />, [
     getItem('Team 1', '8', <TeamOutlined />, null, '/team1'),
