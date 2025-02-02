@@ -56,7 +56,7 @@ const ProductForm = () => {
 
       <HeaderForm title={"Novo Produto"} />
 
-      <form onSubmit={handleSubmit(createProduct)} onKeyDown={handleKeyDown}>
+      <form onSubmit={handleSubmit(createProduct)} onKeyDown={handleKeyDown}  autocomplete="off">
         <Box sx={{ width: '100%' }}>
           <Box sx={{ borderBottom: 2, borderColor: 'divider' }}>
             <Tabs value={value} onChange={handleChange} aria-label="nav tabs example">

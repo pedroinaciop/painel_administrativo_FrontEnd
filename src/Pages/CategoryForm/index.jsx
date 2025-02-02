@@ -23,7 +23,7 @@ const CategoryForm = () => {
     return (
         <section className={styled.appContainer}>
             <HeaderForm title={"Novo Fornecedor"} />
-            <form onSubmit={handleSubmit(createCategory)} onKeyDown={handleKeyDown}>
+            <form onSubmit={handleSubmit(createCategory)} onKeyDown={handleKeyDown} autocomplete="off">
                 <div className={styled.row}>
                     <InputField
                         autoFocus

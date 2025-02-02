@@ -1,5 +1,5 @@
 import { Outlet } from "react-router-dom";
-import PainelMenu from "../../Components/PainelMenu";
+import PainelMenu from "../PainelMenu";
 import styled from './BasePage.module.css';
 
 function BasePage() {

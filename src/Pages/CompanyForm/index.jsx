@@ -6,11 +6,13 @@ import { useForm } from "react-hook-form";
 import * as React from 'react';
 import VMasker from 'vanilla-masker';
 
+
+
 const CompanyForm = () => {
   const { register, handleSubmit, formState: { errors }, setValue } = useForm();
-  
+
   const createCompany = (data) => {
-  
+
     const formattedData = {
       ...data,
       cnpj: data.cnpj.replace(/\D/g, ""),
@@ -29,7 +31,7 @@ const CompanyForm = () => {
 
   const cnpjMask = (e) => {
     const maskedValue = VMasker.toPattern(e.target.value, "99.999.999/9999-99");
-    setValue("cnpj", maskedValue); 
+    setValue("cnpj", maskedValue);
   };
 
   const phoneMask = (e) => {
@@ -42,19 +44,34 @@ const CompanyForm = () => {
     setValue("cep", maskedValue);
   };
 
+  async function searchCEP(cep) {
+    try {
+      const cepResult = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+      const resultCepConversion = await cepResult.json();
+
+      setValue("logradouro", resultCepConversion.logradouro);
+      setValue("bairro", resultCepConversion.bairro);
+      setValue("cidade", resultCepConversion.localidade);
+      setValue("estado", resultCepConversion.uf);
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
   return (
     <section className={styled.appContainer}>
       <HeaderForm title={"Nova Empresa"} />
-      <form onSubmit={handleSubmit(createCompany)} className={styled.form} onKeyDown={handleKeyDown}>
+      <form onSubmit={handleSubmit(createCompany)} className={styled.form} onKeyDown={handleKeyDown} autoComplete="off">
         <section className={styled.contextForm}>
           <div className={styled.row}>
-            <InputField 
+            <InputField
               idInput="cnpj"
               autoFocus
               idDiv={styled.cnpjField}
               label="CNPJ*"
               type="text"
-              register={register} 
+              placeholder={"__.___.___/____.__"}
+              register={register}
               validation={{ required: "Campo obrigatório" }}
               onChange={cnpjMask}
               error={errors.cnpj}
@@ -77,7 +94,7 @@ const CompanyForm = () => {
               idDiv={styled.stateRegistrationField}
               label="Inscrição Estadual*"
               type="text"
-              register={register} 
+              register={register}
               validation={{ required: "Campo obrigatório" }}
               error={errors.inscricao_estadual}
             />
@@ -96,7 +113,8 @@ const CompanyForm = () => {
               idDiv={styled.phoneField}
               label="Telefone*"
               type="text"
-              register={register} 
+              placeholder={"(__) _____-____"}
+              register={register}
               validation={{ required: "Campo obrigatório" }}
               onChange={phoneMask}
               error={errors.telefone}
@@ -109,23 +127,24 @@ const CompanyForm = () => {
               idDiv={styled.cepField}
               label="CEP*"
               type="text"
-              register={register} 
+              placeholder={"_____-___"}
+              register={register}
               validation={{ required: "Campo obrigatório" }}
               onChange={cepMask}
+              onBlur={(e) => searchCEP(e.target.value)}
               error={errors.cep}
             />
 
             <InputField
               readOnly
-              idInput="rua"
+              idInput="logradouro"
               idDiv={styled.streetField}
-              label="Rua"
+              label="Logradouro"
               type="text"
               register={register}
             />
 
             <InputField
-              readOnly
               idInput="numero_endereco"
               idDiv={styled.numberAdressField}
               label="Número"

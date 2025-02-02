@@ -38,7 +38,7 @@ const BrandFrom = () => {
         <section className={styled.appContainer}>
             <HeaderForm title={"Novo Fornecedor"} />
 
-            <form onSubmit={handleSubmit(createBrand)} onKeyDown={handleKeyDown}>
+            <form onSubmit={handleSubmit(createBrand)} onKeyDown={handleKeyDown} autocomplete="off">
                 <div className={styled.row}>
                     <InputField
                         autoFocus

@@ -13,6 +13,7 @@ function InputField({
     autoFocus,
     placeholder,
     className,
+    iconButton,
     ...rest }) {
     return (
         <div className={styled.formGroup} id={idDiv}>

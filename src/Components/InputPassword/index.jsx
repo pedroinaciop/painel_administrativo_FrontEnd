@@ -1,0 +1,47 @@
+import { EyeOutlined, EyeInvisibleOutlined } from '@ant-design/icons';
+import styled from './InputPassword.module.css';
+import React from 'react';
+
+function InputPassword({
+    idInput,
+    idDiv,
+    label,
+    type,
+    min,
+    register,
+    validation,
+    error,
+    maxLength,
+    autoFocus,
+    placeholder,
+    className,
+    iconButton,
+    ...rest }) {
+    const [mostrarSenha, setMostrarSenha] = React.useState(false);
+
+    const toggleMostrarSenha = () => {
+        setMostrarSenha(!mostrarSenha);
+    };
+
+    return (
+        <section className={styled.formGroup} id={idDiv}>
+            <label htmlFor={idInput}>{label}</label>
+            <input
+                id={idInput}
+                type={type === 'password' && mostrarSenha ? 'text' : type}
+                placeholder={placeholder}
+                className={`${className} ${error? styled.inputError : ''}`}
+                {...(register ? register(idInput, validation) : {})}
+                {...rest}
+            />
+            {type === 'password' && (
+                <div type="button" className={styled.iconPassword} onClick={toggleMostrarSenha}>
+                    {mostrarSenha ? <EyeInvisibleOutlined/> : <EyeOutlined/>}
+                </div>
+            )}
+            {error && <span className={styled.errorMessage}>{error.message}</span>}
+        </section>
+    );
+}
+
+export default InputPassword;

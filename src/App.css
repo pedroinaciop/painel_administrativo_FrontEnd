@@ -9,6 +9,7 @@
   --black: #000000;
   --background-secondary: #f1f0f5;
   --light-gray: #e6e6e6;
+  --readOnlyColor: #676767;
 }
 
 .App {
