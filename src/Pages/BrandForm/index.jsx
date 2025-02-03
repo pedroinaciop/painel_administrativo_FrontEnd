@@ -1,13 +1,27 @@
-import FooterForm from '../../Components/FooterForm'
-import HeaderForm from '../../Components/HeaderForm'
+import { zodResolver } from '@hookform/resolvers/zod';
+import FooterForm from '../../Components/FooterForm';
+import HeaderForm from '../../Components/HeaderForm';
 import InputField from '../../Components/InputField';
 import styled from './BrandForm.module.css';
-import VMasker from 'vanilla-masker';
 import { useForm } from 'react-hook-form';
+import VMasker from 'vanilla-masker';
 import { useState } from 'react';
+import Swal from 'sweetalert2';
+import { z } from 'zod';
 
 const BrandFrom = () => {
-    const { register, reset, handleSubmit, setValue, formState: { errors } } = useForm();
+    const createBrandSchema = z.object({
+        cnpj: z.string()
+            .min(14, "CNPJ inválido")
+            .nonempty("CNPJ é obrigatório"),
+
+        nome_fornecedor: z.string()
+            .min(10, "Nome do fornecedor deve ter pelo menos 10 caracteres"),
+    })
+
+    const { register, reset, handleSubmit, setValue, formState: { errors } } = useForm({
+        resolver: zodResolver(createBrandSchema),
+    });
     const [cnpj, setCnpj] = useState();
 
     const handleKeyDown = (e) => {
@@ -25,6 +39,15 @@ const BrandFrom = () => {
             ...data,
             cnpj: data.cnpj.replace(/\D/g, ""),
         };
+
+        Swal.fire({
+            title: "Cadastro Finalizado",
+            text: "Fornecedor cadastrado com sucesso!",
+            icon: "success",
+            willOpen: () => {
+                Swal.getPopup().style.fontFamily = 'Segoe UI, Tahoma, Geneva, Verdana, sans-serif';
+            }
+        });
 
         console.log("Enviando dados do fornecedor:", formattedData);
     };
@@ -48,9 +71,8 @@ const BrandFrom = () => {
                         type="text"
                         placeholder="__.___.___/____-__"
                         register={register}
-                        validation={{ required: 'Esse campo é obrigatório' }}
-                        error={errors?.cnpj}
                         onChange={cnpjMask}
+                        error={errors?.cnpj}
                     />
                     <InputField
                         idInput="nome_fornecedor"
@@ -58,7 +80,6 @@ const BrandFrom = () => {
                         label="Nome do Fornecedor*"
                         type="text"
                         register={register}
-                        validation={{ required: 'Esse campo é obrigatório' }}
                         error={errors?.nome_fornecedor}
                     />
                 </div>

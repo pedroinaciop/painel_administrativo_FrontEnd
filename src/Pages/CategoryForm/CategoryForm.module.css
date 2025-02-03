@@ -13,12 +13,8 @@
   padding: 1.5rem;
 }
 
-#categoryCodeField {
-  width: 48%;
-}
-
 #categoryNameField {
-  width: 48%;
+  width: 100%;
 }
 
 .errorMessage {

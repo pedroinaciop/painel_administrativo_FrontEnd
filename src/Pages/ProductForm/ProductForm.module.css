@@ -53,24 +53,24 @@ select {
 
 #priceField,
 #pricePromocionalField {
-  width: 15%;
+  width: 20%;
 }
 
 #brandField {
-  width: 65%;
+  width: 55%;
 }
 
 #stockAlertField {
-  width: 11.1%;
+  width: 16%;
 }
 
 #colorField,
 #sizeField {
-  width: 18%;
+  width: 20%;
 }
 
 #barCodeField {
-  width: 45%;
+  width: 35%;
 }
 
 #descriptionField textarea {

@@ -1,18 +1,56 @@
 import InputField from '../../Components/InputField';
 import HeaderForm from '../../Components/HeaderForm';
 import FooterForm from '../../Components/FooterForm';
+import { zodResolver } from '@hookform/resolvers/zod';
 import styled from './CompanyForm.module.css';
 import { useForm } from "react-hook-form";
-import * as React from 'react';
 import VMasker from 'vanilla-masker';
-
-
+import Swal from 'sweetalert2';
+import * as React from 'react';
+import { z } from 'zod';
 
 const CompanyForm = () => {
-  const { register, handleSubmit, formState: { errors }, setValue } = useForm();
+  const createCompanyFormSchema = z.object({
+    cnpj: z.string()
+      .min(14, "CNPJ inválido")
+      .nonempty("CNPJ é obrigatório"),
+
+    razao_social: z.string()
+      .min(10, "Razão Social deve ter pelo menos 10 caracteres"),
+
+    inscricao_estadual: z.string(),
+
+    telefone: z.string(),
+
+    email: z.string()
+      .toLowerCase()
+      .nonempty("O e-mail é obrigatório")
+      .email('Formato de e-mail inválido'),
+
+    cep: z.string()
+      .min(8, "CEP inválido"),
+
+    logradouro: z.string()
+      .nonempty("Logradouro é obrigatório"),
+
+    bairro: z.string()
+      .nonempty("Bairro é obrigatório"),
+
+    cidade: z.string()
+      .nonempty("Cidade é obrigatório"),
+
+    estado: z.string()
+      .nonempty("Estado é obrigatório"),
+
+    numero_endereco: z.number()
+      .min(0, "Número inválido")
+  })
+
+  const { register, handleSubmit, formState: { errors }, setValue, reset } = useForm({
+    resolver: zodResolver(createCompanyFormSchema),
+  });
 
   const createCompany = (data) => {
-
     const formattedData = {
       ...data,
       cnpj: data.cnpj.replace(/\D/g, ""),
@@ -20,7 +58,17 @@ const CompanyForm = () => {
       cep: data.cep.replace(/\D/g, ""),
     };
 
+    Swal.fire({
+      title: "Cadastro Finalizado",
+      text: "Empresa cadastrada com sucesso!",
+      icon: "success",
+      willOpen: () => {
+        Swal.getPopup().style.fontFamily =  'Segoe UI, Tahoma, Geneva, Verdana, sans-serif';
+      }
+    });
+
     console.log("Enviando dados da empresa:", formattedData);
+    reset();
   };
 
   const handleKeyDown = (e) => {
@@ -49,14 +97,29 @@ const CompanyForm = () => {
       const cepResult = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
       const resultCepConversion = await cepResult.json();
 
+      if (resultCepConversion.erro) {
+        Swal.fire({
+          icon: "error",
+          title: "CEP inválido",
+          text: "Por favor, inclua um CEP válido.",
+          footer: '<a href="https://buscacepinter.correios.com.br/app/localidade_logradouro/index.php" target="_blank">Não sabe qual o CEP correto?</a>',
+          willOpen: () => {
+            Swal.getPopup().style.fontFamily = 'Segoe UI, Tahoma, Geneva, Verdana, sans-serif';
+          }
+        });
+        return;
+      }
+
       setValue("logradouro", resultCepConversion.logradouro);
       setValue("bairro", resultCepConversion.bairro);
       setValue("cidade", resultCepConversion.localidade);
       setValue("estado", resultCepConversion.uf);
-    } catch (err) {
-      console.log(err);
+    } catch (erro) {
+      console.error(erro);
     }
   }
+
+  console.log(errors)
 
   return (
     <section className={styled.appContainer}>
@@ -72,7 +135,6 @@ const CompanyForm = () => {
               type="text"
               placeholder={"__.___.___/____.__"}
               register={register}
-              validation={{ required: "Campo obrigatório" }}
               onChange={cnpjMask}
               error={errors.cnpj}
             />
@@ -83,7 +145,6 @@ const CompanyForm = () => {
               label="Razão Social*"
               type="text"
               register={register}
-              validation={{ required: "Campo obrigatório" }}
               error={errors.razao_social}
             />
           </div>
@@ -92,30 +153,28 @@ const CompanyForm = () => {
             <InputField
               idInput="inscricao_estadual"
               idDiv={styled.stateRegistrationField}
-              label="Inscrição Estadual*"
+              label="Inscrição Estadual"
               type="text"
               register={register}
-              validation={{ required: "Campo obrigatório" }}
               error={errors.inscricao_estadual}
             />
 
             <InputField
               idInput="email"
               idDiv={styled.emailAddressField}
-              label="E-mail"
+              label="E-mail*"
               type="email"
               register={register}
-              error={errors.emailAddress}
+              error={errors.email}
             />
 
             <InputField
               idInput="telefone"
               idDiv={styled.phoneField}
-              label="Telefone*"
+              label="Telefone"
               type="text"
               placeholder={"(__) _____-____"}
               register={register}
-              validation={{ required: "Campo obrigatório" }}
               onChange={phoneMask}
               error={errors.telefone}
             />
@@ -129,7 +188,6 @@ const CompanyForm = () => {
               type="text"
               placeholder={"_____-___"}
               register={register}
-              validation={{ required: "Campo obrigatório" }}
               onChange={cepMask}
               onBlur={(e) => searchCEP(e.target.value)}
               error={errors.cep}
@@ -139,17 +197,21 @@ const CompanyForm = () => {
               readOnly
               idInput="logradouro"
               idDiv={styled.streetField}
-              label="Logradouro"
+              label="Logradouro*"
               type="text"
               register={register}
+              error={errors.logradouro}
             />
 
             <InputField
               idInput="numero_endereco"
               idDiv={styled.numberAdressField}
-              label="Número"
-              type="text"
+              label="Número*"
+              type="number"
+              defaultValue={0}
               register={register}
+              valueAsNumber={true}
+              error={errors.numero_endereco}
             />
           </div>
 
@@ -158,27 +220,30 @@ const CompanyForm = () => {
               readOnly
               idInput="bairro"
               idDiv={styled.neighborhoodField}
-              label="Bairro"
+              label="Bairro*"
               type="text"
               register={register}
+              error={errors.bairro}
             />
 
             <InputField
               readOnly
               idInput="cidade"
               idDiv={styled.cityField}
-              label="Cidade"
+              label="Cidade*"
               type="text"
               register={register}
+              error={errors.cidade}
             />
 
             <InputField
               readOnly
               idInput="estado"
               idDiv={styled.stateField}
-              label="Estado"
+              label="Estado*"
               type="text"
               register={register}
+              error={errors.estado}
             />
           </div>
 

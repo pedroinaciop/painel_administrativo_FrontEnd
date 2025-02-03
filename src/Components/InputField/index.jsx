@@ -14,6 +14,7 @@ function InputField({
     placeholder,
     className,
     iconButton,
+    valueAsNumber = false,
     ...rest }) {
     return (
         <div className={styled.formGroup} id={idDiv}>
@@ -26,7 +27,7 @@ function InputField({
                 autoFocus={autoFocus}
                 className={`${className} ${error ? styled.inputError : ''}`}
                 placeholder={placeholder}
-                {...(register ? register(idInput, validation) : {})}
+                {...(register ? register(idInput, {validation, valueAsNumber}) : {})}
                 {...rest}
             />
             {error && <span className={styled.errorMessage}>{error.message}</span>}
