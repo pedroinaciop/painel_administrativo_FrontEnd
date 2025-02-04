@@ -1,13 +1,12 @@
 import { DownloadOutlined, PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { ConfigProvider, Input, Button, Modal } from 'antd';
 import ProTable from '@ant-design/pro-table';
-import styled from './BrandPage.module.css';
+import styled from './Provider.module.css';
 import { NavLink } from 'react-router-dom';
 import ptBR from 'antd/lib/locale/pt_BR';
 import React, { useState } from 'react';
 
-
-const BrandPage = () => {
+const ProviderPage = () => {
     const [keywords, setKeywords] = useState('');
 
     const confirmDelete = (id) => {
@@ -115,4 +114,4 @@ const BrandPage = () => {
     );
 }
 
-export default BrandPage;
+export default ProviderPage;

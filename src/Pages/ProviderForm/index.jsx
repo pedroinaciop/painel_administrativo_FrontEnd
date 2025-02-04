@@ -2,14 +2,14 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import FooterForm from '../../Components/FooterForm';
 import HeaderForm from '../../Components/HeaderForm';
 import InputField from '../../Components/InputField';
-import styled from './BrandForm.module.css';
+import styled from './ProviderForm.module.css'
 import { useForm } from 'react-hook-form';
 import VMasker from 'vanilla-masker';
 import { useState } from 'react';
 import Swal from 'sweetalert2';
 import { z } from 'zod';
 
-const BrandFrom = () => {
+const ProviderFrom = () => {
     const createBrandSchema = z.object({
         cnpj: z.string()
             .min(14, "CNPJ inválido")
@@ -91,4 +91,4 @@ const BrandFrom = () => {
     );
 };
 
-export default BrandFrom;
+export default ProviderFrom;
