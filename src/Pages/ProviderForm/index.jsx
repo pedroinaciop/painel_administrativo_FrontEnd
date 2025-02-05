@@ -7,6 +7,7 @@ import { useForm } from 'react-hook-form';
 import VMasker from 'vanilla-masker';
 import { useState } from 'react';
 import Swal from 'sweetalert2';
+import axios from 'axios';
 import { z } from 'zod';
 
 const ProviderFrom = () => {
@@ -15,7 +16,7 @@ const ProviderFrom = () => {
             .min(14, "CNPJ inválido")
             .nonempty("CNPJ é obrigatório"),
 
-        nome_fornecedor: z.string()
+        provider: z.string()
             .min(10, "Nome do fornecedor deve ter pelo menos 10 caracteres"),
     })
 
@@ -31,7 +32,6 @@ const ProviderFrom = () => {
     };
 
     const createBrand = (data) => {
-        console.log(data);
         reset();
         setCnpj("");
 
@@ -40,16 +40,27 @@ const ProviderFrom = () => {
             cnpj: data.cnpj.replace(/\D/g, ""),
         };
 
-        Swal.fire({
-            title: "Cadastro Finalizado",
-            text: "Fornecedor cadastrado com sucesso!",
-            icon: "success",
-            willOpen: () => {
-                Swal.getPopup().style.fontFamily = 'Segoe UI, Tahoma, Geneva, Verdana, sans-serif';
+        axios.post('http://localhost:8080/cadastro/fornecedores/novo', {
+            cnpj: formattedData.cnpj,
+            provider: formattedData.provider,
+        }, {
+            headers: {
+                'Content-Type': 'application/json'
             }
+        })
+        .then(function () {
+            Swal.fire({
+                title: "Cadastro Finalizado",
+                text: "Fornecedor cadastrado com sucesso!",
+                icon: "success",
+                willOpen: () => {
+                    Swal.getPopup().style.fontFamily = 'Segoe UI, Tahoma, Geneva, Verdana, sans-serif';
+                }
+            });
+        })
+        .catch(function (error) {
+            console.error("Erro:", error);
         });
-
-        console.log("Enviando dados do fornecedor:", formattedData);
     };
 
     const cnpjMask = (e) => {
@@ -61,7 +72,7 @@ const ProviderFrom = () => {
         <section className={styled.appContainer}>
             <HeaderForm title={"Novo Fornecedor"} />
 
-            <form onSubmit={handleSubmit(createBrand)} onKeyDown={handleKeyDown} autocomplete="off">
+            <form onSubmit={handleSubmit(createBrand)} onKeyDown={handleKeyDown} autoomplete="off">
                 <div className={styled.row}>
                     <InputField
                         autoFocus
@@ -75,12 +86,12 @@ const ProviderFrom = () => {
                         error={errors?.cnpj}
                     />
                     <InputField
-                        idInput="nome_fornecedor"
+                        idInput="provider"
                         idDiv={styled.brandNameField}
                         label="Nome do Fornecedor*"
                         type="text"
                         register={register}
-                        error={errors?.nome_fornecedor}
+                        error={errors?.provider}
                     />
                 </div>
                 <FooterForm />

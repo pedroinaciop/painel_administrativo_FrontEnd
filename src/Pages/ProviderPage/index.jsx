@@ -4,25 +4,29 @@ import ProTable from '@ant-design/pro-table';
 import styled from './Provider.module.css';
 import { NavLink } from 'react-router-dom';
 import ptBR from 'antd/lib/locale/pt_BR';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+import Swal from 'sweetalert2';
 
 const ProviderPage = () => {
     const [keywords, setKeywords] = useState('');
+    const [providers, setProviders] = useState([]);
 
     const confirmDelete = (id) => {
-        Modal.confirm({
-            title: 'Confirmar exclusão?',
-            content: `Tem certeza que deseja excluir o fornecedor ID ${id}?`,
-            onOk() {
-                console.log(`Fornecedor ID ${id} excluído`);
-            },
-        });
+        axios.delete(`http://localhost:8080/fornecedores/${id}`)
+            .then(() => {
+                Swal.fire({
+                    title: "Drag me!",
+                    icon: "success",
+                    draggable: true
+                });
+            })
     };
 
     const columns = [
         { title: 'ID', dataIndex: 'id', sorter: true },
         { title: 'CNPJ', dataIndex: 'cnpj', sorter: true },
-        { title: 'Nome', dataIndex: 'nome', sorter: true },
+        { title: 'Nome', dataIndex: 'provider', sorter: true },
         {
             title: 'Editar',
             render: (_, row) => (
@@ -34,7 +38,8 @@ const ProviderPage = () => {
         {
             title: 'Deletar',
             render: (_, row) => (
-                <Button key="deletar" href={`/cadastros/fornecedores/${row.id}`} onClick={() => confirmDelete(row.id)} icon={<DeleteOutlined />}>
+                <Button key="deletar" href={`/cadastros/fornecedores/${row.id}`}
+                    onClick={() => confirmDelete(row.id)} icon={<DeleteOutlined />}>
                     Deletar
                 </Button>
             ),
@@ -42,10 +47,7 @@ const ProviderPage = () => {
     ];
 
     const handleDownload = () => {
-        const data = [
-            { id: 1, cnpj: '00.000.000/0000-00', nome: 'Coca-cola' },
-            { id: 2, cnpj: '00.000.000/0000-01', nome: 'Dolly' },
-        ];
+        const data = providers;
         const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
         const link = document.createElement('a');
         link.href = URL.createObjectURL(blob);
@@ -53,17 +55,27 @@ const ProviderPage = () => {
         link.click();
     };
 
-    const mockData = [
-        { id: 1, cnpj: '00.000.000/0000-00', nome: 'Coca-cola' },
-        { id: 2, cnpj: '00.000.000/0000-01', nome: 'Dolly' },
-    ];
+    useEffect(() => {
+        axios.get('http://localhost:8080/fornecedores', {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(function (resposta) {
+                setProviders(resposta.data);
+            })
+            .catch(function (error) {
+                console.error("Erro:", error);
+            });
+    }, [])
+
 
     const filterData = (data, keywords) =>
         data.filter(
             (item) =>
                 item.id.toString().includes(keywords.toString()) ||
                 item.cnpj.toLowerCase().includes(keywords.toLowerCase()) ||
-                item.nome.toLowerCase().includes(keywords.toLowerCase())
+                item.provider.toLowerCase().includes(keywords.toLowerCase())
         );
 
     return (
@@ -71,7 +83,7 @@ const ProviderPage = () => {
             <section className={styled.mainContent}>
                 <header className={styled.header}>
                     <h1>Fornecedores</h1>
-                    <p>{mockData.length} Fornecedor(es) cadastrado(s)</p>
+                    <p>{providers.length} Fornecedor(es) cadastrado(s)</p>
                 </header>
                 <div className={styled.functions}>
                     <Input.Search
@@ -93,20 +105,22 @@ const ProviderPage = () => {
             </section>
             <ConfigProvider locale={ptBR}>
                 <ProTable
-                    size="large"
-                    scroll={{ x: 1000, y: 220 }}
+                    size="middle"
+                    //scroll={providers.length > 0 ? { x: 1000, y: 250 } : { x: 1000 }}
                     search={false}
                     bordered={false}
                     columns={columns}
                     rowKey="id"
                     params={{ keywords }}
                     request={async (params) => {
-                        const filteredData = filterData(mockData, params.keywords || keywords);
+                        const filteredData = filterData(providers, params.keywords || keywords);
                         return { data: filteredData, success: true };
                     }}
                     pagination={{
                         pageSize: 8,
                         showQuickJumper: true,
+                        showTotal: (total) => `Total de ${total} itens`, // Mantém o footer da paginação mesmo vazio
+                        hideOnSinglePage: false, // Impede o sumiço da paginação com poucos dados
                     }}
                 />
             </ConfigProvider>
