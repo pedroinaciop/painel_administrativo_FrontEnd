@@ -13,31 +13,35 @@ import "@ant-design/v5-patch-for-react-19";
 import UserForm from "./Pages/UserForm";
 import UserPage from "./Pages/UserPage";
 import "./App.css";
+import { SnackbarProvider } from "notistack";
+
 
 function App() {
   return (
     <div className="App">
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<BasePage />}>
-            <Route path="*" element={<NotFoundPage />} />
-            <Route path="/cadastros/usuarios" element={<UserPage/>} />
-            <Route path="/cadastros/usuarios/novo" element={<UserForm/>} />
+      <SnackbarProvider maxSnack={1} autoHideDuration={3000}> 
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<BasePage />}>
+              <Route path="*" element={<NotFoundPage />} />
+              <Route path="/cadastros/usuarios" element={<UserPage/>} />
+              <Route path="/cadastros/usuarios/novo" element={<UserForm/>} />
 
-            <Route path="/cadastros/produtos" element={<ProductsPage />} />
-            <Route path="/cadastros/produtos/novo" element={<ProductForm />} />
+              <Route path="/cadastros/produtos" element={<ProductsPage />} />
+              <Route path="/cadastros/produtos/novo" element={<ProductForm />} />
 
-            <Route path="/cadastros/empresa" element={<CompanyPage/>} />
-            <Route path="/cadastros/empresa/novo" element={<CompanyForm />} />
+              <Route path="/cadastros/empresa" element={<CompanyPage/>} />
+              <Route path="/cadastros/empresa/novo" element={<CompanyForm />} />
 
-            <Route path="/cadastros/fornecedores" element={<ProviderPage />} />
-            <Route path="/cadastros/fornecedores/novo" element={<ProviderForm/>} />
+              <Route path="/cadastros/fornecedores" element={<ProviderPage />} />
+              <Route path="/cadastros/fornecedores/novo" element={<ProviderForm/>} />
 
-            <Route path="/cadastros/categorias" element={<CategoryPage/>}/>
-            <Route path="/cadastros/categorias/novo" element={<CategoryForm/>}/>
-          </Route>
-        </Routes>
-      </BrowserRouter>
+              <Route path="/cadastros/categorias" element={<CategoryPage/>}/>
+              <Route path="/cadastros/categorias/novo" element={<CategoryForm/>}/>
+            </Route>
+          </Routes>
+        </BrowserRouter>
+      </SnackbarProvider>
     </div>
   );
 }

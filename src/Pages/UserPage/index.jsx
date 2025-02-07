@@ -4,11 +4,12 @@ import ProTable from '@ant-design/pro-table';
 import styled from './UserPage.module.css';
 import { NavLink } from 'react-router-dom';
 import ptBR from 'antd/lib/locale/pt_BR';
-import React, { useState } from 'react';
-
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
 const UserPage = () => {
     const [keywords, setKeywords] = useState('');
+    const [users, setUsers] = useState([]);
 
     const confirmDelete = (id) => {
         Modal.confirm({
@@ -19,11 +20,25 @@ const UserPage = () => {
             },
         });
     };
+  
+    useEffect(() => {
+        axios.get('http://localhost:8080/fornecedores', {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(function (resposta) {
+                setUsers(resposta.data);
+            })
+            .catch(function (error) {
+                console.error("Erro:", error);
+            });
+    }, [])
 
     const columns = [
         { title: 'ID', dataIndex: 'id', sorter: true },
-        { title: 'Nome Completo', dataIndex: 'nome', sorter: true },
-        { title: 'E-mail', dataIndex: 'email', sorter: true },
+        { title: 'NOME COMPLETO', dataIndex: 'fullName', sorter: true },
+        { title: 'EMAIL', dataIndex: 'email', sorter: true },
         {
             title: 'Editar',
             render: (_, row) => (

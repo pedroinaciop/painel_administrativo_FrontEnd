@@ -17,7 +17,6 @@ const FooterForm = () => {
                     idInput="updateDate"
                     label="Data de Alteração"
                     type="text"
-                    value={new Date().toLocaleDateString('pt-BR') + " " + new Date().toLocaleTimeString('pt-BR')}
                     register={register}
                 />
 

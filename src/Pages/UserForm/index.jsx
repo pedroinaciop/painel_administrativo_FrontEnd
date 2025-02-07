@@ -3,15 +3,20 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import HeaderForm from '../../Components/HeaderForm';
 import FooterForm from '../../Components/FooterForm';
 import InputField from '../../Components/InputField';
+import { useNavigate } from 'react-router-dom';
 import styled from './UserForm.module.css';
 import { useForm } from 'react-hook-form';
-import Swal from 'sweetalert2';
+import { useSnackbar } from 'notistack';
+import axios from 'axios';
 import React from 'react';
 import { z } from 'zod';
 
 const UserForm = () => {
+    const { enqueueSnackbar } = useSnackbar();
+    const navigate = useNavigate();
+
     const createUserFormSchema = z.object({
-        nome_completo: z.string()
+        fullName: z.string()
             .nonempty("O nome é obrigatório")
             .min(3, "O nome precisa de no mínimo 3 caracteres")
             .transform(name => {
@@ -25,21 +30,21 @@ const UserForm = () => {
             .nonempty("O e-mail é obrigatório")
             .email('Formato de e-mail inválido'),
 
-        senha: z.string()
+        password: z.string()
             .nonempty("A senha é obrigatória")
             .min(6, "A senha precisa de no mínimo 6 caracteres")
             .max(20, "A senha não pode ultrapassar 64 caracteres"),
 
-        confirma_senha: z.string()
+        confirmPassword: z.string()
             .nonempty("A confirmação da senha é obrigatória")
             .min(6, "A senha precisa de no mínimo 6 caracteres")
             .max(20, "A senha não pode ultrapassar 64 caracteres"),
-    }).refine(data => data.senha === data.confirma_senha, {
+    }).refine(data => data.password === data.confirmPassword, {
         message: "As senhas não conferem",
-        path: ["confirma_senha"]
+        path: ["confirmPassword"]
     });
 
-    const { register, handleSubmit, formState: { errors }, reset } = useForm({
+    const { register, handleSubmit, formState: { errors } } = useForm({
         resolver: zodResolver(createUserFormSchema),
     });
 
@@ -50,33 +55,46 @@ const UserForm = () => {
     };
 
     const createUser = (data) => {
-        console.log(data);
-
-        Swal.fire({
-            title: "Cadastro Finalizado",
-            text: "Usuário cadastrado com sucesso!",
-            icon: "success",
-            willOpen: () => {
-                Swal.getPopup().style.fontFamily = 'Segoe UI, Tahoma, Geneva, Verdana, sans-serif';
+        axios.post('http://localhost:8080/cadastro/usuarios/novo', {
+            fullName: data.fullName,
+            email: data.email,
+            password: data.password,
+        }, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(function () {
+            enqueueSnackbar("Cadastro realizado com sucesso!", { variant: "success", anchorOrigin: { vertical: "bottom", horizontal: "right" }});
+            navigate('/cadastros/usuarios')
+        })
+        .catch(function (error) {
+            if (axios.isAxiosError(error)) {
+                if (error.response) {
+                    enqueueSnackbar(`Erro ${error.response.status}: ${error.response.data.message}`, { variant: "error" });
+                } else if (error.request) {
+                    enqueueSnackbar("Erro de rede: Servidor não respondeu", { variant: "warning" });
+                } else {
+                    enqueueSnackbar("Erro desconhecido: " + error.message, { variant: "error" });
+                }
+            } else {
+                enqueueSnackbar("Erro inesperado", { variant: "error" });
             }
         });
-
-        reset();
     };
 
     return (
-
         <section className={styled.appContainer}>
             <HeaderForm title={"Novo Usuário"} />
             <form onSubmit={handleSubmit(createUser)} onKeyDown={handleKeyDown} autoComplete="off">
                 <div className={styled.row}>
                     <InputField
-                        idInput="nome_completo"
+                        idInput="fullName"
                         idDiv={styled.fullNameField}
                         label="Nome Completo*"
                         type="text"
                         register={register}
-                        error={errors?.nome_completo}
+                        error={errors?.fullName}
                     />
                     <InputField
                         idInput="email"
@@ -90,20 +108,20 @@ const UserForm = () => {
 
                 <div className={styled.row}>
                     <InputPassword
-                        idInput="senha"
+                        idInput="password"
                         idDiv={styled.passwordField}
                         label="Senha*"
                         type="password"
                         register={register}
-                        error={errors?.senha}
+                        error={errors?.password}
                     />
                     <InputPassword
-                        idInput="confirma_senha"
+                        idInput="confirmPassword"
                         idDiv={styled.confirmPasswordField}
                         label="Confirme a Senha*"
                         type="password"
                         register={register}
-                        error={errors?.confirma_senha}
+                        error={errors?.confirmPassword}
                     />
                 </div>
                 <FooterForm />

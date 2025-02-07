@@ -1,34 +1,28 @@
 import { DownloadOutlined, PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
-import { ConfigProvider, Input, Button, Modal } from 'antd';
+import 'react-confirm-alert/src/react-confirm-alert.css';
+import { ConfigProvider, Input, Button } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { confirmAlert } from 'react-confirm-alert';
 import ProTable from '@ant-design/pro-table';
 import styled from './Provider.module.css';
 import { NavLink } from 'react-router-dom';
 import ptBR from 'antd/lib/locale/pt_BR';
-import React, { useEffect, useState } from 'react';
+import { useSnackbar } from 'notistack';
+import * as XLSX from 'xlsx';
 import axios from 'axios';
-import Swal from 'sweetalert2';
 
 const ProviderPage = () => {
     const [keywords, setKeywords] = useState('');
     const [providers, setProviders] = useState([]);
-
-    const confirmDelete = (id) => {
-        axios.delete(`http://localhost:8080/fornecedores/${id}`)
-            .then(() => {
-                Swal.fire({
-                    title: "Drag me!",
-                    icon: "success",
-                    draggable: true
-                });
-            })
-    };
+    const { enqueueSnackbar } = useSnackbar();
 
     const columns = [
         { title: 'ID', dataIndex: 'id', sorter: true },
         { title: 'CNPJ', dataIndex: 'cnpj', sorter: true },
-        { title: 'Nome', dataIndex: 'provider', sorter: true },
+        { title: 'NOME', dataIndex: 'provider', sorter: true },
+        { title: 'ÚLTIMA ALTERAÇÃO', dataIndex: 'updateDate', sorter: true },
         {
-            title: 'Editar',
+            title: 'EDITAR',
             render: (_, row) => (
                 <Button key="editar" href={`/cadastros/fornecedores/${row.id}`} onClick={() => window.alert('Confirmar atualização?')} icon={<EditOutlined />} >
                     Editar
@@ -36,23 +30,49 @@ const ProviderPage = () => {
             ),
         },
         {
-            title: 'Deletar',
+            title: 'DELETAR',
             render: (_, row) => (
-                <Button key="deletar" href={`/cadastros/fornecedores/${row.id}`}
-                    onClick={() => confirmDelete(row.id)} icon={<DeleteOutlined />}>
+                <Button key="deletar" href={`/cadastros/fornecedores/${row.id}`} onClick={(e) => e.preventDefault(confirmDelete(row.id))} icon={<DeleteOutlined />}>
                     Deletar
                 </Button>
             ),
         },
     ];
 
+    const deleteProvider = (id) => {
+        axios.delete(`http://localhost:8080/fornecedores/${id}`)
+        .then(() => {
+            window.location.reload();
+        })
+    }
+
+    const confirmDelete = (id) => {
+        confirmAlert({
+            title: 'Confirmação',
+            message: 'Deseja excluir esse fornecedor?',
+            buttons: [
+                {
+                    label: 'Sim',
+                    onClick: () => deleteProvider(id)
+                },
+                {
+                    label: 'Não',
+                    onClick: () => {}
+                }
+            ]
+        })
+
+    }; 
+
     const handleDownload = () => {
-        const data = providers;
-        const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = 'fornecedores.json';
-        link.click();
+        if (providers.length > 0 ) {
+            const ws = XLSX.utils.json_to_sheet(providers);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Fornecedores');
+            XLSX.writeFile(wb, 'fornecedores.xlsx');
+        } else {
+            enqueueSnackbar('Nenhum fornecedor cadastrado', { variant: 'info', anchorOrigin: { vertical: "bottom", horizontal: "right" }});
+        }
     };
 
     useEffect(() => {
@@ -69,15 +89,14 @@ const ProviderPage = () => {
             });
     }, [])
 
-
-    const filterData = (data, keywords) =>
+    const filterData = (data, keywords) => 
         data.filter(
             (item) =>
                 item.id.toString().includes(keywords.toString()) ||
                 item.cnpj.toLowerCase().includes(keywords.toLowerCase()) ||
                 item.provider.toLowerCase().includes(keywords.toLowerCase())
         );
-
+    
     return (
         <>
             <section className={styled.mainContent}>
@@ -119,8 +138,8 @@ const ProviderPage = () => {
                     pagination={{
                         pageSize: 8,
                         showQuickJumper: true,
-                        showTotal: (total) => `Total de ${total} itens`, // Mantém o footer da paginação mesmo vazio
-                        hideOnSinglePage: false, // Impede o sumiço da paginação com poucos dados
+                        showTotal: (total) => `Total de ${total} itens`,
+                        hideOnSinglePage: false,
                     }}
                 />
             </ConfigProvider>
