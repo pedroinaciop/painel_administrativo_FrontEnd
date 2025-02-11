@@ -124,7 +124,7 @@ const CompanyForm = () => {
   return (
     <section className={styled.appContainer}>
       <HeaderForm title={"Nova Empresa"} />
-      <form onSubmit={handleSubmit(createCompany)} className={styled.form} onKeyDown={handleKeyDown} autoComplete="off">
+      <form onSubmit={handleSubmit(createCompany)} className={styled.form} onKeyDown={handleKeyDown}>
         <section className={styled.contextForm}>
           <div className={styled.row}>
             <InputField

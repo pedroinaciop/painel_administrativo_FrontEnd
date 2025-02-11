@@ -12,6 +12,8 @@ import React from 'react';
 import { z } from 'zod';
 
 const UserForm = () => {
+    const updateDate = new Date();
+    const formattedDate = `${updateDate.toLocaleDateString('pt-BR')} ${updateDate.toLocaleTimeString('pt-BR')}`;
     const { enqueueSnackbar } = useSnackbar();
     const navigate = useNavigate();
 
@@ -59,6 +61,8 @@ const UserForm = () => {
             fullName: data.fullName,
             email: data.email,
             password: data.password,
+            updateDate: formattedDate,
+            updateUser: "ADM",
         }, {
             headers: {
                 'Content-Type': 'application/json'

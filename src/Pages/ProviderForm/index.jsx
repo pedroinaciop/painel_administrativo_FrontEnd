@@ -56,11 +56,11 @@ const ProviderForm = () => {
                 'Content-Type': 'application/json'
             }
         })
-        .then(function () {
+        .then(function() {
             enqueueSnackbar("Cadastro realizado com sucesso!", { variant: "success", anchorOrigin: { vertical: "bottom", horizontal: "right" }});
-            navigate('/cadastros/fornecedores')
+            navigate('/cadastros/fornecedores');
         })
-        .catch(function (error) {
+        .catch(function(error) {
             if (axios.isAxiosError(error)) {
                 if (error.response) {
                     enqueueSnackbar(`Erro ${error.response.status}: ${error.response.data.message}`, { variant: "error" });

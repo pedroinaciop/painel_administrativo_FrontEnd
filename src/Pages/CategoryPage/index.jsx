@@ -1,28 +1,45 @@
 import { DownloadOutlined, PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
-import { ConfigProvider, Input, Button, Modal } from 'antd';
+import { ConfigProvider, Input, Button } from 'antd';
 import styled from './CategoryPage.module.css';
 import ProTable from '@ant-design/pro-table';
 import { NavLink } from 'react-router-dom';
 import ptBR from 'antd/lib/locale/pt_BR';
-import React, { useState } from 'react';
-
+import React, { useEffect, useState } from 'react';
+import { useSnackbar } from 'notistack';
+import axios from 'axios';
+import * as XLSX from 'xlsx';
 
 const CategoryPage = () => {
     const [keywords, setKeywords] = useState('');
+    const [categories, setCategories] = useState([]);
+    const { enqueueSnackbar } = useSnackbar();
 
-    const confirmDelete = (id) => {
-        Modal.confirm({
-            title: 'Confirmar exclusão?',
-            content: `Tem certeza que deseja excluir a categoria ID ${id}?`,
-            onOk() {
-                console.log(`Categoria ID ${id} excluído`);
-            },
-        });
+    const deleteCategory = (id) => {
+        axios.delete(`http://localhost:8080/categorias/${id}`)
+            .then(() => {
+                window.location.reload();
+                enqueueSnackbar("Deletado com sucesso!", { variant: "success", anchorOrigin: { vertical: "bottom", horizontal: "right" } });
+            })
     };
+
+    useEffect(() => {
+        axios.get('http://localhost:8080/categorias', {
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+            .then(function (response) {
+                setCategories(response.data);
+            })
+            .catch(function (error) {
+                console.error('Error:', error);
+            });
+    }, []);
 
     const columns = [
         { title: 'ID', dataIndex: 'id', sorter: true },
-        { title: 'Categoria', dataIndex: 'categoria', sorter: true },
+        { title: 'CATEGORIA', dataIndex: 'categoryName', sorter: true },
+        { title: 'ÚLTIMA ALTERAÇÃO', dataIndex: 'updateDate', sorter: true },
         {
             title: 'Editar',
             render: (_, row) => (
@@ -34,7 +51,7 @@ const CategoryPage = () => {
         {
             title: 'Deletar',
             render: (_, row) => (
-                <Button key="deletar" href={`/cadastros/categorias/${row.id}`} onClick={() => confirmDelete(row.id)} icon={<DeleteOutlined />}>
+                <Button key="deletar" href={`/cadastros/categorias/${row.id}`} onClick={() => deleteCategory(row.id)} icon={<DeleteOutlined />}>
                     Deletar
                 </Button>
             ),
@@ -42,27 +59,25 @@ const CategoryPage = () => {
     ];
 
     const handleDownload = () => {
-        const data = [
-            { id: 1, categoria: 'Camisa' },
-            { id: 2, categoria: 'Bermuda' },
-        ];
-        const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = 'categorias.json';
-        link.click();
+        if (categories.length > 0) {
+            const today = new Date().getDate();
+            const month = new Date().getMonth() + 1;
+            const year = new Date().getFullYear();
+            const ws = XLSX.utils.json_to_sheet(categories);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Usuários');
+            XLSX.writeFile(wb, `categorias_${today}_${month}+${year}.xlsx`);
+        } else {
+            enqueueSnackbar('Nenhuma categoria cadastrada', { variant: 'info', anchorOrigin: { vertical: "bottom", horizontal: "right" } });
+        }
     };
-
-    const mockData = [
-        { id: 1, categoria: 'Camisa' },
-        { id: 2, categoria: 'Bermuda' },
-    ];
 
     const filterData = (data, keywords) =>
         data.filter(
             (item) =>
                 item.id.toString().includes(keywords.toString()) ||
-                item.categoria.toLowerCase().includes(keywords.toLowerCase())
+                item.categoryName.toLowerCase().includes(keywords.toLowerCase()) ||
+                item.updateDate.toString().includes(keywords.toString())
         );
 
     return (
@@ -70,7 +85,7 @@ const CategoryPage = () => {
             <section className={styled.mainContent}>
                 <header className={styled.header}>
                     <h1>Categorias</h1>
-                    <p>{mockData.length} Categoria(s) cadastrada(s)</p>
+                    <p>{categories.length} Categoria(s) cadastrada(s)</p>
                 </header>
                 <div className={styled.functions}>
                     <Input.Search
@@ -93,18 +108,18 @@ const CategoryPage = () => {
             <ConfigProvider locale={ptBR}>
                 <ProTable
                     size="large"
-                    scroll={{ x: 1000, y: 220 }}
+                    //scroll={{ x: 1000, y: 220 }}
                     search={false}
                     bordered={false}
                     columns={columns}
                     rowKey="id"
                     params={{ keywords }}
                     request={async (params) => {
-                        const filteredData = filterData(mockData, params.keywords || keywords);
+                        const filteredData = filterData(categories, params.keywords || keywords);
                         return { data: filteredData, success: true };
                     }}
                     pagination={{
-                        pageSize: 8,
+                        pageSize: 4,
                         showQuickJumper: true,
                     }}
                 />

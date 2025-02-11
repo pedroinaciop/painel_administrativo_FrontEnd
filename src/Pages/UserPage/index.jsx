@@ -1,28 +1,29 @@
 import { DownloadOutlined, PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
-import { ConfigProvider, Input, Button, Modal } from 'antd';
+import { ConfigProvider, Input, Button } from 'antd';
+import React, { useState, useEffect } from 'react';
 import ProTable from '@ant-design/pro-table';
 import styled from './UserPage.module.css';
 import { NavLink } from 'react-router-dom';
 import ptBR from 'antd/lib/locale/pt_BR';
-import React, { useState, useEffect } from 'react';
+import { useSnackbar } from 'notistack';
+import * as XLSX from 'xlsx';
 import axios from 'axios';
 
 const UserPage = () => {
     const [keywords, setKeywords] = useState('');
-    const [users, setUsers] = useState([]);
+    const { enqueueSnackbar } = useSnackbar();
+    const [ users, setUsers ] = useState([]);
 
-    const confirmDelete = (id) => {
-        Modal.confirm({
-            title: 'Confirmar exclusão?',
-            content: `Tem certeza que deseja excluir o usuario ID ${id}?`,
-            onOk() {
-                console.log(`Usuário ID ${id} excluído`);
-            },
-        });
+    const deleteUser = (id) => {
+        axios.delete(`http://localhost:8080/usuarios/${id}`)
+            .then(() => {
+                window.location.reload();
+                enqueueSnackbar("Deletado com sucesso!", { variant: "success", anchorOrigin: { vertical: "bottom", horizontal: "right" } });
+            })
     };
-  
+
     useEffect(() => {
-        axios.get('http://localhost:8080/fornecedores', {
+        axios.get('http://localhost:8080/usuarios', {
             headers: {
                 'Content-Type': 'application/json'
             }
@@ -39,6 +40,7 @@ const UserPage = () => {
         { title: 'ID', dataIndex: 'id', sorter: true },
         { title: 'NOME COMPLETO', dataIndex: 'fullName', sorter: true },
         { title: 'EMAIL', dataIndex: 'email', sorter: true },
+        { title: 'ÚLTIMA ALTERAÇÃO', dataIndex: 'updateDate', sorter: true },
         {
             title: 'Editar',
             render: (_, row) => (
@@ -50,7 +52,7 @@ const UserPage = () => {
         {
             title: 'Deletar',
             render: (_, row) => (
-                <Button key="deletar" href={`/cadastros/usuarios/${row.id}`} onClick={() => confirmDelete(row.id)} icon={<DeleteOutlined />}>
+                <Button key="deletar" href={`/cadastros/usuarios/${row.id}`} onClick={() => deleteUser(row.id)} icon={<DeleteOutlined />}>
                     Deletar
                 </Button>
             ),
@@ -58,32 +60,26 @@ const UserPage = () => {
     ];
 
     const handleDownload = () => {
-        const data = [
-            { id: 1, nome: 'Pedro Inácio Penha dos Santos', email: 'inaciopedro2004@gmail.com' },
-            { id: 2, nome: 'Maria Silva', email: 'mariasilva@gmail.com' },
-            { id: 3, nome: 'José Carlos', email: 'josecarlos@gmail.com' },
-                
-        ];
-        const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = 'usuarios.json';
-        link.click();
+        if (users.length > 0) {
+            const today = new Date().getDate();
+            const month = new Date().getMonth() + 1;
+            const year = new Date().getFullYear();
+            const ws = XLSX.utils.json_to_sheet(users);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Usuários');
+            XLSX.writeFile(wb, `usuarios_${today}_${month}+${year}.xlsx`);
+        } else {
+            enqueueSnackbar('Nenhum usuário cadastrado', { variant: 'info', anchorOrigin: { vertical: "bottom", horizontal: "right" } });
+        }
     };
-
-    const mockData = [
-        { id: 1, nome: 'Pedro Inácio Penha dos Santos', email: 'inaciopedro2004@gmail.com' },
-        { id: 2, nome: 'Maria Silva', email: 'mariasilva@gmail.com' },
-        { id: 3, nome: 'José Carlos', email: 'josecarlos@gmail.com' },
-        
-    ];
 
     const filterData = (data, keywords) =>
         data.filter(
             (item) =>
                 item.id.toString().includes(keywords.toString()) ||
-                item.nome.toLowerCase().includes(keywords.toLowerCase()) ||
-                item.email.toLowerCase().includes(keywords.toLowerCase())
+                item.fullName.toLowerCase().includes(keywords.toLowerCase()) ||
+                item.email.toLowerCase().includes(keywords.toLowerCase()) ||
+                item.updateDate.toString().includes(keywords.toString())
         );
 
     return (
@@ -91,7 +87,7 @@ const UserPage = () => {
             <section className={styled.mainContent}>
                 <header className={styled.header}>
                     <h1>Usuários</h1>
-                    <p>{mockData.length} Usuário(s) cadastrado(s)</p>
+                    <p>{users.length} Usuário(s) cadastrado(s)</p>
                 </header>
                 <div className={styled.functions}>
                     <Input.Search
@@ -114,14 +110,14 @@ const UserPage = () => {
             <ConfigProvider locale={ptBR}>
                 <ProTable
                     size="large"
-                    scroll={{ x: 1000, y: 220 }}
+                    //scroll={{ x: 1000, y: 220 }}
                     search={false}
                     bordered={false}
                     columns={columns}
                     rowKey="id"
                     params={{ keywords }}
                     request={async (params) => {
-                        const filteredData = filterData(mockData, params.keywords || keywords);
+                        const filteredData = filterData(users, params.keywords || keywords);
                         return { data: filteredData, success: true };
                     }}
                     pagination={{

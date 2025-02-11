@@ -1,20 +1,27 @@
+import { zodResolver } from '@hookform/resolvers/zod';
 import FooterForm from '../../Components/FooterForm'
 import HeaderForm from '../../Components/HeaderForm'
 import InputField from '../../Components/InputField';
 import styled from './CategoryForm.module.css';
+import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import Swal from 'sweetalert2';
+import { useSnackbar } from 'notistack';
+import axios from 'axios';
 import { z } from 'zod';
 
 const CategoryForm = () => {
+    const navigate = useNavigate();
+    const updateDate = new Date();
+    const { enqueueSnackbar } = useSnackbar();
+    const formattedDate = `${updateDate.toLocaleDateString('pt-BR')} ${updateDate.toLocaleTimeString('pt-BR')}`;
+
     const createCategorySchema = z.object({
         nome_categoria: z.string()
         .min(5, "Categoria deve ter ao menos 5 caracteres")
         .nonempty("O nome da categoria é obrigatório")
     })
 
-    const { register, handleSubmit, reset, formState: { errors } } = useForm({
+    const { register, handleSubmit, formState: { errors } } = useForm({
         resolver: zodResolver(createCategorySchema)
     });
 
@@ -25,26 +32,37 @@ const CategoryForm = () => {
     };
 
     const createCategory = (data) => {
-        console.log(data);
-
-        Swal.fire({
-            title: "Cadastro Finalizado",
-            text: "Categoria cadastrada com sucesso!",
-            icon: "success",
-            willOpen: () => {
-                Swal.getPopup().style.fontFamily = 'Segoe UI, Tahoma, Geneva, Verdana, sans-serif';
+        axios.post("http://localhost:8080/cadastro/categorias/novo", {
+            categoryName: data.nome_categoria,
+            updateDate: formattedDate,
+            updateUser: "ADM",
+        }, {
+            headers: {
+                'Content-Type': 'application/json'
             }
-        });
-
-        reset();
+        })
+        .then(function() {
+            enqueueSnackbar("Cadastro realizado com sucesso!", { variant: "success", anchorOrigin: { vertical: "bottom", horizontal: "right" }});
+            navigate('/cadastros/categorias');
+        }).catch(function(error) {
+            if (axios.isAxiosError(error)) {
+                if (error.response) {
+                    enqueueSnackbar(`Erro ${error.response.status}: ${error.response.data.message}`, { variant: "error", anchorOrigin: { vertical: "bottom", horizontal: "right" } });
+                } else if (error.request) {
+                    enqueueSnackbar("Erro de rede: Servidor não respondeu", { variant: "warning", anchorOrigin: { vertical: "bottom", horizontal: "right" } });
+                } else {
+                    enqueueSnackbar("Erro desconhecido: " + error.message, { variant: "error", anchorOrigin: { vertical: "bottom", horizontal: "right" } });
+                }
+            } else {
+                enqueueSnackbar("Erro inesperado", { variant: "error" });
+            }
+        })
     };
-
-    console.log(errors);
 
     return (
         <section className={styled.appContainer}>
             <HeaderForm title={"Nova Categoria"} />
-            <form onSubmit={handleSubmit(createCategory)} onKeyDown={handleKeyDown} autocomplete="off">
+            <form onSubmit={handleSubmit(createCategory)} onKeyDown={handleKeyDown} autoComplete="off">
                 <div className={styled.row}>
                     <InputField
                         idInput="nome_categoria"

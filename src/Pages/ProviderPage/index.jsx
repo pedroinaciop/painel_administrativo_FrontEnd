@@ -41,9 +41,10 @@ const ProviderPage = () => {
 
     const deleteProvider = (id) => {
         axios.delete(`http://localhost:8080/fornecedores/${id}`)
-        .then(() => {
-            window.location.reload();
-        })
+            .then(() => {
+                window.location.reload();
+                enqueueSnackbar("Deletado com sucesso!", { variant: "success", anchorOrigin: { vertical: "bottom", horizontal: "right" }});
+            })
     }
 
     const confirmDelete = (id) => {
@@ -57,21 +58,24 @@ const ProviderPage = () => {
                 },
                 {
                     label: 'Não',
-                    onClick: () => {}
+                    onClick: () => { }
                 }
             ]
         })
 
-    }; 
+    };
 
     const handleDownload = () => {
-        if (providers.length > 0 ) {
+        if (providers.length > 0) {
+            const today = new Date().getDate();
+            const month = new Date().getMonth() + 1;
+            const year = new Date().getFullYear();
             const ws = XLSX.utils.json_to_sheet(providers);
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, 'Fornecedores');
-            XLSX.writeFile(wb, 'fornecedores.xlsx');
+            XLSX.writeFile(wb, `fornecedores_${today}_${month}_${year}.xlsx`);
         } else {
-            enqueueSnackbar('Nenhum fornecedor cadastrado', { variant: 'info', anchorOrigin: { vertical: "bottom", horizontal: "right" }});
+            enqueueSnackbar('Nenhum fornecedor cadastrado', { variant: 'info', anchorOrigin: { vertical: "bottom", horizontal: "right" } });
         }
     };
 
@@ -89,14 +93,14 @@ const ProviderPage = () => {
             });
     }, [])
 
-    const filterData = (data, keywords) => 
+    const filterData = (data, keywords) =>
         data.filter(
             (item) =>
                 item.id.toString().includes(keywords.toString()) ||
                 item.cnpj.toLowerCase().includes(keywords.toLowerCase()) ||
                 item.provider.toLowerCase().includes(keywords.toLowerCase())
         );
-    
+
     return (
         <>
             <section className={styled.mainContent}>
