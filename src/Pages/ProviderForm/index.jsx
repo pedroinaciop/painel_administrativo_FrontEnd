@@ -46,7 +46,7 @@ const ProviderForm = () => {
             cnpj: data.cnpj.replace(/\D/g, ""),
         };
 
-        axios.post('http://localhost:8080/cadastro/fornecedores/novo', {
+        axios.post('http://localhost:8080/cadastros/fornecedores/novo', {
             cnpj: formattedData.cnpj,
             provider: formattedData.provider.toUpperCase(),
             updateDate: formattedDate,

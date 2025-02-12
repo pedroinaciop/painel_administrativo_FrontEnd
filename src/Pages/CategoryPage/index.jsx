@@ -1,13 +1,14 @@
 import { DownloadOutlined, PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { ConfigProvider, Input, Button } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { confirmAlert } from 'react-confirm-alert';
 import styled from './CategoryPage.module.css';
 import ProTable from '@ant-design/pro-table';
 import { NavLink } from 'react-router-dom';
 import ptBR from 'antd/lib/locale/pt_BR';
-import React, { useEffect, useState } from 'react';
 import { useSnackbar } from 'notistack';
-import axios from 'axios';
 import * as XLSX from 'xlsx';
+import axios from 'axios';
 
 const CategoryPage = () => {
     const [keywords, setKeywords] = useState('');
@@ -20,6 +21,24 @@ const CategoryPage = () => {
                 window.location.reload();
                 enqueueSnackbar("Deletado com sucesso!", { variant: "success", anchorOrigin: { vertical: "bottom", horizontal: "right" } });
             })
+    };
+
+
+    const confirmDelete = (id) => {
+        confirmAlert({
+            title: 'Confirmação',
+            message: 'Deseja excluir essa categoria?',
+            buttons: [
+                {
+                    label: 'Sim',
+                    onClick: () => deleteCategory(id)
+                },
+                {
+                    label: 'Não',
+                    onClick: () => { }
+                }
+            ]
+        })
     };
 
     useEffect(() => {
@@ -51,7 +70,7 @@ const CategoryPage = () => {
         {
             title: 'Deletar',
             render: (_, row) => (
-                <Button key="deletar" href={`/cadastros/categorias/${row.id}`} onClick={() => deleteCategory(row.id)} icon={<DeleteOutlined />}>
+                <Button key="deletar" href={`/cadastros/categorias/${row.id}`} onClick={(e) => e.preventDefault(confirmDelete(row.id))} icon={<DeleteOutlined />}>
                     Deletar
                 </Button>
             ),
@@ -66,7 +85,7 @@ const CategoryPage = () => {
             const ws = XLSX.utils.json_to_sheet(categories);
             const wb = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(wb, ws, 'Usuários');
-            XLSX.writeFile(wb, `categorias_${today}_${month}+${year}.xlsx`);
+            XLSX.writeFile(wb, `categorias_${today}_${month}_${year}.xlsx`);
         } else {
             enqueueSnackbar('Nenhuma categoria cadastrada', { variant: 'info', anchorOrigin: { vertical: "bottom", horizontal: "right" } });
         }

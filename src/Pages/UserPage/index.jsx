@@ -1,5 +1,6 @@
 import { DownloadOutlined, PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { ConfigProvider, Input, Button } from 'antd';
+import { confirmAlert } from 'react-confirm-alert';
 import React, { useState, useEffect } from 'react';
 import ProTable from '@ant-design/pro-table';
 import styled from './UserPage.module.css';
@@ -12,7 +13,7 @@ import axios from 'axios';
 const UserPage = () => {
     const [keywords, setKeywords] = useState('');
     const { enqueueSnackbar } = useSnackbar();
-    const [ users, setUsers ] = useState([]);
+    const [users, setUsers] = useState([]);
 
     const deleteUser = (id) => {
         axios.delete(`http://localhost:8080/usuarios/${id}`)
@@ -20,6 +21,23 @@ const UserPage = () => {
                 window.location.reload();
                 enqueueSnackbar("Deletado com sucesso!", { variant: "success", anchorOrigin: { vertical: "bottom", horizontal: "right" } });
             })
+    };
+
+    const confirmDelete = (id) => {
+        confirmAlert({
+            title: 'Confirmação',
+            message: 'Deseja excluir esse usuário?',
+            buttons: [
+                {
+                    label: 'Sim',
+                    onClick: () => deleteUser(id)
+                },
+                {
+                    label: 'Não',
+                    onClick: () => { }
+                }
+            ]
+        })
     };
 
     useEffect(() => {
@@ -52,7 +70,7 @@ const UserPage = () => {
         {
             title: 'Deletar',
             render: (_, row) => (
-                <Button key="deletar" href={`/cadastros/usuarios/${row.id}`} onClick={() => deleteUser(row.id)} icon={<DeleteOutlined />}>
+                <Button key="deletar" href={`/cadastros/usuarios/${row.id}`} onClick={(e) => e.preventDefault(confirmDelete(row.id))} icon={<DeleteOutlined />}>
                     Deletar
                 </Button>
             ),

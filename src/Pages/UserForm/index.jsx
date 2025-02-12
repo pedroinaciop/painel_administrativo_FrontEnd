@@ -57,7 +57,7 @@ const UserForm = () => {
     };
 
     const createUser = (data) => {
-        axios.post('http://localhost:8080/cadastro/usuarios/novo', {
+        axios.post('http://localhost:8080/cadastros/usuarios/novo', {
             fullName: data.fullName,
             email: data.email,
             password: data.password,

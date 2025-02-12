@@ -3,13 +3,21 @@ import HeaderForm from '../../Components/HeaderForm';
 import FooterForm from '../../Components/FooterForm';
 import { zodResolver } from '@hookform/resolvers/zod';
 import styled from './CompanyForm.module.css';
+import { useState } from 'react';
 import { useForm } from "react-hook-form";
+import { useSnackbar } from 'notistack';
 import VMasker from 'vanilla-masker';
-import Swal from 'sweetalert2';
-import * as React from 'react';
+import axios from 'axios';
 import { z } from 'zod';
+import { useNavigate } from 'react-router-dom';
 
 const CompanyForm = () => {
+  const updateDate = new Date();
+  const [company, setCompany] = useState([]);
+  const navigate = useNavigate();
+  const formattedDate = `${updateDate.toLocaleDateString('pt-BR')} ${updateDate.toLocaleTimeString('pt-BR')}`;
+  const { enqueueSnackbar } = useSnackbar();
+
   const createCompanyFormSchema = z.object({
     cnpj: z.string()
       .min(14, "CNPJ inválido")
@@ -43,33 +51,15 @@ const CompanyForm = () => {
       .nonempty("Estado é obrigatório"),
 
     numero_endereco: z.number()
-      .min(0, "Número inválido")
+      .min(0, "Número inválido"),
+
+    complemento: z.string()
+      .max(55, "Escreva um complemento menor do que 55 caracteres")
   })
 
-  const { register, handleSubmit, formState: { errors }, setValue, reset } = useForm({
+  const { register, handleSubmit, formState: { errors }, setValue } = useForm({
     resolver: zodResolver(createCompanyFormSchema),
   });
-
-  const createCompany = (data) => {
-    const formattedData = {
-      ...data,
-      cnpj: data.cnpj.replace(/\D/g, ""),
-      telefone: data.telefone.replace(/\D/g, ""),
-      cep: data.cep.replace(/\D/g, ""),
-    };
-
-    Swal.fire({
-      title: "Cadastro Finalizado",
-      text: "Empresa cadastrada com sucesso!",
-      icon: "success",
-      willOpen: () => {
-        Swal.getPopup().style.fontFamily =  'Segoe UI, Tahoma, Geneva, Verdana, sans-serif';
-      }
-    });
-
-    console.log("Enviando dados da empresa:", formattedData);
-    reset();
-  };
 
   const handleKeyDown = (e) => {
     if (e.key === "Enter") {
@@ -94,32 +84,77 @@ const CompanyForm = () => {
 
   async function searchCEP(cep) {
     try {
-      const cepResult = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
-      const resultCepConversion = await cepResult.json();
-
-      if (resultCepConversion.erro) {
-        Swal.fire({
-          icon: "error",
-          title: "CEP inválido",
-          text: "Por favor, inclua um CEP válido.",
-          footer: '<a href="https://buscacepinter.correios.com.br/app/localidade_logradouro/index.php" target="_blank">Não sabe qual o CEP correto?</a>',
-          willOpen: () => {
-            Swal.getPopup().style.fontFamily = 'Segoe UI, Tahoma, Geneva, Verdana, sans-serif';
-          }
-        });
+      if (!cep) {
+        setValue("logradouro", "");
+        setValue("bairro", "");
+        setValue("cidade", "");
+        setValue("estado", "");
         return;
-      }
+      } else {
+        const cepResult = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+        const resultCepConversion = await cepResult.json();
 
-      setValue("logradouro", resultCepConversion.logradouro);
-      setValue("bairro", resultCepConversion.bairro);
-      setValue("cidade", resultCepConversion.localidade);
-      setValue("estado", resultCepConversion.uf);
-    } catch (erro) {
-      console.error(erro);
+        if (resultCepConversion.erro) {
+          enqueueSnackbar('CEP inválido', { variant: 'error', anchorOrigin: { vertical: "bottom", horizontal: "right" } });
+        }
+
+        setValue("logradouro", resultCepConversion.logradouro);
+        setValue("bairro", resultCepConversion.bairro);
+        setValue("cidade", resultCepConversion.localidade);
+        setValue("estado", resultCepConversion.uf);
+      }
+    } catch (e) {
+      enqueueSnackbar('Ocorreu um erro ao buscar o CEP', { variant: 'error', anchorOrigin: { vertical: "bottom", horizontal: "right" } });
     }
   }
 
-  console.log(errors)
+  const createCompany = (data) => {
+    const formattedData = {
+      ...data,
+      cnpj: data.cnpj.replace(/\D/g, ""),
+      telefone: data.telefone.replace(/\D/g, ""),
+      cep: data.cep.replace(/\D/g, ""),
+    };
+
+    axios.post('http://localhost:8080/cadastros/empresas/novo', {
+      cnpj: formattedData.cnpj,
+      corporateReason: data.razao_social,
+      stateRegistration: data.inscricao_estadual,
+      email: data.email,
+      phone: formattedData.telefone,
+      cep: formattedData.cep,
+      numberAddress: data.numero_endereco,
+      street: data.logradouro,
+      neighborhood: data.bairro,
+      city: data.cidade,
+      state: data.estado,
+      complement: data.complemento,
+      updateDate: formattedDate,
+      updateUser: "ADM",
+    }, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    }).then(function () {
+      enqueueSnackbar("Cadastro realizado com sucesso!", { variant: "success", anchorOrigin: { vertical: "bottom", horizontal: "right" } })
+      navigate('/cadastros/empresas')
+    }).catch(function (error) {
+      console.log(error)
+      if (axios.isAxiosError(error)) {
+        if (error.response) {
+          enqueueSnackbar(`Erro ${error.response.status}: ${error.response.data.message}`, { variant: "error" });
+        } else if (error.request) {
+          enqueueSnackbar("Erro de rede: Servidor não respondeu", { variant: "warning" });
+        } else {
+          enqueueSnackbar("Erro desconhecido: " + error.message, { variant: "error" });
+        }
+      } else {
+        enqueueSnackbar("Erro inesperado", { variant: "error" });
+      }
+    })
+
+    console.log(data);
+  };
 
   return (
     <section className={styled.appContainer}>

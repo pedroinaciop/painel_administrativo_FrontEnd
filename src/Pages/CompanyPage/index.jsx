@@ -1,41 +1,62 @@
 import { DownloadOutlined, PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { ConfigProvider, Input, Button, Modal } from 'antd';
+import { confirmAlert } from 'react-confirm-alert';
 import styled from './CompanyPage.module.css';
 import ProTable from '@ant-design/pro-table';
 import { NavLink } from 'react-router-dom';
 import ptBR from 'antd/lib/locale/pt_BR';
-import React, { useState } from 'react';
-
+import React, { useState, useEffect } from 'react';
+import { useSnackbar } from 'notistack';
+import * as XLSX from 'xlsx';
+import axios from 'axios';
 
 const CompanyPage = () => {
     const [keywords, setKeywords] = useState('');
+    const [company, setCompany] = useState([]);
+    const { enqueueSnackbar } = useSnackbar();
 
     const confirmDelete = (id) => {
-        Modal.confirm({
-            title: 'Confirmar exclusão?',
-            content: `Tem certeza que deseja excluir a empresa ID ${id}?`,
-            onOk() {
-                console.log(`Empresa ID ${id} excluído`);
-            },
-        });
+        confirmAlert({
+            title: 'Confirmação',
+            message: 'Deseja excluir essa empresa?',
+            buttons: [
+                {
+                    label: 'Sim',
+                    onClick: () => deleteCompany(id)
+                },
+                {
+                    label: 'Não',
+                    onClick: () => { }
+                }
+            ]
+        })
     };
+
+    const deleteCompany = (id) => {
+        axios.delete(`http://localhost:8080/empresas/${id}`)
+        .then(() => {
+            window.location.reload();
+            enqueueSnackbar("Deletado com sucesso!", { variant: "success", anchorOrigin: { vertical: "bottom", horizontal: "right" }});
+        })
+    }
 
     const columns = [
         { title: 'ID', dataIndex: 'id', sorter: true },
         { title: 'CNPJ', dataIndex: 'cnpj', sorter: true },
-        { title: 'Empresa', dataIndex: 'nome_empresa', sorter: true },
+        { title: 'EMPRESA', dataIndex: 'corporateReason', sorter: true },
+        { title: 'ÚLTIMA ALTERAÇÃO', dataIndex: 'updateDate', sorter: true },
         {
-            title: 'Editar',
+            title: 'EDITAR',
             render: (_, row) => (
-                <Button key="editar" href={`/cadastros/empresa/${row.id}`} onClick={() => window.alert('Confirmar atualização?')} icon={<EditOutlined />} >
+                <Button key="editar" href={`/cadastros/empresas/${row.id}`} onClick={() => window.alert('Confirmar atualização?')} icon={<EditOutlined />} >
                     Editar
                 </Button>
             ),
         },
         {
-            title: 'Deletar',
+            title: 'DELETAR',
             render: (_, row) => (
-                <Button key="deletar" href={`/cadastros/empresa/${row.id}`} onClick={() => confirmDelete(row.id)} icon={<DeleteOutlined />}>
+                <Button key="deletar" href={`/cadastros/empresas/${row.id}`} onClick={(e) => e.preventDefault(confirmDelete(row.id))} icon={<DeleteOutlined />}>
                     Deletar
                 </Button>
             ),
@@ -43,26 +64,39 @@ const CompanyPage = () => {
     ];
 
     const handleDownload = () => {
-        const data = [
-            { id: 1, cnpj: '12.345.678/0001-95', nome_empresa: 'Pedro Inácio Penha dos Santos' },
-        ];
-        const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = 'empresas.json';
-        link.click();
+        if (company.length > 0) {
+            const today = new Date().getDate();
+            const month = new Date().getMonth() + 1;
+            const year = new Date().getFullYear();
+            const ws = XLSX.utils.json_to_sheet(company);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Fornecedores');
+            XLSX.writeFile(wb, `empresas_${today}_${month}_${year}.xlsx`);
+        } else {
+            enqueueSnackbar('Nenhuma empresa cadastrado', { variant: 'info', anchorOrigin: { vertical: "bottom", horizontal: "right" } });
+        }
     };
 
-    const mockData = [
-        { id: 1, cnpj: '12.345.678/0001-95', nome_empresa: 'Pedro Inácio Penha dos Santos' },
-    ];
+    useEffect(() => {
+        axios.get('http://localhost:8080/empresas', {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+            .then(function (resposta) {
+                setCompany(resposta.data);
+            })
+            .catch(function (error) {
+                console.error("Erro:", error);
+            });
+    }, [])
 
     const filterData = (data, keywords) =>
         data.filter(
             (item) =>
                 item.id.toString().includes(keywords.toString()) ||
                 item.cnpj.toLowerCase().includes(keywords.toLowerCase()) ||
-                item.nome_empresa.toLowerCase().includes(keywords.toLowerCase())
+                item.corporateReason.toLowerCase().includes(keywords.toLowerCase())
         );
 
     return (
@@ -70,7 +104,7 @@ const CompanyPage = () => {
             <section className={styled.mainContent}>
                 <header className={styled.header}>
                     <h1>Empresas</h1>
-                    <p>{mockData.length} Empresa(s) cadastrada(s)</p>
+                    <p>{company.length} Empresa(s) cadastrada(s)</p>
                 </header>
                 <div className={styled.functions}>
                     <Input.Search
@@ -93,14 +127,14 @@ const CompanyPage = () => {
             <ConfigProvider locale={ptBR}>
                 <ProTable
                     size="large"
-                    scroll={{ x: 1000, y: 220 }}
+                    //scroll={{ x: 1000, y: 220 }}
                     search={false}
                     bordered={false}
                     columns={columns}
                     rowKey="id"
                     params={{ keywords }}
                     request={async (params) => {
-                        const filteredData = filterData(mockData, params.keywords || keywords);
+                        const filteredData = filterData(company, params.keywords || keywords);
                         return { data: filteredData, success: true };
                     }}
                     pagination={{
