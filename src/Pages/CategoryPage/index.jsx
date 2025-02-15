@@ -23,7 +23,6 @@ const CategoryPage = () => {
             })
     };
 
-
     const confirmDelete = (id) => {
         confirmAlert({
             title: 'Confirmação',
@@ -84,7 +83,7 @@ const CategoryPage = () => {
             const year = new Date().getFullYear();
             const ws = XLSX.utils.json_to_sheet(categories);
             const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, 'Usuários');
+            XLSX.utils.book_append_sheet(wb, ws, 'Categoria');
             XLSX.writeFile(wb, `categorias_${today}_${month}_${year}.xlsx`);
         } else {
             enqueueSnackbar('Nenhuma categoria cadastrada', { variant: 'info', anchorOrigin: { vertical: "bottom", horizontal: "right" } });
@@ -127,7 +126,6 @@ const CategoryPage = () => {
             <ConfigProvider locale={ptBR}>
                 <ProTable
                     size="large"
-                    //scroll={{ x: 1000, y: 220 }}
                     search={false}
                     bordered={false}
                     columns={columns}

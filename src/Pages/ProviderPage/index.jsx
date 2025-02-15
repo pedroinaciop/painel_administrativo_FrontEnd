@@ -4,7 +4,7 @@ import { ConfigProvider, Input, Button } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { confirmAlert } from 'react-confirm-alert';
 import ProTable from '@ant-design/pro-table';
-import styled from './Provider.module.css';
+import styled from './ProviderPage.module.css';
 import { NavLink } from 'react-router-dom';
 import ptBR from 'antd/lib/locale/pt_BR';
 import { useSnackbar } from 'notistack';
@@ -17,14 +17,14 @@ const ProviderPage = () => {
     const { enqueueSnackbar } = useSnackbar();
 
     const columns = [
-        { title: 'ID', dataIndex: 'id', sorter: true },
+        { title: 'ID', dataIndex: 'provider_id', sorter: true },
         { title: 'CNPJ', dataIndex: 'cnpj', sorter: true },
         { title: 'NOME', dataIndex: 'provider', sorter: true },
         { title: 'ÚLTIMA ALTERAÇÃO', dataIndex: 'updateDate', sorter: true },
         {
             title: 'EDITAR',
             render: (_, row) => (
-                <Button key="editar" href={`/cadastros/fornecedores/${row.id}`} onClick={() => window.alert('Confirmar atualização?')} icon={<EditOutlined />} >
+                <Button key="editar" href={`/cadastros/fornecedores/${row.provider_id}`} onClick={() => window.alert('Confirmar atualização?')} icon={<EditOutlined />} >
                     Editar
                 </Button>
             ),
@@ -32,29 +32,29 @@ const ProviderPage = () => {
         {
             title: 'DELETAR',
             render: (_, row) => (
-                <Button key="deletar" href={`/cadastros/fornecedores/${row.id}`} onClick={(e) => e.preventDefault(confirmDelete(row.id))} icon={<DeleteOutlined />}>
+                <Button key="deletar" href={`/cadastros/fornecedores/${row.provider_id}`} onClick={(e) => e.preventDefault(confirmDelete(row.provider_id))} icon={<DeleteOutlined />}>
                     Deletar
                 </Button>
             ),
         },
     ];
 
-    const deleteProvider = (id) => {
-        axios.delete(`http://localhost:8080/fornecedores/${id}`)
+    const deleteProvider = (provider_id) => {
+        axios.delete(`http://localhost:8080/fornecedores/${provider_id}`)
             .then(() => {
                 window.location.reload();
                 enqueueSnackbar("Deletado com sucesso!", { variant: "success", anchorOrigin: { vertical: "bottom", horizontal: "right" }});
             })
     }
 
-    const confirmDelete = (id) => {
+    const confirmDelete = (provider_id) => {
         confirmAlert({
             title: 'Confirmação',
             message: 'Deseja excluir esse fornecedor?',
             buttons: [
                 {
                     label: 'Sim',
-                    onClick: () => deleteProvider(id)
+                    onClick: () => deleteProvider(provider_id)
                 },
                 {
                     label: 'Não',
@@ -95,9 +95,10 @@ const ProviderPage = () => {
     const filterData = (data, keywords) =>
         data.filter(
             (item) =>
-                item.id.toString().includes(keywords.toString()) ||
+                item.provider_id.toString().includes(keywords.toString()) ||
                 item.cnpj.toLowerCase().includes(keywords.toLowerCase()) ||
-                item.provider.toLowerCase().includes(keywords.toLowerCase())
+                item.provider.toLowerCase().includes(keywords.toLowerCase()) || 
+                item.updateDate.toString().includes(keywords.toString())
         );
 
     return (
@@ -127,22 +128,19 @@ const ProviderPage = () => {
             </section>
             <ConfigProvider locale={ptBR}>
                 <ProTable
-                    size="middle"
-                    //scroll={providers.length > 0 ? { x: 1000, y: 250 } : { x: 1000 }}
+                    size="large"
                     search={false}
                     bordered={false}
                     columns={columns}
-                    rowKey="id"
+                    rowKey="provider_id"
                     params={{ keywords }}
                     request={async (params) => {
                         const filteredData = filterData(providers, params.keywords || keywords);
                         return { data: filteredData, success: true };
                     }}
                     pagination={{
-                        pageSize: 8,
+                        pageSize: 4,
                         showQuickJumper: true,
-                        showTotal: (total) => `Total de ${total} itens`,
-                        hideOnSinglePage: false,
                     }}
                 />
             </ConfigProvider>

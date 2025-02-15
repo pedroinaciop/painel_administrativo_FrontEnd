@@ -2,15 +2,27 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import FooterForm from '../../Components/FooterForm';
 import HeaderForm from '../../Components/HeaderForm';
 import styled from './ProductForm.module.css';
+import AsyncSelect from 'react-select/async';
+import { useState } from 'react';
 import { useForm } from "react-hook-form";
 import Tabs from '@mui/material/Tabs';
 import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
 import * as React from 'react';
-import Swal from 'sweetalert2';
 import { z } from 'zod';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+import { useSnackbar } from 'notistack';
 
 const ProductForm = () => {
+  const updateDate = new Date();
+  const navigate = useNavigate();
+  const { enqueueSnackbar } = useSnackbar();
+  const [tabValue, setTabValue] = React.useState(0);
+  const [selectedOptionProvider, setSelectedOptionProvider] = useState(null);
+  const [selectedOptionCategory, setSelectedOptionCategory] = useState(null);
+  const formattedDate = `${updateDate.toLocaleDateString('pt-BR')} ${updateDate.toLocaleTimeString('pt-BR')}`;
+
   const createProductSchema = z.object({
     nome_produto: z.string()
       .nonempty("Nome do produto é obrigatório")
@@ -19,9 +31,6 @@ const ProductForm = () => {
           return word[0].toLocaleUpperCase().concat(word.substring(1));
         }).join(' ');
       }),
-
-    marca: z.string()
-      .nonempty("Marca é obrigatório"),
 
     codigo_referencia: z.string()
       .nonempty("Código de referência é obrigatório"),
@@ -35,6 +44,9 @@ const ProductForm = () => {
       required_error: "Preço promocional é obrigatório",
       invalid_type_error: "O preço promocional deve ser maior ou igual a 0",
     }).min(0, "O preço promocional deve ser maior ou igual a R$ 0,00"),
+
+    fornecedor: z.string()
+      .nonempty("Fornecedor é obrigatório"),
 
     estoque_alertas: z.number({
       required_error: "Estoque para alertas é obrigatório",
@@ -110,10 +122,9 @@ const ProductForm = () => {
     path: ["preco_promocional"]
   });
 
-  const { register, handleSubmit, reset, formState: { errors } } = useForm({
+  const { register, handleSubmit, formState: { errors }, setValue } = useForm({
     resolver: zodResolver(createProductSchema),
   });
-  const [value, setValue] = React.useState(0);
 
   function CustomTabPanel(props) {
     const { children, value, index, ...other } = props;
@@ -145,25 +156,131 @@ const ProductForm = () => {
   };
 
   const handleChange = (event, newValue) => {
-    setValue(newValue);
+    setTabValue(newValue); // Usando tabValue
+  };
+
+  const handleChangeSelectedProvider = (selected) => {
+    if (!selected) {
+      setSelectedOptionProvider(null);
+      setValue('fornecedor', '');
+      return;
+    }
+    setSelectedOptionProvider(selected);
+    console.log(selected)
+    setValue('fornecedor', selected.label);
+  };
+
+  const handleChangeSelectedCategory = (selected) => {
+    if (!selected) {
+      setSelectedOptionCategory(null);
+      setValue('categoria', '');
+      return;
+    }
+    setSelectedOptionCategory(selected);
+    console.log(selected)
+    setValue('categoria', selected.label);
+  };
+
+  const fetchData = async (inputValue, path, labelField, id) => {
+    try {
+      const response = await axios.get(`http://localhost:8080/${path}`);
+      return response.data.map((data) => ({
+        id: data[id],
+        label: data[labelField]
+      }));
+    } catch (error) {
+      console.error("Erro ao buscar os dados:", error);
+      return [];
+    }
+  };
+
+  const promiseOptions = (inputValue, path, labelField, id) => {
+    return new Promise((resolve) => {
+      setTimeout(async () => {
+        resolve(await fetchData(inputValue, path, labelField, id));
+      }, 1000);
+    });
   };
 
   const createProduct = (data) => {
-    console.log(data);
+    if (!selectedOptionProvider || !selectedOptionCategory) {
+      enqueueSnackbar("Erro: Fornecedor ou Categoria não selecionados!", { variant: "error" });
+      return;
+    }
 
-    Swal.fire({
-      title: "Cadastro Finalizado",
-      text: "Produto cadastrada com sucesso!",
-      icon: "success",
-      willOpen: () => {
-        Swal.getPopup().style.fontFamily =  'Segoe UI, Tahoma, Geneva, Verdana, sans-serif';
+    const productData = {
+      productName: data.nome_produto,
+      referenceCode: data.codigo_referencia,
+      price: Number(data.preco_venda) || 0,
+      pricePromocional: Number(data.preco_promocional) || 0,
+      provider: {
+        provider_id: selectedOptionProvider.id,
+        cnpj: "",
+        name: selectedOptionProvider.label || "",
+        updateDate: "",
+        updateUser: ""
+      },
+      stockAlert: Number(data.estoque_alertas) || 0,
+      color: data.cor || "",
+      size: data.tamanho || "",
+      barCodeField: data.codigo_barras || "",
+      description: data.descricao || "",
+      category: {
+        category_id: selectedOptionCategory.id,
+        categoryName: selectedOptionCategory.label || "",
+        updateDate: "",
+        updateUser: ""
+      },
+      packagingQuantity: Number(data.quantidade_embalagem) || 0,
+      unity: data.unidade_medida || "",
+      netWeight: Number(data.peso_liquido) || 0,
+      grossWeight: Number(data.peso_bruto) || 0,
+      dimension: data.dimensoes || "",
+      anvisaRegister: data.registro_anvisa || "",
+      origin: data.origem_produto || "",
+      stockLocation: data.localizacao_estoque || "",
+      icms: data.icms || "",
+      cfop: data.cfop || "",
+      ncm: data.ncm || "",
+      cst: data.cst || "",
+      image: Array.isArray(data.imagens_produtos) ? data.imagens_produtos.join(",") : "",
+      active: Boolean(data.produto_ativo),
+      sterility: Boolean(data.esterilidade),
+      freeShipping: Boolean(data.frete_gratis),
+      perishable: Boolean(data.produto_perecivel),
+      updateDate: formattedDate,
+      updateUser: "ADM"
+    };
+
+    console.log("Enviando JSON:", JSON.stringify(productData, null, 2));
+    console.log("C" + JSON.stringify(selectedOptionCategory));
+    console.log("P" + selectedOptionProvider);
+      
+
+    axios.post('http://localhost:8080/cadastros/produtos/novo', productData, {
+      headers: {
+        'Content-Type': 'application/json'
       }
-    });
-
-    reset();
+    })
+      .then(() => {
+        enqueueSnackbar("Cadastro realizado com sucesso!", { variant: "success", anchorOrigin: { vertical: "bottom", horizontal: "right" } });
+        navigate('/cadastros/produtos');
+      })
+      .catch((error) => {
+        if (axios.isAxiosError(error)) {
+          if (error.response) {
+            enqueueSnackbar(`Erro ${error.response.status}: ${error.response.data.message}`, { variant: "error", anchorOrigin: { vertical: "bottom", horizontal: "right" } });
+          } else if (error.request) {
+            enqueueSnackbar("Erro de rede: Servidor não respondeu", { variant: "warning", anchorOrigin: { vertical: "bottom", horizontal: "right" } });
+          } else {
+            enqueueSnackbar("Erro desconhecido: " + error.message, { variant: "error", anchorOrigin: { vertical: "bottom", horizontal: "right" } });
+          }
+        } else {
+          enqueueSnackbar("Erro inesperado", { variant: "error" });
+        }
+      });
   };
 
-  console.log(errors);
 
   return (
     <section className={styled.appContainer}>
@@ -171,14 +288,14 @@ const ProductForm = () => {
       <form onSubmit={handleSubmit(createProduct)} onKeyDown={handleKeyDown} autoComplete="off">
         <Box sx={{ width: '100%' }}>
           <Box sx={{ borderBottom: 2, borderColor: 'divider' }}>
-            <Tabs value={value} onChange={handleChange} aria-label="nav tabs example">
+            <Tabs value={tabValue} onChange={handleChange} aria-label="nav tabs example">
               <Tab label="Informações Principais" {...a11yProps(0)} />
               <Tab label="Especificações do Produto" {...a11yProps(1)} />
               <Tab label=" Imagem e outros" {...a11yProps(2)} />
             </Tabs>
           </Box>
 
-          <CustomTabPanel className={styled.contextForm} value={value} index={0}>
+          <CustomTabPanel className={styled.contextForm} value={tabValue} index={0}>
             <section className={styled.tabs}>
               <div className={styled.row}>
                 <div className={styled.formGroup} id={styled.nameField}>
@@ -227,14 +344,19 @@ const ProductForm = () => {
                 </div>
 
                 <div className={styled.formGroup} id={styled.brandField}>
-                  <label htmlFor="marca">Marca*</label>
-                  <input
-                    className={errors?.marca && (styled.inputError)}
-                    id="marca"
-                    type="text"
-                    {...register('marca')}
-                  />
-                  {errors?.marca?.message && <p className={styled.errorMessage}>{errors.marca.message}</p>}
+                  <label htmlFor="fornecedor">Fornecedor*</label>
+                  <div>
+                    <AsyncSelect
+                      id="fornecedor"
+                      cacheOptions
+                      defaultOptions
+                      value={selectedOptionProvider}
+                      loadOptions={(inputValue) => promiseOptions(inputValue, 'fornecedores', 'provider', 'provider_id')}
+                      onChange={handleChangeSelectedProvider}
+                      placeholder="Digite para buscar o fornecedor..."
+                      className={errors?.fornecedor && (styled.inputError)}
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -246,8 +368,8 @@ const ProductForm = () => {
                     type="number"
                     min={0}
                     {...register('estoque_alertas', { valueAsNumber: true })}
-                    />
-                    {errors?.estoque_alertas?.message && <p className={styled.errorMessage}>{errors.estoque_alertas.message}</p>}
+                  />
+                  {errors?.estoque_alertas?.message && <p className={styled.errorMessage}>{errors.estoque_alertas.message}</p>}
                 </div>
 
                 <div className={styled.formGroup} id={styled.colorField}>
@@ -292,22 +414,24 @@ const ProductForm = () => {
             </section>
           </CustomTabPanel>
 
-          <CustomTabPanel className={styled.contextForm} value={value} index={1}>
+          <CustomTabPanel className={styled.contextForm} value={tabValue} index={1}>
             <section className={styled.tabs}>
               <div className={styled.row}>
 
                 <div className={styled.formGroup} id={styled.categoryField}>
                   <label htmlFor="categoria">Categoria*</label>
-                  <input
-                    autoFocus
-                    id="categoria"
-                    className={errors?.categoria && (styled.inputError)}
-                    type="text"
-                    {...register('categoria')}
-                  />
-                  {errors?.categoria?.message === 'Required'
-                    ? <p className={styled.errorMessage}>Categoria é obrigatória</p>
-                    : <p className={styled.errorMessage}>{errors?.categoria?.message}</p>}
+                  <div>
+                    <AsyncSelect
+                      id="categoria"
+                      cacheOptions
+                      defaultOptions
+                      value={selectedOptionCategory}
+                      loadOptions={(inputValue) => promiseOptions(inputValue, 'categorias', 'categoryName', 'category_id')}
+                      onChange={handleChangeSelectedCategory}
+                      placeholder="Digite para buscar a categoria..."
+                      className={errors?.fornecedor && (styled.inputError)}
+                    />
+                  </div>
                 </div>
 
                 <div className={styled.formGroup} id={styled.packagingQuantityField}>
@@ -321,7 +445,6 @@ const ProductForm = () => {
               </div>
 
               <div className={styled.row}>
-
                 <div className={styled.formGroup} id={styled.unitField}>
                   <label htmlFor="unidade_medida">Unidade de Medida*</label>
                   <select {...register('unidade_medida', {
@@ -346,7 +469,7 @@ const ProductForm = () => {
                     min={0}
                     {...register('peso_liquido')}
                   />
-                  {errors?.categoria?.message === 'Required'
+                  {errors?.peso_liquido?.message === 'Required'
                     ? <p className={styled.errorMessage}>Peso líquido é obrigatório</p>
                     : <p className={styled.errorMessage}>{errors?.peso_liquido?.message}</p>}
                 </div>
@@ -360,7 +483,7 @@ const ProductForm = () => {
                     min={0}
                     {...register('peso_bruto')}
                   />
-                  {errors?.categoria?.message === 'Required'
+                  {errors?.peso_bruto?.message === 'Required'
                     ? <p className={styled.errorMessage}>Peso bruto é obrigatório</p>
                     : <p className={styled.errorMessage}>{errors?.peso_bruto?.message}</p>}
                 </div>
@@ -402,7 +525,6 @@ const ProductForm = () => {
                     type="text" {...register('localizacao_estoque')}
                   />
                 </div>
-
               </div>
 
               <div className={styled.row}>
@@ -441,11 +563,10 @@ const ProductForm = () => {
                   />
                 </div>
               </div>
-
             </section>
           </CustomTabPanel>
 
-          <CustomTabPanel className={styled.contextForm} value={value} index={2}>
+          <CustomTabPanel className={styled.contextForm} value={tabValue} index={2}>
             <section className={styled.tabs}>
               <div className={styled.row}>
                 <div className={styled.formGroup} id={styled.imageField}>
@@ -459,7 +580,7 @@ const ProductForm = () => {
 
                 <div id={styled.options}>
                   <div className={styled.formGroup}>
-                    <label htmlFor="ativo">Ativo</label>
+                    <label htmlFor="produto_ativo">Ativo</label>
                     <input
                       type='checkbox'
                       defaultChecked

@@ -15,22 +15,22 @@ const UserPage = () => {
     const { enqueueSnackbar } = useSnackbar();
     const [users, setUsers] = useState([]);
 
-    const deleteUser = (id) => {
-        axios.delete(`http://localhost:8080/usuarios/${id}`)
+    const deleteUser = (user_id) => {
+        axios.delete(`http://localhost:8080/usuarios/${user_id}`)
             .then(() => {
                 window.location.reload();
                 enqueueSnackbar("Deletado com sucesso!", { variant: "success", anchorOrigin: { vertical: "bottom", horizontal: "right" } });
             })
     };
 
-    const confirmDelete = (id) => {
+    const confirmDelete = (user_id) => {
         confirmAlert({
             title: 'Confirmação',
             message: 'Deseja excluir esse usuário?',
             buttons: [
                 {
                     label: 'Sim',
-                    onClick: () => deleteUser(id)
+                    onClick: () => deleteUser(user_id)
                 },
                 {
                     label: 'Não',
@@ -55,14 +55,14 @@ const UserPage = () => {
     }, [])
 
     const columns = [
-        { title: 'ID', dataIndex: 'id', sorter: true },
+        { title: 'ID', dataIndex: 'user_id', sorter: true },
         { title: 'NOME COMPLETO', dataIndex: 'fullName', sorter: true },
         { title: 'EMAIL', dataIndex: 'email', sorter: true },
         { title: 'ÚLTIMA ALTERAÇÃO', dataIndex: 'updateDate', sorter: true },
         {
             title: 'Editar',
             render: (_, row) => (
-                <Button key="editar" href={`/cadastros/usuarios/${row.id}`} onClick={() => window.alert('Confirmar atualização?')} icon={<EditOutlined />} >
+                <Button key="editar" href={`/cadastros/usuarios/${row.user_id}`} onClick={() => window.alert('Confirmar atualização?')} icon={<EditOutlined />} >
                     Editar
                 </Button>
             ),
@@ -70,7 +70,7 @@ const UserPage = () => {
         {
             title: 'Deletar',
             render: (_, row) => (
-                <Button key="deletar" href={`/cadastros/usuarios/${row.id}`} onClick={(e) => e.preventDefault(confirmDelete(row.id))} icon={<DeleteOutlined />}>
+                <Button key="deletar" href={`/cadastros/usuarios/${row.user_id}`} onClick={(e) => e.preventDefault(confirmDelete(row.user_id))} icon={<DeleteOutlined />}>
                     Deletar
                 </Button>
             ),
@@ -94,7 +94,7 @@ const UserPage = () => {
     const filterData = (data, keywords) =>
         data.filter(
             (item) =>
-                item.id.toString().includes(keywords.toString()) ||
+                item.user_id.toString().includes(keywords.toString()) ||
                 item.fullName.toLowerCase().includes(keywords.toLowerCase()) ||
                 item.email.toLowerCase().includes(keywords.toLowerCase()) ||
                 item.updateDate.toString().includes(keywords.toString())
@@ -128,11 +128,10 @@ const UserPage = () => {
             <ConfigProvider locale={ptBR}>
                 <ProTable
                     size="large"
-                    //scroll={{ x: 1000, y: 220 }}
                     search={false}
                     bordered={false}
                     columns={columns}
-                    rowKey="id"
+                    rowKey="user_id"
                     params={{ keywords }}
                     request={async (params) => {
                         const filteredData = filterData(users, params.keywords || keywords);
