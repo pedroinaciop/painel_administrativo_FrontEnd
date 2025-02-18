@@ -2,6 +2,8 @@ package com.administrative.painel.model;
 
 import com.administrative.painel.dto.ProviderDTO;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import java.util.Date;
 import java.util.List;
@@ -24,6 +26,7 @@ public class Provider {
     private String updateUser;
 
     @OneToMany(mappedBy = "provider", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<Product> products;
 
     public Provider() {}

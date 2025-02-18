@@ -3,14 +3,10 @@ package com.administrative.painel.controller;
 import com.administrative.painel.dto.*;
 import com.administrative.painel.model.*;
 import com.administrative.painel.repository.*;
-import com.administrative.painel.service.CategoryService;
-import com.administrative.painel.service.CompanyService;
-import com.administrative.painel.service.ProviderService;
-import com.administrative.painel.service.UserService;
+import com.administrative.painel.service.*;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
@@ -42,6 +38,9 @@ public class AdministrativePanelController {
 
     @Autowired
     private ProductRepository productRepository;
+
+    @Autowired
+    private ProductService productService;
 
     /*Provider*/
 
@@ -120,6 +119,17 @@ public class AdministrativePanelController {
     }
 
     /*Product*/
+
+    @GetMapping("/produtos")
+    public List<ProductDTO> findAllProducts() {
+        return productService.getProducts();
+    }
+
+    @Transactional()
+    @DeleteMapping("/produtos/{id}")
+    public void deleteProduct(@PathVariable("id") Long id) {
+        productRepository.deleteById(id);
+    }
 
     @Transactional
     @PostMapping("cadastros/produtos/novo")

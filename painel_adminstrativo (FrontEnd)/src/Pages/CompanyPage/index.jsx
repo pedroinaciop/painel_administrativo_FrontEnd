@@ -41,7 +41,7 @@ const CompanyPage = () => {
     }
 
     const columns = [
-        { title: 'ID', dataIndex: 'id', sorter: true },
+        { title: 'ID', dataIndex: 'company_id', sorter: true },
         { title: 'CNPJ', dataIndex: 'cnpj', sorter: true },
         { title: 'EMPRESA', dataIndex: 'corporateReason', sorter: true },
         { title: 'ÚLTIMA ALTERAÇÃO', dataIndex: 'updateDate', sorter: true },
@@ -94,9 +94,10 @@ const CompanyPage = () => {
     const filterData = (data, keywords) =>
         data.filter(
             (item) =>
-                item.id.toString().includes(keywords.toString()) ||
+                item.company_id.toString().includes(keywords.toString()) ||
                 item.cnpj.toLowerCase().includes(keywords.toLowerCase()) ||
-                item.corporateReason.toLowerCase().includes(keywords.toLowerCase())
+                item.corporateReason.toLowerCase().includes(keywords.toLowerCase()) ||
+                item.updateDate.toString().includes(keywords.toString())
         );
 
     return (

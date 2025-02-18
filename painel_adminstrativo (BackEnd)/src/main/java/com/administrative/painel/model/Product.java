@@ -7,7 +7,6 @@ import java.math.BigDecimal;
 import java.util.Date;
 import lombok.*;
 
-@Getter
 @EqualsAndHashCode(of = "product_id")
 @Entity(name = "products")
 public class Product {
@@ -123,4 +122,127 @@ public class Product {
         this.updateUser = dados.updateUser();
     }
 
+    public Long getProduct_id() {
+        return product_id;
+    }
+
+    public String getProductName() {
+        return productName;
+    }
+
+    public String getReferenceCode() {
+        return referenceCode;
+    }
+
+    public BigDecimal getPrice() {
+        return price;
+    }
+
+    public BigDecimal getPricePromocional() {
+        return pricePromocional;
+    }
+
+    public Provider getProvider() {
+        return provider;
+    }
+
+    public Integer getStockAlert() {
+        return stockAlert;
+    }
+
+    public String getColor() {
+        return color;
+    }
+
+    public String getSize() {
+        return size;
+    }
+
+    public String getBarCodeField() {
+        return barCodeField;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public Category getCategory() {
+        return category;
+    }
+
+    public Integer getPackagingQuantity() {
+        return packagingQuantity;
+    }
+
+    public String getUnity() {
+        return unity;
+    }
+
+    public Double getNetWeight() {
+        return netWeight;
+    }
+
+    public Double getGrossWeight() {
+        return grossWeight;
+    }
+
+    public String getDimension() {
+        return dimension;
+    }
+
+    public String getAnvisaRegister() {
+        return anvisaRegister;
+    }
+
+    public String getOrigin() {
+        return origin;
+    }
+
+    public String getStockLocation() {
+        return stockLocation;
+    }
+
+    public String getIcms() {
+        return icms;
+    }
+
+    public String getCfop() {
+        return cfop;
+    }
+
+    public String getNcm() {
+        return ncm;
+    }
+
+    public String getCst() {
+        return cst;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public Boolean getActive() {
+        return active;
+    }
+
+    public Boolean getSterility() {
+        return sterility;
+    }
+
+    public Boolean getFreeShipping() {
+        return freeShipping;
+    }
+
+    public Boolean getPerishable() {
+        return perishable;
+    }
+
+    public Date getUpdateDate() {
+        return updateDate;
+    }
+
+    public String getUpdateUser() {
+        return updateUser;
+    }
 }

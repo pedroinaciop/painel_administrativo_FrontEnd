@@ -55,7 +55,7 @@ const CategoryPage = () => {
     }, []);
 
     const columns = [
-        { title: 'ID', dataIndex: 'id', sorter: true },
+        { title: 'ID', dataIndex: 'category_id', sorter: true },
         { title: 'CATEGORIA', dataIndex: 'categoryName', sorter: true },
         { title: 'ÚLTIMA ALTERAÇÃO', dataIndex: 'updateDate', sorter: true },
         {
@@ -93,7 +93,7 @@ const CategoryPage = () => {
     const filterData = (data, keywords) =>
         data.filter(
             (item) =>
-                item.id.toString().includes(keywords.toString()) ||
+                item.category_id.toString().includes(keywords.toString()) ||
                 item.categoryName.toLowerCase().includes(keywords.toLowerCase()) ||
                 item.updateDate.toString().includes(keywords.toString())
         );

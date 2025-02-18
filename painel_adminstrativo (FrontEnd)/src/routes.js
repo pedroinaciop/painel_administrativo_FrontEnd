@@ -2,7 +2,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import NotFoundPage from "./Components/NotFoundPage";
 import CategoryPage from "./Pages/CategoryPage";
 import CategoryForm from "./Pages/CategoryForm";
-import ProductsPage from "./Pages/ProductsPage";
+import ProductPage from "./Pages/ProductPage";
 import ProviderForm from "./Pages/ProviderForm";
 import ProviderPage from "./Pages/ProviderPage";
 import ProductForm from "./Pages/ProductForm";
@@ -27,7 +27,7 @@ function App() {
               <Route path="/cadastros/usuarios" element={<UserPage/>} />
               <Route path="/cadastros/usuarios/novo" element={<UserForm/>} />
 
-              <Route path="/cadastros/produtos" element={<ProductsPage />} />
+              <Route path="/cadastros/produtos" element={<ProductPage />} />
               <Route path="/cadastros/produtos/novo" element={<ProductForm />} />
 
               <Route path="/cadastros/empresas" element={<CompanyPage/>} />

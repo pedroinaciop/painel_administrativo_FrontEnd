@@ -1,4 +1,4 @@
-import { FileOutlined, TeamOutlined, UserOutlined, BorderOutlined, ShoppingCartOutlined, HomeOutlined, AppstoreAddOutlined, TagsOutlined, SettingOutlined, ShopOutlined } from '@ant-design/icons';
+import { FileOutlined, UserOutlined, HomeOutlined, AppstoreAddOutlined, PlusCircleOutlined, SnippetsOutlined } from '@ant-design/icons';
 import { Layout, Menu, Avatar, Space } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import styled from "./PainelMenu.module.css";
@@ -17,16 +17,18 @@ function getItem(label, key, icon, children, pathname) {
 const items = [
   getItem('Home', '1', <HomeOutlined />, null, '/home'),
   getItem('Cadastros', 'sub1', <AppstoreAddOutlined />, [
-    getItem('Empresas', '2', <ShopOutlined />, null, '/cadastros/empresas'),
-    getItem('Usuários', '3', <UserOutlined />, null, '/cadastros/usuarios'),
-    getItem('Produtos', '4', <ShoppingCartOutlined />, null, '/cadastros/produtos'),
-    getItem('Fornecedores', '5', <TagsOutlined />, null, '/cadastros/fornecedores'),
-    getItem('Categorias', '6', <BorderOutlined />, null, '/cadastros/categorias'),
+    getItem('Empresas', '2', null, null, '/cadastros/empresas'),
+    getItem('Usuários', '3', null, null, '/cadastros/usuarios'),
+    getItem('Produtos', '4', null, null, '/cadastros/produtos'),
+    getItem('Fornecedores', '5', null, null, '/cadastros/fornecedores'),
+    getItem('Categorias', '6', null, null, '/cadastros/categorias'),
   ]),
-  getItem('Configurações', 'sub2', <SettingOutlined />, [
-    getItem('Team 1', '8', <TeamOutlined />, null, '/team1'),
+  getItem('Operações', '9', <SnippetsOutlined />, [
+    getItem('Entrada de produto', '10', null, null, '/cadastros/entrada'),
   ]),
-  getItem('Relatórios', '9', <FileOutlined />, null, '/relatorios'),
+  getItem('Relatórios', '11', <FileOutlined />, [
+    getItem('Movimentação de material', '12', <PlusCircleOutlined />, null, '/cadastros/entrada'),
+  ]),
 ];
 
 const PainelMenu = () => {
