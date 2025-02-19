@@ -1,5 +1,18 @@
-@media (max-width: 768px) {
-    .container {
-      flex-direction: column;
-    }
-  }
+.background {
+  height: 100vh;
+  background: linear-gradient(
+    90deg,
+    rgba(2, 0, 36, 1) 0%,
+    rgba(251, 251, 251, 1) 0%,
+    rgba(255, 255, 255, 1) 0%,
+    rgba(127, 180, 253, 1) 71%,
+    rgba(22, 119, 255, 0.5012861834186799) 100%
+  );
+}
+
+.container {
+  display: flex;
+  justify-content: center;
+  background-color: var(--white);
+  flex-direction: column;
+}

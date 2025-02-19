@@ -9,11 +9,12 @@ import ProductForm from "./Pages/ProductForm";
 import CompanyPage from "./Pages/CompanyPage";
 import CompanyForm from "./Pages/CompanyForm";
 import BasePage from "./Components/BasePage";
+import { SnackbarProvider } from "notistack";
 import "@ant-design/v5-patch-for-react-19";
 import UserForm from "./Pages/UserForm";
 import UserPage from "./Pages/UserPage";
 import "./App.css";
-import { SnackbarProvider } from "notistack";
+import RegisterLoginUser from "./Pages/RegisterLoginPage";
 
 
 function App() {
@@ -22,6 +23,8 @@ function App() {
       <SnackbarProvider maxSnack={1} autoHideDuration={3000}> 
         <BrowserRouter>
           <Routes>
+            <Route path="/login" element={<RegisterLoginUser/>} />
+
             <Route path="/" element={<BasePage />}>
               <Route path="*" element={<NotFoundPage />} />
               <Route path="/cadastros/usuarios" element={<UserPage/>} />

@@ -1,4 +1,4 @@
-import { FileOutlined, UserOutlined, HomeOutlined, AppstoreAddOutlined, PlusCircleOutlined, SnippetsOutlined } from '@ant-design/icons';
+import { FileOutlined, UserOutlined, HomeOutlined, AppstoreAddOutlined, SnippetsOutlined } from '@ant-design/icons';
 import { Layout, Menu, Avatar, Space } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import styled from "./PainelMenu.module.css";
@@ -27,7 +27,7 @@ const items = [
     getItem('Entrada de produto', '10', null, null, '/cadastros/entrada'),
   ]),
   getItem('Relatórios', '11', <FileOutlined />, [
-    getItem('Movimentação de material', '12', <PlusCircleOutlined />, null, '/cadastros/entrada'),
+    getItem('Movimentação de material', '12', null, null, '/cadastros/entrada'),
   ]),
 ];
 
