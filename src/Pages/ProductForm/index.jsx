@@ -298,6 +298,7 @@ const ProductForm = () => {
           <CustomTabPanel className={styled.contextForm} value={tabValue} index={0}>
             <section className={styled.tabs}>
               <div className={styled.row}>
+                
                 <div className={styled.formGroup} id={styled.nameField}>
                   <label htmlFor="nome_produto">Nome do Produto*</label>
                   <input
