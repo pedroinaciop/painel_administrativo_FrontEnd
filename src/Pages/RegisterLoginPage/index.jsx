@@ -28,7 +28,7 @@ const RegisterLoginUser = () => {
                         idInput="usuario"
                         idDiv={styled.userField}
                         label={"Usuário"}
-                        type="text"
+                        type="email"
                         register={register}
                         error={errors?.usuario}
                     />
