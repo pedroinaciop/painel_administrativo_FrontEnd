@@ -9,7 +9,7 @@ import { NavLink } from 'react-router-dom';
 import ptBR from 'antd/lib/locale/pt_BR';
 import { useSnackbar } from 'notistack';
 import * as XLSX from 'xlsx';
-import axios from 'axios';
+import api from '../../services/api'
 
 const ProviderPage = () => {
     const [keywords, setKeywords] = useState('');
@@ -40,7 +40,7 @@ const ProviderPage = () => {
     ];
 
     const deleteProvider = (provider_id) => {
-        axios.delete(`http://localhost:8080/fornecedores/${provider_id}`)
+        api.delete(`http://localhost:8080/fornecedores/${provider_id}`)
             .then(() => {
                 window.location.reload();
                 enqueueSnackbar("Deletado com sucesso!", { variant: "success", anchorOrigin: { vertical: "bottom", horizontal: "right" }});
@@ -79,7 +79,7 @@ const ProviderPage = () => {
     };
 
     useEffect(() => {
-        axios.get('http://localhost:8080/fornecedores', {
+        api.get('http://localhost:8080/fornecedores', {
             headers: {
                 'Content-Type': 'application/json'
             }
@@ -128,12 +128,13 @@ const ProviderPage = () => {
             </section>
             <ConfigProvider locale={ptBR}>
                 <ProTable
+                    rowKey="provider_id"
                     size="large"
                     search={false}
                     bordered={false}
                     columns={columns}
-                    rowKey="provider_id"
                     params={{ keywords }}
+                    dataSource={providers}
                     request={async (params) => {
                         const filteredData = filterData(providers, params.keywords || keywords);
                         return { data: filteredData, success: true };

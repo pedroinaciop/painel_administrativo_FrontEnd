@@ -7,7 +7,7 @@ import { useState } from 'react';
 import { useForm } from "react-hook-form";
 import { useSnackbar } from 'notistack';
 import VMasker from 'vanilla-masker';
-import axios from 'axios';
+import api from '../../services/api'
 import { z } from 'zod';
 import { useNavigate } from 'react-router-dom';
 
@@ -116,7 +116,7 @@ const CompanyForm = () => {
       cep: data.cep.replace(/\D/g, ""),
     };
 
-    axios.post('http://localhost:8080/cadastros/empresas/novo', {
+    api.post('http://localhost:8080/cadastros/empresas/novo', {
       cnpj: formattedData.cnpj,
       corporateReason: data.razao_social,
       stateRegistration: data.inscricao_estadual,
@@ -140,7 +140,7 @@ const CompanyForm = () => {
       navigate('/cadastros/empresas')
     }).catch(function (error) {
       console.log(error)
-      if (axios.isAxiosError(error)) {
+      if (api.isAxiosError(error)) {
         if (error.response) {
           enqueueSnackbar(`Erro ${error.response.status}: ${error.response.data.message}`, { variant: "error" });
         } else if (error.request) {

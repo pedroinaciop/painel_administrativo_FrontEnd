@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import styled from './UserForm.module.css';
 import { useForm } from 'react-hook-form';
 import { useSnackbar } from 'notistack';
-import axios from 'axios';
+import api from '../../services/api'
 import React from 'react';
 import { z } from 'zod';
 
@@ -57,7 +57,7 @@ const UserForm = () => {
     };
 
     const createUser = (data) => {
-        axios.post('http://localhost:8080/cadastros/usuarios/novo', {
+        api.post('http://localhost:8080/cadastros/usuarios/novo', {
             fullName: data.fullName,
             email: data.email,
             password: data.password,
@@ -73,7 +73,7 @@ const UserForm = () => {
             navigate('/cadastros/usuarios')
         })
         .catch(function (error) {
-            if (axios.isAxiosError(error)) {
+            if (api.isAxiosError(error)) {
                 if (error.response) {
                     enqueueSnackbar(`Erro ${error.response.status}: ${error.response.data.message}`, { variant: "error" });
                 } else if (error.request) {

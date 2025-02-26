@@ -1,5 +1,5 @@
 import { DownloadOutlined, PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
-import { ConfigProvider, Input, Button, Modal } from 'antd';
+import { ConfigProvider, Input, Button } from 'antd';
 import React, { useState, useEffect } from 'react';
 import { confirmAlert } from 'react-confirm-alert';
 import styled from './ProductsPage.module.css';
@@ -8,7 +8,7 @@ import { NavLink } from 'react-router-dom';
 import ptBR from 'antd/lib/locale/pt_BR';
 import { useSnackbar } from 'notistack';
 import * as XLSX from 'xlsx';
-import axios from 'axios';
+import api from '../../services/api'
 
 
 const ProductsPage = () => {
@@ -34,7 +34,7 @@ const ProductsPage = () => {
   };
 
   const deleteProduct = (id) => {
-    axios.delete(`http://localhost:8080/produtos/${id}`)
+    api.delete(`http://localhost:8080/produtos/${id}`)
       .then(() => {
         window.location.reload();
         enqueueSnackbar("Deletado com sucesso!", { variant: "success", anchorOrigin: { vertical: "bottom", horizontal: "right" } });
@@ -80,7 +80,7 @@ const ProductsPage = () => {
   };
 
   useEffect(() => {
-    axios.get('http://localhost:8080/produtos', {
+    api.get('http://localhost:8080/produtos', {
       headers: {
         'Content-Type': 'application/json',
       }
@@ -148,12 +148,13 @@ const ProductsPage = () => {
       </section>
       <ConfigProvider locale={ptBR}>
         <ProTable 
+          rowKey="product_id" 
           size="large" 
           search={false} 
           bordered={false} 
           columns={columns} 
-          rowKey="id" 
           params={{ keywords }}
+          dataSource={product}
           request={async (params) => {
             const filteredData = filterData(product, params.keywords || keywords);
             return { data: filteredData, success: true };

@@ -1,20 +1,39 @@
 import loginImg from "../../assets/images/login_img.svg";
 import { zodResolver } from '@hookform/resolvers/zod';
 import InputField from "../../Components/InputField";
-import { GoogleOutlined } from '@ant-design/icons';
 import styled from "./RegisterLogin.module.css";
+import { useNavigate } from "react-router-dom";
 import { useForm } from 'react-hook-form';
 import { z } from "zod";
+import axios from 'axios';
 
 const RegisterLoginUser = () => {
+    localStorage.setItem("token", "");
+    const navigate = useNavigate();
     const logOnSchema = z.object({
-        usuario: z.string(),
-        password: z.string(),
-    })
+        usuario: z.string().email("Digite um e-mail válido"),
+        senha: z.string().min(6, "A senha deve ter pelo menos 6 caracteres"),
+    });
 
     const { register, handleSubmit, formState: { errors } } = useForm({
         resolver: zodResolver(logOnSchema)
     });
+
+    const login = (data) => {
+            axios.post('http://localhost:8080/auth/login', {
+                login: data.usuario,
+                password: data.senha
+            })
+            .then(response => {
+                console.log("Login bem-sucedido:", response.data);
+                localStorage.setItem("token", response.data.token);
+                navigate("/")
+                
+            })
+            .catch(error => {
+                console.error("Erro Axios:", error.response?.data || error.message);
+            });
+    };
 
     return (
         <section className={styled.background}>
@@ -22,8 +41,9 @@ const RegisterLoginUser = () => {
                 <aside className={styled.leftSide}>
                     <img src={loginImg} className={styled.loginImg} alt="Imagem ilustrativa de login" />
                 </aside>
-                <form onSubmit={handleSubmit} className={styled.rightSide}>
+                <form onSubmit={handleSubmit(login)} className={styled.rightSide}>
                     <h2 className={styled.title}>LOGIN</h2>
+
                     <InputField
                         idInput="usuario"
                         idDiv={styled.userField}
@@ -34,31 +54,19 @@ const RegisterLoginUser = () => {
                     />
 
                     <InputField
-                        idInput="password"
+                        idInput="senha"
                         idDiv={styled.passwordField}
                         label={"Senha"}
-                        type="password"
+                        type="text"
                         register={register}
                         error={errors?.password}
                     />
-                    <div className={styled.loginOptions}>
-                        <label className={styled.rememberMe}>
-                            <input type="checkbox" name="rememberMe" id="rememberMe" />
-                            <span>Lembre-se de mim</span>
-                        </label>
 
-                        <a href="#" className={styled.forgotPassword}>Esqueceu a senha?</a>
-                    </div>
-
-                    <button type="submit" className={styled.submitButton}>Entrar</button>
-                    <div className={styled.socialMediaButtons}>
-                        <GoogleOutlined className={styled.googleIcon} />
-                        <span>Entrar com o Google</span>
-                    </div>
+                <button type="submit" className={styled.submitButton}>Entrar</button>
                 </form>
             </div>
         </section>
-    )
-}
+    );
+};
 
 export default RegisterLoginUser;
