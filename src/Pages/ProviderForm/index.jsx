@@ -8,7 +8,7 @@ import { useForm } from 'react-hook-form';
 import { useSnackbar } from 'notistack';
 import VMasker from 'vanilla-masker';
 import { useState } from 'react';
-import axios from 'axios';
+import api from '../../services/api'
 import { z } from 'zod';
 
 const ProviderForm = () => {
@@ -17,6 +17,7 @@ const ProviderForm = () => {
     const [cnpj, setCnpj] = useState("");
     const { enqueueSnackbar } = useSnackbar();
     const formattedDate = `${updateDate.toLocaleDateString('pt-BR')} ${updateDate.toLocaleTimeString('pt-BR')}`;
+
     
     const createBrandSchema = z.object({
         cnpj: z.string()
@@ -46,7 +47,7 @@ const ProviderForm = () => {
             cnpj: data.cnpj.replace(/\D/g, ""),
         };
 
-        axios.post('http://localhost:8080/cadastros/fornecedores/novo', {
+        api.post('http://localhost:8080/cadastros/fornecedores/novo', {
             cnpj: formattedData.cnpj,
             provider: formattedData.provider.toUpperCase(),
             updateDate: formattedDate,
@@ -61,7 +62,7 @@ const ProviderForm = () => {
             navigate('/cadastros/fornecedores');
         })
         .catch(function(error) {
-            if (axios.isAxiosError(error)) {
+            if (api.isAxiosError(error)) {
                 if (error.response) {
                     enqueueSnackbar(`Erro ${error.response.status}: ${error.response.data.message}`, { variant: "error" });
                 } else if (error.request) {

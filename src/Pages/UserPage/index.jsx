@@ -8,7 +8,7 @@ import { NavLink } from 'react-router-dom';
 import ptBR from 'antd/lib/locale/pt_BR';
 import { useSnackbar } from 'notistack';
 import * as XLSX from 'xlsx';
-import axios from 'axios';
+import api from '../../services/api'
 
 const UserPage = () => {
     const [keywords, setKeywords] = useState('');
@@ -16,7 +16,7 @@ const UserPage = () => {
     const [users, setUsers] = useState([]);
 
     const deleteUser = (user_id) => {
-        axios.delete(`http://localhost:8080/usuarios/${user_id}`)
+        api.delete(`http://localhost:8080/usuarios/${user_id}`)
             .then(() => {
                 window.location.reload();
                 enqueueSnackbar("Deletado com sucesso!", { variant: "success", anchorOrigin: { vertical: "bottom", horizontal: "right" } });
@@ -41,7 +41,7 @@ const UserPage = () => {
     };
 
     useEffect(() => {
-        axios.get('http://localhost:8080/usuarios', {
+        api.get('/usuarios', {
             headers: {
                 'Content-Type': 'application/json'
             }
@@ -127,11 +127,12 @@ const UserPage = () => {
             </section>
             <ConfigProvider locale={ptBR}>
                 <ProTable
+                    rowKey="user_id"
                     size="large"
                     search={false}
                     bordered={false}
                     columns={columns}
-                    rowKey="user_id"
+                    dataSource={users}
                     params={{ keywords }}
                     request={async (params) => {
                         const filteredData = filterData(users, params.keywords || keywords);

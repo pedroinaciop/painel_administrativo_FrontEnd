@@ -8,29 +8,29 @@ import { NavLink } from 'react-router-dom';
 import ptBR from 'antd/lib/locale/pt_BR';
 import { useSnackbar } from 'notistack';
 import * as XLSX from 'xlsx';
-import axios from 'axios';
+import api from '../../services/api'
 
 const CategoryPage = () => {
     const [keywords, setKeywords] = useState('');
     const [categories, setCategories] = useState([]);
     const { enqueueSnackbar } = useSnackbar();
 
-    const deleteCategory = (id) => {
-        axios.delete(`http://localhost:8080/categorias/${id}`)
+    const deleteCategory = (category_id) => {
+        api.delete(`http://localhost:8080/categorias/${category_id}`)
             .then(() => {
                 window.location.reload();
                 enqueueSnackbar("Deletado com sucesso!", { variant: "success", anchorOrigin: { vertical: "bottom", horizontal: "right" } });
             })
     };
 
-    const confirmDelete = (id) => {
+    const confirmDelete = (category_id) => {
         confirmAlert({
             title: 'Confirmação',
             message: 'Deseja excluir essa categoria?',
             buttons: [
                 {
                     label: 'Sim',
-                    onClick: () => deleteCategory(id)
+                    onClick: () => deleteCategory(category_id)
                 },
                 {
                     label: 'Não',
@@ -41,7 +41,7 @@ const CategoryPage = () => {
     };
 
     useEffect(() => {
-        axios.get('http://localhost:8080/categorias', {
+        api.get('http://localhost:8080/categorias', {
             headers: {
                 'Content-Type': 'application/json',
             }
@@ -61,7 +61,7 @@ const CategoryPage = () => {
         {
             title: 'Editar',
             render: (_, row) => (
-                <Button key="editar" href={`/cadastros/categorias/${row.id}`} onClick={() => window.alert('Confirmar atualização?')} icon={<EditOutlined />} >
+                <Button key="editar" href={`/cadastros/categorias/${row.category_id}`} onClick={() => window.alert('Confirmar atualização?')} icon={<EditOutlined />} >
                     Editar
                 </Button>
             ),
@@ -69,7 +69,7 @@ const CategoryPage = () => {
         {
             title: 'Deletar',
             render: (_, row) => (
-                <Button key="deletar" href={`/cadastros/categorias/${row.id}`} onClick={(e) => e.preventDefault(confirmDelete(row.id))} icon={<DeleteOutlined />}>
+                <Button key="deletar" href={`/cadastros/categorias/${row.category_id}`} onClick={(e) => e.preventDefault(confirmDelete(row.category_id))} icon={<DeleteOutlined />}>
                     Deletar
                 </Button>
             ),
@@ -125,12 +125,13 @@ const CategoryPage = () => {
             </section>
             <ConfigProvider locale={ptBR}>
                 <ProTable
+                    rowKey="category_id"
                     size="large"
                     search={false}
                     bordered={false}
                     columns={columns}
-                    rowKey="id"
                     params={{ keywords }}
+                    dataSource={categories}
                     request={async (params) => {
                         const filteredData = filterData(categories, params.keywords || keywords);
                         return { data: filteredData, success: true };

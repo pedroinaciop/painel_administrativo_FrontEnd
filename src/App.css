@@ -2,6 +2,7 @@
   --red: #ff0000;
   --white: #ffffff;
   --mainColor: #1677ff;
+  --mainColorBackGround: #1677ff6d;
   --secondColor: #000c17;
   --activeButton: #4096ff;
   --gray: #cccccc;
@@ -14,6 +15,7 @@
 
 .App {
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  user-select: none;
   font-size: 14px;
 }
 

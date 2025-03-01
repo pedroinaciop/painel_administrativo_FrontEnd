@@ -10,7 +10,7 @@ import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
 import * as React from 'react';
 import { z } from 'zod';
-import axios from 'axios';
+import api from '../../services/api'
 import { useNavigate } from 'react-router-dom';
 import { useSnackbar } from 'notistack';
 
@@ -183,7 +183,7 @@ const ProductForm = () => {
 
   const fetchData = async (inputValue, path, labelField, id) => {
     try {
-      const response = await axios.get(`http://localhost:8080/${path}`);
+      const response = await api.get(`http://localhost:8080/${path}`);
       return response.data.map((data) => ({
         id: data[id],
         label: data[labelField]
@@ -257,7 +257,7 @@ const ProductForm = () => {
     console.log("P" + selectedOptionProvider);
       
 
-    axios.post('http://localhost:8080/cadastros/produtos/novo', productData, {
+    api.post('http://localhost:8080/cadastros/produtos/novo', productData, {
       headers: {
         'Content-Type': 'application/json'
       }
@@ -267,7 +267,7 @@ const ProductForm = () => {
         navigate('/cadastros/produtos');
       })
       .catch((error) => {
-        if (axios.isAxiosError(error)) {
+        if (api.isAxiosError(error)) {
           if (error.response) {
             enqueueSnackbar(`Erro ${error.response.status}: ${error.response.data.message}`, { variant: "error", anchorOrigin: { vertical: "bottom", horizontal: "right" } });
           } else if (error.request) {
@@ -298,6 +298,7 @@ const ProductForm = () => {
           <CustomTabPanel className={styled.contextForm} value={tabValue} index={0}>
             <section className={styled.tabs}>
               <div className={styled.row}>
+                
                 <div className={styled.formGroup} id={styled.nameField}>
                   <label htmlFor="nome_produto">Nome do Produto*</label>
                   <input

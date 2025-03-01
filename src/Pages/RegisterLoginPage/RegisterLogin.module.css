@@ -1,5 +1,92 @@
-@media (max-width: 768px) {
-    .container {
-      flex-direction: column;
-    }
-  }
+.background {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  backdrop-filter: blur(10px);
+  background: linear-gradient(
+    90deg,
+    rgba(2, 0, 36, 1) 0%,
+    rgba(251, 251, 251, 1) 0%,
+    rgba(255, 255, 255, 1) 0%,
+    rgba(127, 180, 253, 1) 71%,
+    rgba(22, 119, 255, 0.5012861834186799) 100%
+  );
+}
+
+.loginImg {
+  width: 28.25rem;
+  height: 28.25rem;
+  align-self: center;
+}
+
+.container {
+  height: 35rem;
+  width: 75rem;
+
+  display: flex;
+  align-self: center;
+  border-radius: 5px;
+  background-color: var(--white);
+  box-shadow: 1px 1px 1px 1px rgba(0, 0, 0, 0.15);
+}
+
+.title {
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.leftSide {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  background-color: var(--mainColorBackGround);
+  border-radius: 5px 0px 0px 5px;
+  width: 50%;
+}
+
+.rightSide {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  width: 50%;
+}
+
+.loginOptions {
+  display: flex;
+  gap: 55px;
+}
+
+#userField, #passwordField {
+  width: 18.75rem;
+}
+
+.submitButton {
+  height: 2.2rem;
+  width: 18.75rem;
+
+  margin-top: 10px;
+  border: none;
+  font-weight: bold;
+  border-radius: 0.3rem;
+  cursor: pointer;
+  color: var(--white);
+  background-color: var(--mainColor);
+  box-shadow: 0 2px 0 rgba(5, 145, 255, 0.1);
+}
+
+.submitButton:hover {
+  background-color: var(--activeButton);
+}
+
+.submitButton:focus {
+  outline: none;
+  background-color: var(--activeButton);
+}
+
+.submitButton:active {
+  outline: none;
+  background-color: var(--mainColor);
+}

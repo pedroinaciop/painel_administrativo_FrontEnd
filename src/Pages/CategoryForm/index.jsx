@@ -6,7 +6,7 @@ import styled from './CategoryForm.module.css';
 import { useSnackbar } from 'notistack';
 import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import axios from 'axios';
+import api from '../../services/api'
 import { z } from 'zod';
 
 const CategoryForm = () => {
@@ -32,7 +32,7 @@ const CategoryForm = () => {
     };
 
     const createCategory = (data) => {
-        axios.post("http://localhost:8080/cadastros/categorias/novo", {
+        api.post("http://localhost:8080/cadastros/categorias/novo", {
             categoryName: data.nome_categoria,
             updateDate: formattedDate,
             updateUser: "ADM",
@@ -45,7 +45,7 @@ const CategoryForm = () => {
             enqueueSnackbar("Cadastro realizado com sucesso!", { variant: "success", anchorOrigin: { vertical: "bottom", horizontal: "right" }});
             navigate('/cadastros/categorias');
         }).catch(function(error) {
-            if (axios.isAxiosError(error)) {
+            if (api.isAxiosError(error)) {
                 if (error.response) {
                     enqueueSnackbar(`Erro ${error.response.status}: ${error.response.data.message}`, { variant: "error", anchorOrigin: { vertical: "bottom", horizontal: "right" } });
                 } else if (error.request) {

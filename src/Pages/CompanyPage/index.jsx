@@ -1,14 +1,14 @@
 import { DownloadOutlined, PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
-import { ConfigProvider, Input, Button, Modal } from 'antd';
+import { ConfigProvider, Input, Button } from 'antd';
 import { confirmAlert } from 'react-confirm-alert';
+import React, { useState, useEffect } from 'react';
 import styled from './CompanyPage.module.css';
 import ProTable from '@ant-design/pro-table';
 import { NavLink } from 'react-router-dom';
 import ptBR from 'antd/lib/locale/pt_BR';
-import React, { useState, useEffect } from 'react';
 import { useSnackbar } from 'notistack';
+import api from '../../services/api'
 import * as XLSX from 'xlsx';
-import axios from 'axios';
 
 const CompanyPage = () => {
     const [keywords, setKeywords] = useState('');
@@ -33,7 +33,7 @@ const CompanyPage = () => {
     };
 
     const deleteCompany = (id) => {
-        axios.delete(`http://localhost:8080/empresas/${id}`)
+        api.delete(`http://localhost:8080/empresas/${id}`)
         .then(() => {
             window.location.reload();
             enqueueSnackbar("Deletado com sucesso!", { variant: "success", anchorOrigin: { vertical: "bottom", horizontal: "right" }});
@@ -78,7 +78,7 @@ const CompanyPage = () => {
     };
 
     useEffect(() => {
-        axios.get('http://localhost:8080/empresas', {
+        api.get('/empresas', {
             headers: {
                 'Content-Type': 'application/json'
             }
@@ -127,13 +127,13 @@ const CompanyPage = () => {
             </section>
             <ConfigProvider locale={ptBR}>
                 <ProTable
+                    rowKey="company_id"
                     size="large"
-                    //scroll={{ x: 1000, y: 220 }}
                     search={false}
                     bordered={false}
                     columns={columns}
-                    rowKey="id"
                     params={{ keywords }}
+                    dataSource={company}
                     request={async (params) => {
                         const filteredData = filterData(company, params.keywords || keywords);
                         return { data: filteredData, success: true };
