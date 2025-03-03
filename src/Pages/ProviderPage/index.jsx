@@ -40,7 +40,7 @@ const ProviderPage = () => {
     ];
 
     const deleteProvider = (provider_id) => {
-        api.delete(`http://localhost:8080/fornecedores/${provider_id}`)
+        api.delete(`fornecedores/${provider_id}`)
             .then(() => {
                 window.location.reload();
                 enqueueSnackbar("Deletado com sucesso!", { variant: "success", anchorOrigin: { vertical: "bottom", horizontal: "right" }});
@@ -79,7 +79,7 @@ const ProviderPage = () => {
     };
 
     useEffect(() => {
-        api.get('http://localhost:8080/fornecedores', {
+        api.get('fornecedores', {
             headers: {
                 'Content-Type': 'application/json'
             }

@@ -16,7 +16,7 @@ const UserPage = () => {
     const [users, setUsers] = useState([]);
 
     const deleteUser = (user_id) => {
-        api.delete(`http://localhost:8080/usuarios/${user_id}`)
+        api.delete(`usuarios/${user_id}`)
             .then(() => {
                 window.location.reload();
                 enqueueSnackbar("Deletado com sucesso!", { variant: "success", anchorOrigin: { vertical: "bottom", horizontal: "right" } });

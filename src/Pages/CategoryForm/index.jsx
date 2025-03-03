@@ -32,7 +32,7 @@ const CategoryForm = () => {
     };
 
     const createCategory = (data) => {
-        api.post("http://localhost:8080/cadastros/categorias/novo", {
+        api.post("cadastros/categorias/novo", {
             categoryName: data.nome_categoria,
             updateDate: formattedDate,
             updateUser: "ADM",

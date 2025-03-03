@@ -57,7 +57,7 @@ const UserForm = () => {
     };
 
     const createUser = (data) => {
-        api.post('http://localhost:8080/cadastros/usuarios/novo', {
+        api.post('cadastros/usuarios/novo', {
             fullName: data.fullName,
             email: data.email,
             password: data.password,

@@ -1,18 +1,18 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import FooterForm from '../../Components/FooterForm';
 import HeaderForm from '../../Components/HeaderForm';
+import { useNavigate } from 'react-router-dom';
 import styled from './ProductForm.module.css';
 import AsyncSelect from 'react-select/async';
-import { useState } from 'react';
-import { useForm } from "react-hook-form";
+import { useForm, } from "react-hook-form";
+import { useSnackbar } from 'notistack';
 import Tabs from '@mui/material/Tabs';
+import api from '../../services/api';
 import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
+import { useState } from 'react';
 import * as React from 'react';
 import { z } from 'zod';
-import api from '../../services/api'
-import { useNavigate } from 'react-router-dom';
-import { useSnackbar } from 'notistack';
 
 const ProductForm = () => {
   const updateDate = new Date();
@@ -183,7 +183,7 @@ const ProductForm = () => {
 
   const fetchData = async (inputValue, path, labelField, id) => {
     try {
-      const response = await api.get(`http://localhost:8080/${path}`);
+      const response = await api.get(`${path}`);
       return response.data.map((data) => ({
         id: data[id],
         label: data[labelField]
@@ -257,7 +257,7 @@ const ProductForm = () => {
     console.log("P" + selectedOptionProvider);
       
 
-    api.post('http://localhost:8080/cadastros/produtos/novo', productData, {
+    api.post('cadastros/produtos/novo', productData, {
       headers: {
         'Content-Type': 'application/json'
       }

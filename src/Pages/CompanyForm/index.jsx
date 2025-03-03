@@ -2,14 +2,14 @@ import InputField from '../../Components/InputField';
 import HeaderForm from '../../Components/HeaderForm';
 import FooterForm from '../../Components/FooterForm';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useNavigate } from 'react-router-dom';
 import styled from './CompanyForm.module.css';
-import { useState } from 'react';
 import { useForm } from "react-hook-form";
 import { useSnackbar } from 'notistack';
 import VMasker from 'vanilla-masker';
 import api from '../../services/api'
+import { useState } from 'react';
 import { z } from 'zod';
-import { useNavigate } from 'react-router-dom';
 
 const CompanyForm = () => {
   const updateDate = new Date();
@@ -116,7 +116,7 @@ const CompanyForm = () => {
       cep: data.cep.replace(/\D/g, ""),
     };
 
-    api.post('http://localhost:8080/cadastros/empresas/novo', {
+    api.post('cadastros/empresas/novo', {
       cnpj: formattedData.cnpj,
       corporateReason: data.razao_social,
       stateRegistration: data.inscricao_estadual,

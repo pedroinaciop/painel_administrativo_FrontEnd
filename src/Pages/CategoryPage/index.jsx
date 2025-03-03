@@ -16,7 +16,7 @@ const CategoryPage = () => {
     const { enqueueSnackbar } = useSnackbar();
 
     const deleteCategory = (category_id) => {
-        api.delete(`http://localhost:8080/categorias/${category_id}`)
+        api.delete(`categorias/${category_id}`)
             .then(() => {
                 window.location.reload();
                 enqueueSnackbar("Deletado com sucesso!", { variant: "success", anchorOrigin: { vertical: "bottom", horizontal: "right" } });
@@ -41,7 +41,7 @@ const CategoryPage = () => {
     };
 
     useEffect(() => {
-        api.get('http://localhost:8080/categorias', {
+        api.get('categorias', {
             headers: {
                 'Content-Type': 'application/json',
             }

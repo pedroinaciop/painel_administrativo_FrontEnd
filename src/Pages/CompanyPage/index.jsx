@@ -33,7 +33,7 @@ const CompanyPage = () => {
     };
 
     const deleteCompany = (id) => {
-        api.delete(`http://localhost:8080/empresas/${id}`)
+        api.delete(`empresas/${id}`)
         .then(() => {
             window.location.reload();
             enqueueSnackbar("Deletado com sucesso!", { variant: "success", anchorOrigin: { vertical: "bottom", horizontal: "right" }});

@@ -47,7 +47,7 @@ const ProviderForm = () => {
             cnpj: data.cnpj.replace(/\D/g, ""),
         };
 
-        api.post('http://localhost:8080/cadastros/fornecedores/novo', {
+        api.post('cadastros/fornecedores/novo', {
             cnpj: formattedData.cnpj,
             provider: formattedData.provider.toUpperCase(),
             updateDate: formattedDate,

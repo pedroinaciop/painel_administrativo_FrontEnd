@@ -4,8 +4,8 @@ import InputField from "../../Components/InputField";
 import styled from "./RegisterLogin.module.css";
 import { useNavigate } from "react-router-dom";
 import { useForm } from 'react-hook-form';
+import api from '../../services/api'
 import { z } from "zod";
-import axios from 'axios';
 
 const RegisterLoginUser = () => {
     localStorage.setItem("token", "");
@@ -20,7 +20,7 @@ const RegisterLoginUser = () => {
     });
 
     const login = (data) => {
-            axios.post('http://localhost:8080/auth/login', {
+            api.post('auth/login', {
                 login: data.usuario,
                 password: data.senha
             })

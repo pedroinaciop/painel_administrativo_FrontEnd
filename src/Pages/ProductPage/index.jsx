@@ -10,7 +10,6 @@ import { useSnackbar } from 'notistack';
 import * as XLSX from 'xlsx';
 import api from '../../services/api'
 
-
 const ProductsPage = () => {
   const [keywords, setKeywords] = useState('');
   const [product, setProducts] = useState([]);
@@ -34,7 +33,7 @@ const ProductsPage = () => {
   };
 
   const deleteProduct = (id) => {
-    api.delete(`http://localhost:8080/produtos/${id}`)
+    api.delete(`produtos/${id}`)
       .then(() => {
         window.location.reload();
         enqueueSnackbar("Deletado com sucesso!", { variant: "success", anchorOrigin: { vertical: "bottom", horizontal: "right" } });
@@ -80,7 +79,7 @@ const ProductsPage = () => {
   };
 
   useEffect(() => {
-    api.get('http://localhost:8080/produtos', {
+    api.get('produtos', {
       headers: {
         'Content-Type': 'application/json',
       }
