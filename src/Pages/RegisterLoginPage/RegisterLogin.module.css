@@ -1,62 +1,42 @@
-.background {
+.main {
+  min-height: 100vh; 
+  display: flex;
+  flex-direction: row;
+  overflow: hidden;
+  touch-action: manipulation;
+}
+
+.formContent {
+  height: auto;
+  min-width: 30vw;
+  overflow: hidden;
+}
+
+.form {
+  height: 100%;  
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 30px;
+  overflow: hidden;
+}
+
+.imgContent {
   height: 100vh;
+  min-width: 70vw;
   display: flex;
   justify-content: center;
-  backdrop-filter: blur(10px);
-  background: linear-gradient(
-    90deg,
-    rgba(2, 0, 36, 1) 0%,
-    rgba(251, 251, 251, 1) 0%,
-    rgba(255, 255, 255, 1) 0%,
-    rgba(127, 180, 253, 1) 71%,
-    rgba(22, 119, 255, 0.5012861834186799) 100%
-  );
+  background-color: var(--activeButton);
 }
 
 .loginImg {
-  width: 28.25rem;
-  height: 28.25rem;
-  align-self: center;
-}
-
-.container {
-  height: 35rem;
-  width: 75rem;
-
-  display: flex;
-  align-self: center;
-  border-radius: 5px;
-  background-color: var(--white);
-  box-shadow: 1px 1px 1px 1px rgba(0, 0, 0, 0.15);
+  width: 600px;
 }
 
 .title {
-  font-size: 1.5rem;
-  margin-bottom: 20px;
-  text-align: center;
-}
-
-.leftSide {
-  display: flex;
-  justify-content: center;
-  flex-direction: column;
-  background-color: var(--mainColorBackGround);
-  border-radius: 5px 0px 0px 5px;
-  width: 50%;
-}
-
-.rightSide {
-  display: flex;
-  justify-content: center;
-  flex-direction: column;
-  align-items: center;
-  gap: 15px;
-  width: 50%;
-}
-
-.loginOptions {
-  display: flex;
-  gap: 55px;
+  font-size: 1.8rem;
+  margin-bottom: 10px;
 }
 
 #userField, #passwordField {
@@ -64,7 +44,7 @@
 }
 
 .submitButton {
-  height: 2.2rem;
+  height: 2.7rem;
   width: 18.75rem;
 
   margin-top: 10px;
@@ -89,4 +69,18 @@
 .submitButton:active {
   outline: none;
   background-color: var(--mainColor);
+}
+
+.submitButton:focus-visible {
+  outline: 2px solid var(--activeButton);
+}
+
+@media (max-width: 1024px) { 
+  .imgContent {
+    display: none;
+  }
+
+  .form {
+   width: 100vw;
+  }
 }

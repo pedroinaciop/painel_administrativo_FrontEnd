@@ -31,6 +31,7 @@ function InputPassword({
             <label htmlFor={idInput}>{label}</label>
             <input
                 id={idInput}
+                maxLength={maxLength}
                 type={type === 'password' && mostrarSenha ? 'text' : type}
                 placeholder={placeholder}
                 className={`${className} ${error? styled.inputError : ''}`}

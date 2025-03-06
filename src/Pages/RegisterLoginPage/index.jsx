@@ -4,15 +4,20 @@ import InputField from "../../Components/InputField";
 import styled from "./RegisterLogin.module.css";
 import { useNavigate } from "react-router-dom";
 import { useForm } from 'react-hook-form';
+import { useState } from "react";
+import InputPassword from "../../Components/InputPassword"
 import api from '../../services/api'
 import { z } from "zod";
 
 const RegisterLoginUser = () => {
+    
+    const [errorAPI, setError] = useState(null);
     localStorage.setItem("token", "");
+    
     const navigate = useNavigate();
     const logOnSchema = z.object({
         usuario: z.string().email("Digite um e-mail válido"),
-        senha: z.string().min(6, "A senha deve ter pelo menos 6 caracteres"),
+        senha: z.string().nonempty("A senha não pode estar vazia"),
     });
 
     const { register, handleSubmit, formState: { errors } } = useForm({
@@ -25,45 +30,48 @@ const RegisterLoginUser = () => {
                 password: data.senha
             })
             .then(response => {
-                console.log("Login bem-sucedido:", response.data);
                 localStorage.setItem("token", response.data.token);
                 navigate("/")
                 
             })
             .catch(error => {
-                console.error("Erro Axios:", error.response?.data || error.message);
+                setError(error.response?.data);
             });
     };
 
     return (
-        <section className={styled.background}>
-            <div className={styled.container}>
-                <aside className={styled.leftSide}>
-                    <img src={loginImg} className={styled.loginImg} alt="Imagem ilustrativa de login" />
-                </aside>
-                <form onSubmit={handleSubmit(login)} className={styled.rightSide}>
-                    <h2 className={styled.title}>LOGIN</h2>
-
+        <section className={styled.main}>
+            <div className={styled.formContent}>
+                <form onSubmit={handleSubmit(login)} className={styled.form}>
+                    <h2 className={styled.title}>Login</h2>
+                    {errorAPI && <p>{errorAPI}</p>}
+                    
                     <InputField
                         idInput="usuario"
                         idDiv={styled.userField}
                         label={"Usuário"}
                         type="email"
+                        maxLength={60}
+                        placeholder={"Insira seu e-mail"}
                         register={register}
                         error={errors?.usuario}
                     />
 
-                    <InputField
+                    <InputPassword
                         idInput="senha"
                         idDiv={styled.passwordField}
                         label={"Senha"}
-                        type="text"
+                        maxLength={30}
+                        type="password"
+                        placeholder={"Insira a senha"}
                         register={register}
-                        error={errors?.password}
+                        error={errors?.senha}
                     />
-
-                <button type="submit" className={styled.submitButton}>Entrar</button>
+                    <button type="submit" className={styled.submitButton}>ENTRAR</button>
                 </form>
+            </div>
+            <div className={styled.imgContent}>
+                <img src={loginImg} className={styled.loginImg} alt="Imagem ilustrativa de login" />
             </div>
         </section>
     );
