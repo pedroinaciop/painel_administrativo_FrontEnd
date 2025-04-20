@@ -41,13 +41,14 @@ const ProductsPage = () => {
   }
 
   const columns = [
-    { title: 'ID', dataIndex: 'product_id', sorter: true },
-    { title: 'Produto', dataIndex: 'productName', sorter: true },
-    { title: 'Código de Referência', dataIndex: 'referenceCode', sorter: true },
-    { title: 'Preço', dataIndex: 'price', valueType: 'money', sorter: true },
-    { title: 'Preço promocional', dataIndex: 'pricePromocional', valueType: 'money', sorter: true },
+    { title: 'ID', dataIndex: 'product_id', width: 50},
+    { title: 'PRODUTO', dataIndex: 'productName'},
+    { title: 'CÓDIGO DE REFERÊNCIA', dataIndex: 'referenceCode', copyable: 'true'},
+    { title: 'PREÇO', dataIndex: 'price', valueType: 'money'},
+    { title: 'PREÇO PROMOCIONAL', dataIndex: 'pricePromocional', valueType: 'money'},
     {
-      title: 'Editar',
+      title: 'EDITAR',
+      width: 140,
       render: (_, row) => (
         <Button key="editar" href={`/cadastros/produtos/${row.id}`} onClick={() => window.alert('Confirmar atualização?')} icon={<EditOutlined />} >
           Editar
@@ -55,7 +56,8 @@ const ProductsPage = () => {
       ),
     },
     {
-      title: 'Deletar',
+      title: 'DELETAR',
+      width: 140,
       render: (_, row) => (
         <Button key="deletar" href={`/cadastros/produtos/${row.id}`} onClick={(e) => e.preventDefault(confirmDelete(row.id))} icon={<DeleteOutlined />}>
           Deletar

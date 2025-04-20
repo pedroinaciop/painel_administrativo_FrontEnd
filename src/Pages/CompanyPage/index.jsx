@@ -41,12 +41,14 @@ const CompanyPage = () => {
     }
 
     const columns = [
-        { title: 'ID', dataIndex: 'company_id', sorter: true },
-        { title: 'CNPJ', dataIndex: 'cnpj', sorter: true },
-        { title: 'EMPRESA', dataIndex: 'corporateReason', sorter: true },
-        { title: 'ÚLTIMA ALTERAÇÃO', dataIndex: 'updateDate', sorter: true },
+        { title: 'ID', dataIndex: 'company_id', width: 50},
+        { title: 'CNPJ', dataIndex: 'cnpj', copyable: true},
+        { title: 'EMPRESA', dataIndex: 'corporateReason'},
+        { title: 'ÚLTIMA ALTERAÇÃO', dataIndex: 'updateDate'},
+        { title: 'USUÁRIO ALTERAÇÃO', dataIndex: 'updateUser'},
         {
             title: 'EDITAR',
+            width: 140,
             render: (_, row) => (
                 <Button key="editar" href={`/cadastros/empresas/${row.id}`} onClick={() => window.alert('Confirmar atualização?')} icon={<EditOutlined />} >
                     Editar
@@ -55,6 +57,7 @@ const CompanyPage = () => {
         },
         {
             title: 'DELETAR',
+            width: 140,
             render: (_, row) => (
                 <Button key="deletar" href={`/cadastros/empresas/${row.id}`} onClick={(e) => e.preventDefault(confirmDelete(row.id))} icon={<DeleteOutlined />}>
                     Deletar

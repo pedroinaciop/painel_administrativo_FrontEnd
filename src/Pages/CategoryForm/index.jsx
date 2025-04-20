@@ -1,15 +1,19 @@
+import { useParams, useNavigate } from 'react-router-dom';
 import { zodResolver } from '@hookform/resolvers/zod';
 import FooterForm from '../../Components/FooterForm'
 import HeaderForm from '../../Components/HeaderForm'
 import InputField from '../../Components/InputField';
 import styled from './CategoryForm.module.css';
 import { useSnackbar } from 'notistack';
-import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import api from '../../services/api'
+import { useEffect, useState } from 'react';
 import { z } from 'zod';
 
+
 const CategoryForm = () => {
+    const { id } = useParams();
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
     const updateDate = new Date();
     const { enqueueSnackbar } = useSnackbar();
@@ -21,8 +25,8 @@ const CategoryForm = () => {
         .nonempty("O nome da categoria é obrigatório")
     })
 
-    const { register, handleSubmit, formState: { errors } } = useForm({
-        resolver: zodResolver(createCategorySchema)
+    const { register, handleSubmit, formState: { errors }, reset, watch } = useForm({
+        resolver: zodResolver(createCategorySchema) 
     });
 
     const handleKeyDown = (e) => {
@@ -35,7 +39,7 @@ const CategoryForm = () => {
         api.post("cadastros/categorias/novo", {
             categoryName: data.nome_categoria,
             updateDate: formattedDate,
-            updateUser: "ADM",
+            updateUser: sessionStorage.getItem("user"),
         }, {
             headers: {
                 'Content-Type': 'application/json'
@@ -59,10 +63,61 @@ const CategoryForm = () => {
         })
     };
 
+    const editCategory = (data) => {
+        api.put(`/editar/categorias/${id}`, {
+            categoryName: data.nome_categoria,
+            updateDate: formattedDate,
+            updateUser: sessionStorage.getItem("user")
+        }, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(function() {
+            enqueueSnackbar("Cadastro editado com sucesso!", { variant: "success", anchorOrigin: { vertical: "bottom", horizontal: "right" }});
+            navigate('/cadastros/categorias');
+        }).catch(function(error) {
+            if (api.isAxiosError(error)) {
+                if (error.response) {
+                    enqueueSnackbar(`Erro ${error.response.status}: ${error.response.data.message}`, { variant: "error", anchorOrigin: { vertical: "bottom", horizontal: "right" } });
+                } else if (error.request) {
+                    enqueueSnackbar("Erro de rede: Servidor não respondeu", { variant: "warning", anchorOrigin: { vertical: "bottom", horizontal: "right" } });
+                } else {
+                    enqueueSnackbar("Erro desconhecido: " + error.message, { variant: "error", anchorOrigin: { vertical: "bottom", horizontal: "right" } });
+                }
+            } else {
+                enqueueSnackbar("Erro inesperado", { variant: "error" });
+            }
+        })
+    };
+
+    const updateDateField = watch("updateDate");
+    const updateUserField = watch("updateUser");
+
+    useEffect(() => {
+        if (id) {
+            setLoading(true);
+            api.get(`/editar/categorias/${id}`)
+                .then(response => {
+                    const categoria = response.data;   
+                    reset({
+                        nome_categoria: categoria.categoryName,
+                        updateDate: categoria.updateDate,
+                        updateUser: categoria.updateUser,
+                    });
+                })
+                .catch(error => {
+                    enqueueSnackbar("Erro ao carregar categoria", { variant: "error", anchorOrigin: { vertical: "bottom", horizontal: "right"}});
+                })
+                .finally(() => setLoading(false));
+        }
+    }, [id]);
+
+
     return (
         <section className={styled.appContainer}>
-            <HeaderForm title={"Nova Categoria"} />
-            <form onSubmit={handleSubmit(createCategory)} onKeyDown={handleKeyDown} autoComplete="off">
+            <HeaderForm title={id ? "Atualizar Categoria" : "Nova Categoria"} />
+            <form onSubmit={id ? handleSubmit(editCategory) : handleSubmit(createCategory)} onKeyDown={handleKeyDown} autoComplete="off">
                 <div className={styled.row}>
                     <InputField
                         idInput="nome_categoria"
@@ -73,10 +128,9 @@ const CategoryForm = () => {
                         error={errors?.nome_categoria}
                     />
                 </div>
-                <FooterForm />
+                <FooterForm title={id ? "Atualizar" : "Adicionar"} updateDateField={updateDateField} updateUserField={updateUserField}/>
             </form>
         </section>
-
     );
 };
 

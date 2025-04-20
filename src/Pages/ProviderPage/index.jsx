@@ -5,32 +5,36 @@ import React, { useEffect, useState } from 'react';
 import { confirmAlert } from 'react-confirm-alert';
 import ProTable from '@ant-design/pro-table';
 import styled from './ProviderPage.module.css';
-import { NavLink } from 'react-router-dom';
+import { useNavigate, NavLink } from 'react-router-dom';
 import ptBR from 'antd/lib/locale/pt_BR';
 import { useSnackbar } from 'notistack';
 import * as XLSX from 'xlsx';
 import api from '../../services/api'
 
 const ProviderPage = () => {
+    const navigate = useNavigate();
     const [keywords, setKeywords] = useState('');
     const [providers, setProviders] = useState([]);
     const { enqueueSnackbar } = useSnackbar();
 
     const columns = [
-        { title: 'ID', dataIndex: 'provider_id', sorter: true },
-        { title: 'CNPJ', dataIndex: 'cnpj', sorter: true },
-        { title: 'NOME', dataIndex: 'provider', sorter: true },
-        { title: 'ÚLTIMA ALTERAÇÃO', dataIndex: 'updateDate', sorter: true },
+        { title: 'ID', dataIndex: 'provider_id', width: 50,},
+        { title: 'CNPJ', dataIndex: 'cnpj', copyable: true},
+        { title: 'NOME', dataIndex: 'provider', ellipsis: true},
+        { title: 'ÚLTIMA ALTERAÇÃO', dataIndex: 'updateDate'},
+        { title: 'USUÁRIO ALTERAÇÃO', dataIndex: 'updateUser', ellipsis: true},
         {
             title: 'EDITAR',
+            width: 140,
             render: (_, row) => (
-                <Button key="editar" href={`/cadastros/fornecedores/${row.provider_id}`} onClick={() => window.alert('Confirmar atualização?')} icon={<EditOutlined />} >
+                <Button key="editar" onClick={() => navigate(`/editar/fornecedores/${row.provider_id}`)} icon={<EditOutlined />} >
                     Editar
                 </Button>
             ),
         },
         {
             title: 'DELETAR',
+            width: 140,
             render: (_, row) => (
                 <Button key="deletar" href={`/cadastros/fornecedores/${row.provider_id}`} onClick={(e) => e.preventDefault(confirmDelete(row.provider_id))} icon={<DeleteOutlined />}>
                     Deletar

@@ -2,16 +2,18 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import FooterForm from '../../Components/FooterForm';
 import HeaderForm from '../../Components/HeaderForm';
 import InputField from '../../Components/InputField';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import styled from './ProviderForm.module.css'
 import { useForm } from 'react-hook-form';
 import { useSnackbar } from 'notistack';
 import VMasker from 'vanilla-masker';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import api from '../../services/api'
 import { z } from 'zod';
 
 const ProviderForm = () => {
+    const { id } = useParams();
+    const [loading, setLoading] = useState(false);
     const updateDate = new Date();
     const navigate = useNavigate();
     const [cnpj, setCnpj] = useState("");
@@ -29,7 +31,7 @@ const ProviderForm = () => {
             .min(10, "Nome do fornecedor deve ter pelo menos 10 caracteres"),
     })
 
-    const { register, handleSubmit, setValue, formState: { errors } } = useForm({
+    const { register, handleSubmit, setValue, reset, watch, formState: { errors } } = useForm({
         resolver: zodResolver(createBrandSchema),
     });
     
@@ -39,7 +41,7 @@ const ProviderForm = () => {
         }
     };
 
-    const createBrand = (data) => {
+    const createProvider = (data) => {
         setCnpj("");
 
         const formattedData = {
@@ -76,16 +78,65 @@ const ProviderForm = () => {
         });
     };
 
+        const editProvider = (data) => {
+            api.put(`/editar/fornecedores/${id}`, {
+                providerName: data.provider,
+            }, {
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(function() {
+                enqueueSnackbar("Cadastro editado com sucesso!", { variant: "success", anchorOrigin: { vertical: "bottom", horizontal: "right" }});
+                navigate('/cadastros/fornecedores');
+            }).catch(function(error) {
+                if (api.isAxiosError(error)) {
+                    if (error.response) {
+                        enqueueSnackbar(`Erro ${error.response.status}: ${error.response.data.message}`, { variant: "error", anchorOrigin: { vertical: "bottom", horizontal: "right" } });
+                    } else if (error.request) {
+                        enqueueSnackbar("Erro de rede: Servidor não respondeu", { variant: "warning", anchorOrigin: { vertical: "bottom", horizontal: "right" } });
+                    } else {
+                        enqueueSnackbar("Erro desconhecido: " + error.message, { variant: "error", anchorOrigin: { vertical: "bottom", horizontal: "right" } });
+                    }
+                } else {
+                    enqueueSnackbar("Erro inesperado", { variant: "error" });
+                }
+            })
+        };
+    
+
     const cnpjMask = (e) => {
         const maskedValue = VMasker.toPattern(e.target.value, '99.999.999/9999-99');
         setCnpj(maskedValue);
         setValue("cnpj", maskedValue);
     };
 
+    useEffect(() => {
+        if (id) {
+            setLoading(true);
+            api.get(`/editar/fornecedores/${id}`)
+            .then (response => {
+                const fornecedor = response.data
+                reset ({
+                    cnpj: fornecedor.cnpj,
+                    provider: fornecedor.provider,
+                    updateDate: fornecedor.updateDate,
+                    updateUser: fornecedor.updateUser
+                })
+            }).catch(error => {
+                enqueueSnackbar("Erro ao carregar fornecedor", { variant: "error", anchorOrigin: { vertical: "bottom", horizontal: "right"}});
+            })
+            .finally (() => setLoading(true))
+        }
+    }, [id])
+
+    const updateDateField = watch("updateDate");
+    const updateUserField = watch("updateUser");
+
     return (
         <section className={styled.appContainer}>
             <HeaderForm title={"Novo Fornecedor"} />
-            <form onSubmit={handleSubmit(createBrand)} onKeyDown={handleKeyDown} autoComplete="off">
+            <form onSubmit={id ? handleSubmit(editProvider) : handleSubmit(createProvider)} onKeyDown={handleKeyDown} autoComplete="off">
                 <div className={styled.row}>
                     <InputField
                         autoFocus
@@ -97,6 +148,7 @@ const ProviderForm = () => {
                         register={register}
                         onChange={cnpjMask}
                         error={errors?.cnpj}
+                        readOnly={id ? true : false}
                     />
                     <InputField
                         idInput="provider"
@@ -107,7 +159,7 @@ const ProviderForm = () => {
                         error={errors?.provider}
                     />
                 </div>
-                <FooterForm />
+                <FooterForm title={id ? "Atualizar" : "Adicionar"} updateDateField={updateDateField} updateUserField={updateUserField}/>
             </form>
         </section>
     );

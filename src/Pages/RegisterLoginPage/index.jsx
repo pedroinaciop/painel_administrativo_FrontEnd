@@ -1,20 +1,18 @@
 import loginImg from "../../assets/images/login_img.svg";
+import InputPassword from "../../Components/InputPassword"
 import { zodResolver } from '@hookform/resolvers/zod';
 import InputField from "../../Components/InputField";
 import styled from "./RegisterLogin.module.css";
 import { useNavigate } from "react-router-dom";
 import { useForm } from 'react-hook-form';
-import { useState } from "react";
-import InputPassword from "../../Components/InputPassword"
 import api from '../../services/api'
+import { useState } from "react";
 import { z } from "zod";
 
 const RegisterLoginUser = () => {
-    
     const [errorAPI, setError] = useState(null);
-    localStorage.setItem("token", "");
-    
     const navigate = useNavigate();
+
     const logOnSchema = z.object({
         usuario: z.string().email("Digite um e-mail válido"),
         senha: z.string().nonempty("A senha não pode estar vazia"),
@@ -24,15 +22,15 @@ const RegisterLoginUser = () => {
         resolver: zodResolver(logOnSchema)
     });
 
-    const login = (data) => {
+    const logar = (data) => {
             api.post('auth/login', {
                 login: data.usuario,
                 password: data.senha
             })
             .then(response => {
-                localStorage.setItem("token", response.data.token);
-                navigate("/")
-                
+                navigate("/");
+                sessionStorage.setItem("user", response.data.user)
+                sessionStorage.setItem("token", response.data.token)
             })
             .catch(error => {
                 setError(error.response?.data);
@@ -42,7 +40,7 @@ const RegisterLoginUser = () => {
     return (
         <section className={styled.main}>
             <div className={styled.formContent}>
-                <form onSubmit={handleSubmit(login)} className={styled.form}>
+                <form onSubmit={handleSubmit(logar)} className={styled.form}>
                     <h2 className={styled.title}>Login</h2>
                     {errorAPI && <p>{errorAPI}</p>}
                     

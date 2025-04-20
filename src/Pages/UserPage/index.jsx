@@ -55,12 +55,13 @@ const UserPage = () => {
     }, [])
 
     const columns = [
-        { title: 'ID', dataIndex: 'user_id', sorter: true },
-        { title: 'NOME COMPLETO', dataIndex: 'fullName', sorter: true },
-        { title: 'EMAIL', dataIndex: 'email', sorter: true },
-        { title: 'ÚLTIMA ALTERAÇÃO', dataIndex: 'updateDate', sorter: true },
+        { title: 'ID', dataIndex: 'user_id', width: 50,},
+        { title: 'NOME COMPLETO', dataIndex: 'fullName'},
+        { title: 'EMAIL', dataIndex: 'email'},
+        { title: 'ÚLTIMA ALTERAÇÃO', dataIndex: 'updateDate'},
         {
-            title: 'Editar',
+            title: 'EDITAR',
+            width: 140,
             render: (_, row) => (
                 <Button key="editar" href={`/cadastros/usuarios/${row.user_id}`} onClick={() => window.alert('Confirmar atualização?')} icon={<EditOutlined />} >
                     Editar
@@ -68,7 +69,8 @@ const UserPage = () => {
             ),
         },
         {
-            title: 'Deletar',
+            title: 'DELETAR',
+            width: 140,
             render: (_, row) => (
                 <Button key="deletar" href={`/cadastros/usuarios/${row.user_id}`} onClick={(e) => e.preventDefault(confirmDelete(row.user_id))} icon={<DeleteOutlined />}>
                     Deletar

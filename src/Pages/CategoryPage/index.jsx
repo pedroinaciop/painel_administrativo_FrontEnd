@@ -2,6 +2,7 @@ import { DownloadOutlined, PlusOutlined, EditOutlined, DeleteOutlined } from '@a
 import { ConfigProvider, Input, Button } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { confirmAlert } from 'react-confirm-alert';
+import { useNavigate } from 'react-router-dom';
 import styled from './CategoryPage.module.css';
 import ProTable from '@ant-design/pro-table';
 import { NavLink } from 'react-router-dom';
@@ -11,6 +12,7 @@ import * as XLSX from 'xlsx';
 import api from '../../services/api'
 
 const CategoryPage = () => {
+    const navigate = useNavigate();
     const [keywords, setKeywords] = useState('');
     const [categories, setCategories] = useState([]);
     const { enqueueSnackbar } = useSnackbar();
@@ -55,19 +57,23 @@ const CategoryPage = () => {
     }, []);
 
     const columns = [
-        { title: 'ID', dataIndex: 'category_id', sorter: true },
-        { title: 'CATEGORIA', dataIndex: 'categoryName', sorter: true },
-        { title: 'ÚLTIMA ALTERAÇÃO', dataIndex: 'updateDate', sorter: true },
+        { title: 'ID', dataIndex: 'category_id', width: 50},
+        { title: 'CATEGORIA', dataIndex: 'categoryName', ellipsis: true},
+        { title: 'ÚLTIMA ALTERAÇÃO', dataIndex: 'updateDate'},
+        { title: 'USUÁRIO ALTERAÇÃO', dataIndex: 'updateUser', ellipsis: true},
         {
-            title: 'Editar',
+            title: 'EDITAR',
+            width: 140,
             render: (_, row) => (
-                <Button key="editar" href={`/cadastros/categorias/${row.category_id}`} onClick={() => window.alert('Confirmar atualização?')} icon={<EditOutlined />} >
+                <Button key="editar" 
+                onClick={() => navigate(`/editar/categorias/${row.category_id}`)} icon={<EditOutlined />} >
                     Editar
                 </Button>
             ),
         },
         {
-            title: 'Deletar',
+            title: 'DELETAR',
+            width: 140,
             render: (_, row) => (
                 <Button key="deletar" href={`/cadastros/categorias/${row.category_id}`} onClick={(e) => e.preventDefault(confirmDelete(row.category_id))} icon={<DeleteOutlined />}>
                     Deletar
