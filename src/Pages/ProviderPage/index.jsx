@@ -1,15 +1,16 @@
 import { DownloadOutlined, PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import 'react-confirm-alert/src/react-confirm-alert.css';
+import { useNavigate, NavLink } from 'react-router-dom';
 import { ConfigProvider, Input, Button } from 'antd';
 import React, { useEffect, useState } from 'react';
 import { confirmAlert } from 'react-confirm-alert';
-import ProTable from '@ant-design/pro-table';
 import styled from './ProviderPage.module.css';
-import { useNavigate, NavLink } from 'react-router-dom';
+import ProTable from '@ant-design/pro-table';
 import ptBR from 'antd/lib/locale/pt_BR';
 import { useSnackbar } from 'notistack';
-import * as XLSX from 'xlsx';
 import api from '../../services/api'
+import VMasker from 'vanilla-masker';
+import * as XLSX from 'xlsx';
 
 const ProviderPage = () => {
     const navigate = useNavigate();
@@ -17,9 +18,17 @@ const ProviderPage = () => {
     const [providers, setProviders] = useState([]);
     const { enqueueSnackbar } = useSnackbar();
 
+    const cnpjMask = (value) => {
+        return VMasker.toPattern(value, '99.999.999/9999-99');
+    };
+
     const columns = [
         { title: 'ID', dataIndex: 'provider_id', width: 50,},
-        { title: 'CNPJ', dataIndex: 'cnpj', copyable: true},
+        { title: 'CNPJ', dataIndex: 'cnpj', copyable: true, 
+            render: (text) => {
+            const cnpj = text.props.children;
+            return cnpjMask(cnpj);
+        }},
         { title: 'NOME', dataIndex: 'provider', ellipsis: true},
         { title: 'ÚLTIMA ALTERAÇÃO', dataIndex: 'updateDate'},
         { title: 'USUÁRIO ALTERAÇÃO', dataIndex: 'updateUser', ellipsis: true},

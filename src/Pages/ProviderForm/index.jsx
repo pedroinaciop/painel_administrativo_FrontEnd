@@ -78,31 +78,33 @@ const ProviderForm = () => {
         });
     };
 
-        const editProvider = (data) => {
-            api.put(`/editar/fornecedores/${id}`, {
-                providerName: data.provider,
-            }, {
-                headers: {
-                    'Content-Type': 'application/json'
-                }
-            })
-            .then(function() {
-                enqueueSnackbar("Cadastro editado com sucesso!", { variant: "success", anchorOrigin: { vertical: "bottom", horizontal: "right" }});
-                navigate('/cadastros/fornecedores');
-            }).catch(function(error) {
-                if (api.isAxiosError(error)) {
-                    if (error.response) {
-                        enqueueSnackbar(`Erro ${error.response.status}: ${error.response.data.message}`, { variant: "error", anchorOrigin: { vertical: "bottom", horizontal: "right" } });
-                    } else if (error.request) {
-                        enqueueSnackbar("Erro de rede: Servidor não respondeu", { variant: "warning", anchorOrigin: { vertical: "bottom", horizontal: "right" } });
-                    } else {
-                        enqueueSnackbar("Erro desconhecido: " + error.message, { variant: "error", anchorOrigin: { vertical: "bottom", horizontal: "right" } });
-                    }
+    const editProvider = (data) => {
+        api.put(`/editar/fornecedores/${id}`, {
+            providerName: data.provider.toUpperCase(),
+            updateDate: formattedDate,
+            updateUser: sessionStorage.getItem("user")
+        }, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(function() {
+            enqueueSnackbar("Cadastro editado com sucesso!", { variant: "success", anchorOrigin: { vertical: "bottom", horizontal: "right" }});
+            navigate('/cadastros/fornecedores');
+        }).catch(function(error) {
+            if (api.isAxiosError(error)) {
+                if (error.response) {
+                    enqueueSnackbar(`Erro ${error.response.status}: ${error.response.data.message}`, { variant: "error", anchorOrigin: { vertical: "bottom", horizontal: "right" } });
+                } else if (error.request) {
+                    enqueueSnackbar("Erro de rede: Servidor não respondeu", { variant: "warning", anchorOrigin: { vertical: "bottom", horizontal: "right" } });
                 } else {
-                    enqueueSnackbar("Erro inesperado", { variant: "error" });
+                    enqueueSnackbar("Erro desconhecido: " + error.message, { variant: "error", anchorOrigin: { vertical: "bottom", horizontal: "right" } });
                 }
-            })
-        };
+            } else {
+                enqueueSnackbar("Erro inesperado", { variant: "error" });
+            }
+        })
+    };
     
 
     const cnpjMask = (e) => {
@@ -117,8 +119,9 @@ const ProviderForm = () => {
             api.get(`/editar/fornecedores/${id}`)
             .then (response => {
                 const fornecedor = response.data
+                const cnpjMascarado = VMasker.toPattern(fornecedor.cnpj, '99.999.999/9999-99');
                 reset ({
-                    cnpj: fornecedor.cnpj,
+                    cnpj: cnpjMascarado,
                     provider: fornecedor.provider,
                     updateDate: fornecedor.updateDate,
                     updateUser: fornecedor.updateUser

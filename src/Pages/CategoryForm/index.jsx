@@ -37,7 +37,7 @@ const CategoryForm = () => {
 
     const createCategory = (data) => {
         api.post("cadastros/categorias/novo", {
-            categoryName: data.nome_categoria,
+            categoryName: data.nome_categoria.toUpperCase(),
             updateDate: formattedDate,
             updateUser: sessionStorage.getItem("user"),
         }, {
@@ -65,7 +65,7 @@ const CategoryForm = () => {
 
     const editCategory = (data) => {
         api.put(`/editar/categorias/${id}`, {
-            categoryName: data.nome_categoria,
+            categoryName: data.nome_categoria.toUpperCase(),
             updateDate: formattedDate,
             updateUser: sessionStorage.getItem("user")
         }, {

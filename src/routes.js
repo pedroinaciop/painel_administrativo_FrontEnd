@@ -37,6 +37,7 @@ function App() {
 
                   <Route path="/cadastros/empresas" element={<CompanyPage/>} />
                   <Route path="/cadastros/empresas/novo" element={<CompanyForm />} />
+                  <Route path="/editar/empresas/:id" element={<CompanyForm />} />
 
                   <Route path="/cadastros/fornecedores" element={<ProviderPage />} />
                   <Route path="/cadastros/fornecedores/novo" element={<ProviderForm/>} />

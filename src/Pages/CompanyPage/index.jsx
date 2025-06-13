@@ -4,16 +4,52 @@ import { confirmAlert } from 'react-confirm-alert';
 import React, { useState, useEffect } from 'react';
 import styled from './CompanyPage.module.css';
 import ProTable from '@ant-design/pro-table';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import ptBR from 'antd/lib/locale/pt_BR';
 import { useSnackbar } from 'notistack';
+import VMasker from 'vanilla-masker';
 import api from '../../services/api'
 import * as XLSX from 'xlsx';
 
 const CompanyPage = () => {
+    const navigate = useNavigate();
     const [keywords, setKeywords] = useState('');
     const [company, setCompany] = useState([]);
     const { enqueueSnackbar } = useSnackbar();
+
+    const cnpjMask = (value) => {
+        return VMasker.toPattern(value, '99.999.999/9999-99');
+    };
+
+    const columns = [
+        { title: 'ID', dataIndex: 'company_id', width: 50},
+        { title: 'CNPJ', dataIndex: 'cnpj', copyable: true, 
+            render: (text) => {
+            const cnpj = text.props.children;
+            return cnpjMask(cnpj);
+        }},
+        { title: 'EMPRESA', dataIndex: 'corporateReason'},
+        { title: 'ÚLTIMA ALTERAÇÃO', dataIndex: 'updateDate'},
+        { title: 'USUÁRIO ALTERAÇÃO', dataIndex: 'updateUser'},
+        {
+            title: 'EDITAR',
+            width: 140,
+            render: (_, row) => (
+                <Button key="editar" onClick={() => navigate(`/editar/empresas/${row.company_id}`)} icon={<EditOutlined />} >
+                    Editar
+                </Button>
+            ),
+        },
+        {
+            title: 'DELETAR',
+            width: 140,
+            render: (_, row) => (
+                <Button key="deletar" href={`/cadastros/empresas/${row.id}`} onClick={(e) => e.preventDefault(confirmDelete(row.id))} icon={<DeleteOutlined />}>
+                    Deletar
+                </Button>
+            ),
+        },
+    ];
 
     const confirmDelete = (id) => {
         confirmAlert({
@@ -39,32 +75,6 @@ const CompanyPage = () => {
             enqueueSnackbar("Deletado com sucesso!", { variant: "success", anchorOrigin: { vertical: "bottom", horizontal: "right" }});
         })
     }
-
-    const columns = [
-        { title: 'ID', dataIndex: 'company_id', width: 50},
-        { title: 'CNPJ', dataIndex: 'cnpj', copyable: true},
-        { title: 'EMPRESA', dataIndex: 'corporateReason'},
-        { title: 'ÚLTIMA ALTERAÇÃO', dataIndex: 'updateDate'},
-        { title: 'USUÁRIO ALTERAÇÃO', dataIndex: 'updateUser'},
-        {
-            title: 'EDITAR',
-            width: 140,
-            render: (_, row) => (
-                <Button key="editar" href={`/cadastros/empresas/${row.id}`} onClick={() => window.alert('Confirmar atualização?')} icon={<EditOutlined />} >
-                    Editar
-                </Button>
-            ),
-        },
-        {
-            title: 'DELETAR',
-            width: 140,
-            render: (_, row) => (
-                <Button key="deletar" href={`/cadastros/empresas/${row.id}`} onClick={(e) => e.preventDefault(confirmDelete(row.id))} icon={<DeleteOutlined />}>
-                    Deletar
-                </Button>
-            ),
-        },
-    ];
 
     const handleDownload = () => {
         if (company.length > 0) {

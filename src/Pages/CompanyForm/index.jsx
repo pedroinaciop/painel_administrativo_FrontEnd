@@ -2,18 +2,19 @@ import InputField from '../../Components/InputField';
 import HeaderForm from '../../Components/HeaderForm';
 import FooterForm from '../../Components/FooterForm';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import styled from './CompanyForm.module.css';
 import { useForm } from "react-hook-form";
 import { useSnackbar } from 'notistack';
 import VMasker from 'vanilla-masker';
 import api from '../../services/api'
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { z } from 'zod';
 
 const CompanyForm = () => {
+  const { id }  = useParams();
   const updateDate = new Date();
-  const [company, setCompany] = useState([]);
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const formattedDate = `${updateDate.toLocaleDateString('pt-BR')} ${updateDate.toLocaleTimeString('pt-BR')}`;
   const { enqueueSnackbar } = useSnackbar();
@@ -57,7 +58,7 @@ const CompanyForm = () => {
       .max(55, "Escreva um complemento menor do que 55 caracteres")
   })
 
-  const { register, handleSubmit, formState: { errors }, setValue } = useForm({
+  const { register, handleSubmit, reset, formState: { errors }, setValue } = useForm({
     resolver: zodResolver(createCompanyFormSchema),
   });
 
@@ -156,6 +157,36 @@ const CompanyForm = () => {
     console.log(data);
   };
 
+  useEffect(() => {
+    if (id) {
+        setLoading(true)
+        api.get(`editar/empresas/${id}`)
+        .then(response => {
+          const company = response.data;
+          reset({
+            cnpj: company.cnpj,
+            razao_social: company.corporateReason,
+            inscricao_estadual: company.stateRegistration,
+            email: company.email,
+            telefone: company.telefone,
+            cep: company.cep,
+            logradouro: company.street,
+            numero_endereco: company.numberAddress,
+            bairro: company.neighborhood,
+            cidade: company.city,
+            estado: company.state,
+            complemento: company.complement,
+            updateDate: company.updateDate,
+            updateUser: company.updateUser
+          });
+        }) 
+        .catch(error => {
+          enqueueSnackbar("Erro ao carregar categoria", { variant: "error", anchorOrigin: { vertical: "bottom", horizontal: "right"}});
+        })
+        .finally(() => setLoading(false));
+    }
+  }, [id])
+
   return (
     <section className={styled.appContainer}>
       <HeaderForm title={"Nova Empresa"} />
@@ -169,6 +200,7 @@ const CompanyForm = () => {
               label="CNPJ*"
               type="text"
               placeholder={"__.___.___/____.__"}
+              readOnly={id ? true : false}
               register={register}
               onChange={cnpjMask}
               error={errors.cnpj}
@@ -293,7 +325,7 @@ const CompanyForm = () => {
             />
           </div>
         </section>
-        <FooterForm />
+        <FooterForm title={id ? "Atualizar" : "Adicionar"}/>
       </form>
     </section>
   );
