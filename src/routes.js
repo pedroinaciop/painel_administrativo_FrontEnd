@@ -34,6 +34,7 @@ function App() {
 
                   <Route path="/cadastros/produtos" element={<ProductPage />} />
                   <Route path="/cadastros/produtos/novo" element={<ProductForm />} />
+                  <Route path="/editar/produtos/:id" element={<ProductForm />} />
 
                   <Route path="/cadastros/empresas" element={<CompanyPage/>} />
                   <Route path="/cadastros/empresas/novo" element={<CompanyForm />} />

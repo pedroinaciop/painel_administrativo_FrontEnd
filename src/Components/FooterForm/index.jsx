@@ -1,10 +1,37 @@
-import styled from './ButtonForm.module.css';
-const ButtonForm = ({ text, type }) => {
-    return (
-        <button className={styled.btnRegister} type={type}>
-            {text}
-        </button>
-    );
-}
+import ButtonForm from '../../Components/ButtonForm';
+import InputField from '../../Components/InputField';
+import styled from './FooterForm.module.css'
+import { useForm } from 'react-hook-form';
 
-export default ButtonForm;
+const FooterForm = ({updateUserField, updateDateField, title}) => {
+    const { register } = useForm();
+    return (
+        <footer className={styled.footer}>
+            <div className={styled.buttons}>
+                <ButtonForm type="submit" text={title} />
+                <ButtonForm type="reset" text="Limpar" />
+            </div>
+            <div className={styled.updates}>
+                <InputField
+                    idDiv="updateDate"
+                    idInput="updateDate"
+                    label="Data de Alteração"
+                    type="text"
+                    text={updateDateField}
+                    register={register}
+                />
+
+                <InputField
+                    idDiv="updateDate"
+                    idInput="updateUser"
+                    label="Usuário de Alteração"
+                    type="text"
+                    text={updateUserField}
+                    register={register}
+                />
+            </div>
+        </footer>
+    );
+};
+
+export default FooterForm;

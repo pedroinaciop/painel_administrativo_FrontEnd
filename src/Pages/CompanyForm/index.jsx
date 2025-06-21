@@ -58,7 +58,7 @@ const CompanyForm = () => {
       .max(55, "Escreva um complemento menor do que 55 caracteres")
   })
 
-  const { register, handleSubmit, reset, formState: { errors }, setValue } = useForm({
+  const { register, handleSubmit, reset, formState: { errors }, setValue, watch } = useForm({
     resolver: zodResolver(createCompanyFormSchema),
   });
 
@@ -69,6 +69,7 @@ const CompanyForm = () => {
   };
 
   const cnpjMask = (e) => {
+    const value = e.target.value.replace(/\D/g, '');
     const maskedValue = VMasker.toPattern(e.target.value, "99.999.999/9999-99");
     setValue("cnpj", maskedValue);
   };
@@ -117,21 +118,7 @@ const CompanyForm = () => {
       cep: data.cep.replace(/\D/g, ""),
     };
 
-    api.post('cadastros/empresas/novo', {
-      cnpj: formattedData.cnpj,
-      corporateReason: data.razao_social,
-      stateRegistration: data.inscricao_estadual,
-      email: data.email,
-      phone: formattedData.telefone,
-      cep: formattedData.cep,
-      numberAddress: data.numero_endereco,
-      street: data.logradouro,
-      neighborhood: data.bairro,
-      city: data.cidade,
-      state: data.estado,
-      complement: data.complemento,
-      updateDate: formattedDate,
-      updateUser: "ADM",
+    api.post('cadastros/empresas/novo', buildPayload(data), {
     }, {
       headers: {
         'Content-Type': 'application/json'
@@ -157,19 +144,52 @@ const CompanyForm = () => {
     console.log(data);
   };
 
-  useEffect(() => {
+   const editCompany = (data) => {
+    const formattedData = {
+      ...data,
+      cnpj: data.cnpj.replace(/\D/g, ""),
+      telefone: data.telefone.replace(/\D/g, ""),
+      cep: data.cep.replace(/\D/g, ""),
+    };
+
+    api.put(`/editar/empresas/${id}`, buildPayload(data), {
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(function() {
+        enqueueSnackbar("Cadastro editado com sucesso!", { variant: "success", anchorOrigin: { vertical: "bottom", horizontal: "right" }});
+        navigate('/cadastros/empresas');
+    }).catch(function(error) {
+        if (api.isAxiosError(error)) {
+            if (error.response) {
+                enqueueSnackbar(`Erro ${error.response.status}: ${error.response.data.message}`, { variant: "error", anchorOrigin: { vertical: "bottom", horizontal: "right" } });
+            } else if (error.request) {
+                enqueueSnackbar("Erro de rede: Servidor não respondeu", { variant: "warning", anchorOrigin: { vertical: "bottom", horizontal: "right" } });
+            } else {
+                enqueueSnackbar("Erro desconhecido: " + error.message, { variant: "error", anchorOrigin: { vertical: "bottom", horizontal: "right" } });
+            }
+        } else {
+            enqueueSnackbar("Erro inesperado", { variant: "error" });
+        }
+    })
+};
+
+  useEffect(() => {  
     if (id) {
         setLoading(true)
         api.get(`editar/empresas/${id}`)
         .then(response => {
           const company = response.data;
+          const cnpjMascarado = VMasker.toPattern(company.cnpj, '99.999.999/9999-99');
+          const cepMascarado = VMasker.toPattern(company.cep, '99999-999');
           reset({
-            cnpj: company.cnpj,
+            cnpj: cnpjMascarado,
             razao_social: company.corporateReason,
             inscricao_estadual: company.stateRegistration,
             email: company.email,
-            telefone: company.telefone,
-            cep: company.cep,
+            telefone: company.phone,
+            cep: cepMascarado,
             logradouro: company.street,
             numero_endereco: company.numberAddress,
             bairro: company.neighborhood,
@@ -187,10 +207,32 @@ const CompanyForm = () => {
     }
   }, [id])
 
+  const buildPayload = (data) => {
+  return {
+    cnpj: data.cnpj.replace(/\D/g, ""),
+    corporateReason: data.razao_social,
+    stateRegistration: data.inscricao_estadual,
+    email: data.email,
+    phone: data.telefone.replace(/\D/g, ""),
+    cep: data.cep.replace(/\D/g, ""),
+    numberAddress: data.numero_endereco,
+    street: data.logradouro,
+    neighborhood: data.bairro,
+    city: data.cidade,
+    state: data.estado,
+    complement: data.complemento,
+    updateDate: formattedDate,
+    updateUser: sessionStorage.getItem("user"),
+  };
+};
+
+  const updateDateField = watch("updateDate");
+  const updateUserField = watch("updateUser");
+
   return (
     <section className={styled.appContainer}>
       <HeaderForm title={"Nova Empresa"} />
-      <form onSubmit={handleSubmit(createCompany)} className={styled.form} onKeyDown={handleKeyDown}>
+      <form onSubmit={id ? handleSubmit(editCompany) : handleSubmit(createCompany)} className={styled.form} onKeyDown={handleKeyDown}>
         <section className={styled.contextForm}>
           <div className={styled.row}>
             <InputField
@@ -325,7 +367,7 @@ const CompanyForm = () => {
             />
           </div>
         </section>
-        <FooterForm title={id ? "Atualizar" : "Adicionar"}/>
+        <FooterForm title={id ? "Atualizar" : "Adicionar"} updateDateField={updateDateField} updateUserField={updateUserField}/>
       </form>
     </section>
   );

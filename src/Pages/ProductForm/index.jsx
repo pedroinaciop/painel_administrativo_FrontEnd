@@ -1,23 +1,25 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import FooterForm from '../../Components/FooterForm';
 import HeaderForm from '../../Components/HeaderForm';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import styled from './ProductForm.module.css';
 import AsyncSelect from 'react-select/async';
-import { useForm, } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { useSnackbar } from 'notistack';
 import Tabs from '@mui/material/Tabs';
 import api from '../../services/api';
 import Tab from '@mui/material/Tab';
 import Box from '@mui/material/Box';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import * as React from 'react';
 import { z } from 'zod';
 
 const ProductForm = () => {
+  const { id } = useParams();
   const updateDate = new Date();
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
+  const [loading, setLoading] = useState(false);
   const [tabValue, setTabValue] = React.useState(0);
   const [selectedOptionProvider, setSelectedOptionProvider] = useState(null);
   const [selectedOptionCategory, setSelectedOptionCategory] = useState(null);
@@ -68,18 +70,15 @@ const ProductForm = () => {
     categoria: z.string()
       .nonempty("Categoria é obrigatória"),
 
-    quantidade_embalagem: z.string()
-      .nonempty("Quantidade por embalagem é obrigatória"),
+    quantidade_embalagem: z.number(),
 
     unidade_medida: z.enum(["Unidade", "Pacote", "Caixa"], {
       errorMap: () => ({ message: "Unidade de medida é obrigatória" })
     }),
 
-    peso_liquido: z.string()
-      .nonempty("Peso líquido deve ser maior ou igual a 0"),
+    peso_liquido: z.number(),
 
-    peso_bruto: z.string()
-      .nonempty("Peso bruto deve ser maior ou igual a 0"),
+    peso_bruto: z.number(),
 
     dimensoes: z.string()
       .optional(),
@@ -94,8 +93,7 @@ const ProductForm = () => {
     localizacao_estoque: z.string()
       .optional(),
 
-    icms: z.string()
-      .optional(),
+    icms: z.number(),
 
     cfop: z.string()
       .optional(),
@@ -117,12 +115,15 @@ const ProductForm = () => {
 
     frete_gratis: z.boolean()
       .optional(),
+
+    produto_perecivel: z.boolean()
+      .optional(),
   }).refine(data => data.preco_promocional < data.preco_venda, {
     message: "O preço de venda é menor ou igual ao preço promocional",
     path: ["preco_promocional"]
   });
 
-  const { register, handleSubmit, formState: { errors }, setValue } = useForm({
+  const { register, handleSubmit, formState: { errors }, setValue, reset, watch } = useForm({
     resolver: zodResolver(createProductSchema),
   });
 
@@ -203,34 +204,22 @@ const ProductForm = () => {
   };
 
   const createProduct = (data) => {
-    if (!selectedOptionProvider || !selectedOptionCategory) {
-      enqueueSnackbar("Erro: Fornecedor ou Categoria não selecionados!", { variant: "error" });
-      return;
-    }
-
     const productData = {
       productName: data.nome_produto,
       referenceCode: data.codigo_referencia,
       price: Number(data.preco_venda) || 0,
       pricePromocional: Number(data.preco_promocional) || 0,
-      provider: {
-        provider_id: selectedOptionProvider.id,
-        cnpj: "",
-        name: selectedOptionProvider.label || "",
-        updateDate: "",
-        updateUser: ""
-      },
+      
+      provider_id: selectedOptionProvider.id,
+
       stockAlert: Number(data.estoque_alertas) || 0,
       color: data.cor || "",
       size: data.tamanho || "",
       barCodeField: data.codigo_barras || "",
       description: data.descricao || "",
-      category: {
-        category_id: selectedOptionCategory.id,
-        categoryName: selectedOptionCategory.label || "",
-        updateDate: "",
-        updateUser: ""
-      },
+      
+      category_id: selectedOptionCategory.id,
+
       packagingQuantity: Number(data.quantidade_embalagem) || 0,
       unity: data.unidade_medida || "",
       netWeight: Number(data.peso_liquido) || 0,
@@ -239,7 +228,7 @@ const ProductForm = () => {
       anvisaRegister: data.registro_anvisa || "",
       origin: data.origem_produto || "",
       stockLocation: data.localizacao_estoque || "",
-      icms: data.icms || "",
+      icms: data.icms || 0,
       cfop: data.cfop || "",
       ncm: data.ncm || "",
       cst: data.cst || "",
@@ -249,7 +238,7 @@ const ProductForm = () => {
       freeShipping: Boolean(data.frete_gratis),
       perishable: Boolean(data.produto_perecivel),
       updateDate: formattedDate,
-      updateUser: "ADM"
+      updateUser: sessionStorage.getItem("user")
     };
 
     console.log("Enviando JSON:", JSON.stringify(productData, null, 2));
@@ -281,11 +270,130 @@ const ProductForm = () => {
       });
   };
 
+  const editProduct = (data) => {
+    console.log(id)
+      api.put(`/editar/produtos/${id}`, {
+        productName: data.nome_produto,
+        referenceCode: data.codigo_referencia,
+        price: Number(data.preco_venda) || 0,
+        pricePromocional: Number(data.preco_promocional) || 0,
+        provider: {
+          provider_id: selectedOptionProvider.id,
+          cnpj: "",
+          name: selectedOptionProvider.label || "",
+          updateDate: "",
+          updateUser: ""
+        },
+        stockAlert: Number(data.estoque_alertas) || 0,
+        color: data.cor || "",
+        size: data.tamanho || "",
+        barCodeField: data.codigo_barras || "",
+        description: data.descricao || "",
+        category: {
+          category_id: selectedOptionCategory.id,
+          categoryName: selectedOptionCategory.label || "",
+          updateDate: "",
+          updateUser: ""
+        },
+        packagingQuantity: Number(data.quantidade_embalagem) || 0,
+        unity: data.unidade_medida || "",
+        netWeight: Number(data.peso_liquido) || 0,
+        grossWeight: Number(data.peso_bruto) || 0,
+        dimension: data.dimensoes || "",
+        anvisaRegister: data.registro_anvisa || "",
+        origin: data.origem_produto || "",
+        stockLocation: data.localizacao_estoque || "",
+        icms: data.icms || 0,
+        cfop: data.cfop || "",
+        ncm: data.ncm || "",
+        cst: data.cst || "",
+        image: Array.isArray(data.imagens_produtos) ? data.imagens_produtos.join(",") : "",
+        active: Boolean(data.produto_ativo),
+        sterility: Boolean(data.esterilidade),
+        freeShipping: Boolean(data.frete_gratis),
+        perishable: Boolean(data.produto_perecivel),
+        updateDate: formattedDate,
+        updateUser: sessionStorage.getItem("user")
+      }, {
+          headers: {
+              'Content-Type': 'application/json'
+          }
+      })
+      .then(function() {
+          enqueueSnackbar("Cadastro editado com sucesso!", { variant: "success", anchorOrigin: { vertical: "bottom", horizontal: "right" }});
+          navigate('/cadastros/produtos');
+      }).catch(function(error) {
+          if (api.isAxiosError(error)) {
+              if (error.response) {
+                  enqueueSnackbar(`Erro ${error.response.status}: ${error.response.data.message}`, { variant: "error", anchorOrigin: { vertical: "bottom", horizontal: "right" } });
+              } else if (error.request) {
+                  enqueueSnackbar("Erro de rede: Servidor não respondeu", { variant: "warning", anchorOrigin: { vertical: "bottom", horizontal: "right" } });
+              } else {
+                  enqueueSnackbar("Erro desconhecido: " + error.message, { variant: "error", anchorOrigin: { vertical: "bottom", horizontal: "right" } });
+              }
+          } else {
+              enqueueSnackbar("Erro inesperado", { variant: "error" });
+          }
+      })
+  };
+
+   useEffect(() => {  
+    if (id) {
+      setLoading(true)
+      api.get(`editar/produtos/${id}`)
+      .then(response => {
+        const product = response.data;
+        
+        setSelectedOptionProvider({ id: product.provider.provider_id, label: product.provider.provider });
+        setSelectedOptionCategory({ id: product.category.category_id, label: product.category.categoryName });
+
+        reset({
+          nome_produto: product.productName,
+          codigo_referencia: product.referenceCode,
+          preco_venda: product.price,
+          preco_promocional: product.pricePromocional,
+
+          fornecedor: product.provider.provider_id,
+
+          estoque_alertas: product.stockAlert,
+          cor: product.color,
+          tamanho: product.size,
+          codigo_barras: product.barCodeField,
+          descricao: product.description,
+
+          categoria: product.category.category_id,
+          
+          quantidade_embalagem: product.packagingQuantity,
+          unidade_medida: product.unity,
+          peso_liquido: product.netWeight,
+          peso_bruto: product.grossWeight,
+          dimensoes: product.dimension,
+          registro_anvisa: product.anvisaRegister,
+          origem_produto: product.origin,
+          localizacao_estoque: product.stockLocation,
+          icms: product.icms,
+          cfop: product.cfop,
+          ncm: product.ncm,
+          cst: product.cst,
+          produto_ativo: product.active,
+          esterilidade: product.sterility,
+          frete_gratis: product.freeShipping,
+          produto_perecivel: product.perishable,
+          updateDate: product.updateDate,
+          updateUser: product.updateUser
+        });
+      }) 
+      .catch(error => {
+        enqueueSnackbar("Erro ao carregar produto", { variant: "error", anchorOrigin: { vertical: "bottom", horizontal: "right"}});
+      })
+        .finally(() => setLoading(false));
+      }
+  }, [id])
 
   return (
     <section className={styled.appContainer}>
       <HeaderForm title={"Novo Produto"} />
-      <form onSubmit={handleSubmit(createProduct)} onKeyDown={handleKeyDown} autoComplete="off">
+      <form onSubmit={id ? handleSubmit(editProduct) : handleSubmit(createProduct)} onKeyDown={handleKeyDown} autoComplete="off">
         <Box sx={{ width: '100%' }}>
           <Box sx={{ borderBottom: 2, borderColor: 'divider' }}>
             <Tabs value={tabValue} onChange={handleChange} aria-label="nav tabs example">
@@ -305,7 +413,7 @@ const ProductForm = () => {
                     className={errors?.nome_produto && (styled.inputError)}
                     id="nome_produto"
                     type="text"
-                    maxLength={60}
+                    maxLength={80}
                     {...register('nome_produto')} />
                   {errors?.nome_produto?.message && <p className={styled.errorMessage}>{errors.nome_produto.message}</p>}
                 </div>
@@ -316,6 +424,7 @@ const ProductForm = () => {
                     className={errors?.codigo_referencia && (styled.inputError)}
                     id="codigo_referencia"
                     type="text"
+                    maxLength={50}
                     {...register('codigo_referencia')} />
                   {errors?.codigo_referencia?.message && <p className={styled.errorMessage}>{errors.codigo_referencia.message}</p>}
                 </div>
@@ -378,6 +487,7 @@ const ProductForm = () => {
                   <input
                     id="color"
                     type="text"
+                    maxLength={50}
                     {...register('color')}
                   />
                 </div>
@@ -387,6 +497,7 @@ const ProductForm = () => {
                   <input
                     id="tamanho"
                     type="text"
+                    maxLength={50}
                     {...register('tamanho')}
                   />
                 </div>
@@ -395,8 +506,8 @@ const ProductForm = () => {
                   <label htmlFor="codigo_barras">Código de Barras</label>
                   <input
                     id="codigo_barras"
-                    type="number"
-                    min={0}
+                    type="text"
+                    maxLength={50}
                     {...register('codigo_barras')}
                   />
                 </div>
@@ -408,6 +519,7 @@ const ProductForm = () => {
                   className={errors?.descricao && (styled.inputError)}
                   id="descricao"
                   type="text"
+                  maxLength={1500}
                   {...register('descricao')}
                 />
                 {errors?.descricao?.message && <p className={styled.errorMessage}>{errors.descricao.message}</p>}
@@ -430,7 +542,7 @@ const ProductForm = () => {
                       loadOptions={(inputValue) => promiseOptions(inputValue, 'categorias', 'categoryName', 'category_id')}
                       onChange={handleChangeSelectedCategory}
                       placeholder="Digite para buscar a categoria..."
-                      className={errors?.fornecedor && (styled.inputError)}
+                      className={errors?.categoria && (styled.inputError)}
                     />
                   </div>
                 </div>
@@ -439,7 +551,9 @@ const ProductForm = () => {
                   <label htmlFor="quantidade_embalagem">Quantidade por Embalagem*</label>
                   <input
                     id="quantidade_embalagem"
-                    type="number" {...register('quantidade_embalagem')}
+                    type="number" 
+                    min={0}
+                    {...register('quantidade_embalagem', {valueAsNumber: true})}
                   />
                   {errors?.quantidade_embalagem?.message && <p className={styled.errorMessage}>{errors.quantidade_embalagem.message}</p>}
                 </div>
@@ -468,7 +582,7 @@ const ProductForm = () => {
                     id="peso_liquido"
                     type="number"
                     min={0}
-                    {...register('peso_liquido')}
+                    {...register('peso_liquido', {valueAsNumber: true})}
                   />
                   {errors?.peso_liquido?.message === 'Required'
                     ? <p className={styled.errorMessage}>Peso líquido é obrigatório</p>
@@ -482,7 +596,7 @@ const ProductForm = () => {
                     id="peso_bruto"
                     type="number"
                     min={0}
-                    {...register('peso_bruto')}
+                    {...register('peso_bruto', {valueAsNumber: true})}
                   />
                   {errors?.peso_bruto?.message === 'Required'
                     ? <p className={styled.errorMessage}>Peso bruto é obrigatório</p>
@@ -533,8 +647,9 @@ const ProductForm = () => {
                   <label htmlFor="icms">ICMS</label>
                   <input
                     id='icms'
-                    type="text"
-                    {...register('icms')} />
+                    type="number"
+                    min={0}
+                    {...register('icms', {valueAsNumber: true})} />
                 </div>
 
                 <div className={styled.formGroup} id={styled.cfopField}>
@@ -626,7 +741,7 @@ const ProductForm = () => {
               </div>
             </section>
           </CustomTabPanel>
-          <FooterForm />
+          <FooterForm title={id ? "Atualizar" : "Adicionar"}/>
         </Box>
       </form>
     </section>

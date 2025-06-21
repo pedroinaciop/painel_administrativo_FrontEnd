@@ -4,7 +4,7 @@ import { confirmAlert } from 'react-confirm-alert';
 import React, { useState, useEffect } from 'react';
 import styled from './CompanyPage.module.css';
 import ProTable from '@ant-design/pro-table';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { NavLink, useNavigate, useParams } from 'react-router-dom';
 import ptBR from 'antd/lib/locale/pt_BR';
 import { useSnackbar } from 'notistack';
 import VMasker from 'vanilla-masker';
@@ -44,7 +44,7 @@ const CompanyPage = () => {
             title: 'DELETAR',
             width: 140,
             render: (_, row) => (
-                <Button key="deletar" href={`/cadastros/empresas/${row.id}`} onClick={(e) => e.preventDefault(confirmDelete(row.id))} icon={<DeleteOutlined />}>
+                <Button key="deletar" href={`/empresas/${row.company_id}`} onClick={(e) => e.preventDefault(confirmDelete(row.company_id))} icon={<DeleteOutlined />}>
                     Deletar
                 </Button>
             ),

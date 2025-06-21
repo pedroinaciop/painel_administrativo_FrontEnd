@@ -99,11 +99,11 @@ const CategoryForm = () => {
             setLoading(true);
             api.get(`/editar/categorias/${id}`)
                 .then(response => {
-                    const categoria = response.data;   
+                    const category = response.data;   
                     reset({
-                        nome_categoria: categoria.categoryName,
-                        updateDate: categoria.updateDate,
-                        updateUser: categoria.updateUser,
+                        nome_categoria: category.categoryName,
+                        updateDate: category.updateDate,
+                        updateUser: category.updateUser,
                     });
                 })
                 .catch(error => {
@@ -112,7 +112,6 @@ const CategoryForm = () => {
                 .finally(() => setLoading(false));
         }
     }, [id]);
-
 
     return (
         <section className={styled.appContainer}>

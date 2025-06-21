@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { confirmAlert } from 'react-confirm-alert';
 import styled from './ProductsPage.module.css';
 import ProTable from '@ant-design/pro-table';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
 import ptBR from 'antd/lib/locale/pt_BR';
 import { useSnackbar } from 'notistack';
 import * as XLSX from 'xlsx';
@@ -13,6 +13,7 @@ import api from '../../services/api'
 const ProductsPage = () => {
   const [keywords, setKeywords] = useState('');
   const [product, setProducts] = useState([]);
+  const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
 
   const confirmDelete = (id) => {
@@ -50,7 +51,7 @@ const ProductsPage = () => {
       title: 'EDITAR',
       width: 140,
       render: (_, row) => (
-        <Button key="editar" href={`/cadastros/produtos/${row.id}`} onClick={() => window.alert('Confirmar atualização?')} icon={<EditOutlined />} >
+        <Button key="editar" onClick={() => navigate(`/editar/produtos/${row.product_id}`)} icon={<EditOutlined />} >
           Editar
         </Button>
       ),
@@ -59,7 +60,7 @@ const ProductsPage = () => {
       title: 'DELETAR',
       width: 140,
       render: (_, row) => (
-        <Button key="deletar" href={`/cadastros/produtos/${row.id}`} onClick={(e) => e.preventDefault(confirmDelete(row.id))} icon={<DeleteOutlined />}>
+        <Button key="deletar" href={`/cadastros/produtos/${row.id}`} onClick={(e) => e.preventDefault(confirmDelete(row.product_id))} icon={<DeleteOutlined />}>
           Deletar
         </Button>
       ),
