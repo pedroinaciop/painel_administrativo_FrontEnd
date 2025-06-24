@@ -21,6 +21,7 @@ const ProductForm = () => {
   const { enqueueSnackbar } = useSnackbar();
   const [loading, setLoading] = useState(false);
   const [tabValue, setTabValue] = React.useState(0);
+  const currentUser = sessionStorage.getItem("user");
   const [selectedOptionProvider, setSelectedOptionProvider] = useState(null);
   const [selectedOptionCategory, setSelectedOptionCategory] = useState(null);
   const formattedDate = `${updateDate.toLocaleDateString('pt-BR')} ${updateDate.toLocaleTimeString('pt-BR')}`;
@@ -47,15 +48,20 @@ const ProductForm = () => {
       invalid_type_error: "O preço promocional deve ser maior ou igual a 0",
     }).min(0, "O preço promocional deve ser maior ou igual a R$ 0,00"),
 
-    fornecedor: z.string()
-      .nonempty("Fornecedor é obrigatório"),
+    fornecedor: z.object({
+      provider_id: z.number(),
+      providerName: z.string().nonempty("Fornecedor é obrigatório"),
+      cnpj: z.string().optional(),
+      updateDate: z.string().default(new Date().toISOString()),
+      updateUser: z.string().optional(),
+    }).required(),
 
     estoque_alertas: z.number({
       required_error: "Estoque para alertas é obrigatório",
       invalid_type_error: "Estoque para alertas deve ser maior ou igual a 0",
     }).min(0, "Estoque para alertas deve ser maior ou igual a 0"),
 
-    cor: z.string()
+    color: z.string()
       .optional(),
 
     tamanho: z.string()
@@ -67,8 +73,12 @@ const ProductForm = () => {
     descricao: z.string()
       .nonempty("Descrição é obrigatória"),
 
-    categoria: z.string()
-      .nonempty("Categoria é obrigatória"),
+    categoria: z.object({
+      category_id: z.number(),
+      categoryName: z.string().nonempty("Categoria é obrigatória"),
+      updateDate: z.string().default(new Date().toISOString()),
+      updateUser: z.string().optional()
+    }).required(),
 
     quantidade_embalagem: z.number(),
 
@@ -123,7 +133,7 @@ const ProductForm = () => {
     path: ["preco_promocional"]
   });
 
-  const { register, handleSubmit, formState: { errors }, setValue, reset, watch } = useForm({
+  const { register, handleSubmit, formState: { errors }, setValue, reset } = useForm({
     resolver: zodResolver(createProductSchema),
   });
 
@@ -161,25 +171,39 @@ const ProductForm = () => {
   };
 
   const handleChangeSelectedProvider = (selected) => {
-    if (!selected) {
-      setSelectedOptionProvider(null);
-      setValue('fornecedor', '');
-      return;
-    }
+    const providerValue = selected ? {
+      provider_id: selected.id,
+      providerName: selected.label,
+      cnpj: selected.cnpj || "",
+      updateDate: formattedDate,
+      updateUser: currentUser
+    } : {
+      provider_id: 0,
+      providerName: "",
+      cnpj: "",
+      updateDate: formattedDate,
+      updateUser: currentUser
+    };
+
     setSelectedOptionProvider(selected);
-    console.log(selected)
-    setValue('fornecedor', selected.label);
+    setValue('fornecedor', providerValue, { shouldValidate: true });
   };
 
   const handleChangeSelectedCategory = (selected) => {
-    if (!selected) {
-      setSelectedOptionCategory(null);
-      setValue('categoria', '');
-      return;
-    }
+    const categoryValue = selected ? {
+      category_id: selected.id,
+      categoryName: selected.label,
+      updateDate: formattedDate,
+      updateUser: currentUser
+    } : {
+      category_id: 0,
+      categoryName: "",
+      updateDate: formattedDate,
+      updateUser: currentUser
+    };
+
     setSelectedOptionCategory(selected);
-    console.log(selected)
-    setValue('categoria', selected.label);
+    setValue('categoria', categoryValue, { shouldValidate: true });
   };
 
   const fetchData = async (inputValue, path, labelField, id) => {
@@ -204,21 +228,45 @@ const ProductForm = () => {
   };
 
   const createProduct = (data) => {
+     const defaultUser = sessionStorage.getItem("user");
+
+    const selectedProvider = selectedOptionProvider || {
+      id: 0,
+      label: "",
+      cnpj: ""
+    };
+
+    const selectedCategory = selectedOptionCategory || {
+      id: 0,
+      label: ""
+    };
+
     const productData = {
       productName: data.nome_produto,
       referenceCode: data.codigo_referencia,
       price: Number(data.preco_venda) || 0,
       pricePromocional: Number(data.preco_promocional) || 0,
       
-      provider_id: selectedOptionProvider.id,
+       provider: {
+        provider_id: Number(selectedProvider.id) || 0,
+        cnpj: selectedProvider.cnpj || "",
+        name: selectedProvider.name || "",
+        updateDate: formattedDate,
+        updateUser: defaultUser
+      },
 
       stockAlert: Number(data.estoque_alertas) || 0,
-      color: data.cor || "",
+      color: data.color || "",
       size: data.tamanho || "",
       barCodeField: data.codigo_barras || "",
       description: data.descricao || "",
       
-      category_id: selectedOptionCategory.id,
+      category: {
+        category_id: Number(selectedCategory.id) || 0,
+        categoryName: selectedCategory.label || "",
+        updateDate: formattedDate,
+        updateUser: defaultUser
+      },
 
       packagingQuantity: Number(data.quantidade_embalagem) || 0,
       unity: data.unidade_medida || "",
@@ -244,7 +292,6 @@ const ProductForm = () => {
     console.log("Enviando JSON:", JSON.stringify(productData, null, 2));
     console.log("C" + JSON.stringify(selectedOptionCategory));
     console.log("P" + selectedOptionProvider);
-      
 
     api.post('cadastros/produtos/novo', productData, {
       headers: {
@@ -271,128 +318,184 @@ const ProductForm = () => {
   };
 
   const editProduct = (data) => {
-    console.log(id)
-      api.put(`/editar/produtos/${id}`, {
-        productName: data.nome_produto,
-        referenceCode: data.codigo_referencia,
-        price: Number(data.preco_venda) || 0,
-        pricePromocional: Number(data.preco_promocional) || 0,
-        provider: {
-          provider_id: selectedOptionProvider.id,
-          cnpj: "",
-          name: selectedOptionProvider.label || "",
-          updateDate: "",
-          updateUser: ""
-        },
-        stockAlert: Number(data.estoque_alertas) || 0,
-        color: data.cor || "",
-        size: data.tamanho || "",
-        barCodeField: data.codigo_barras || "",
-        description: data.descricao || "",
-        category: {
-          category_id: selectedOptionCategory.id,
-          categoryName: selectedOptionCategory.label || "",
-          updateDate: "",
-          updateUser: ""
-        },
-        packagingQuantity: Number(data.quantidade_embalagem) || 0,
-        unity: data.unidade_medida || "",
-        netWeight: Number(data.peso_liquido) || 0,
-        grossWeight: Number(data.peso_bruto) || 0,
-        dimension: data.dimensoes || "",
-        anvisaRegister: data.registro_anvisa || "",
-        origin: data.origem_produto || "",
-        stockLocation: data.localizacao_estoque || "",
-        icms: data.icms || 0,
-        cfop: data.cfop || "",
-        ncm: data.ncm || "",
-        cst: data.cst || "",
-        image: Array.isArray(data.imagens_produtos) ? data.imagens_produtos.join(",") : "",
-        active: Boolean(data.produto_ativo),
-        sterility: Boolean(data.esterilidade),
-        freeShipping: Boolean(data.frete_gratis),
-        perishable: Boolean(data.produto_perecivel),
+    const defaultUser = sessionStorage.getItem("user");
+    const selectedProvider = selectedOptionProvider || {
+      id: 0,
+      label: "",
+      cnpj: ""
+    };
+
+    const selectedCategory = selectedOptionCategory || {
+      id: 0,
+      label: ""
+    };
+
+    const productData = {
+      productName: data.nome_produto,
+      referenceCode: data.codigo_referencia,
+      price: Number(data.preco_venda) || 0,
+      pricePromocional: Number(data.preco_promocional) || 0,
+      
+       provider: {
+        provider_id: Number(selectedProvider.id) || 0,
+        cnpj: selectedProvider.cnpj || "",
+        name: selectedProvider.name || "",
         updateDate: formattedDate,
-        updateUser: sessionStorage.getItem("user")
-      }, {
-          headers: {
-              'Content-Type': 'application/json'
-          }
-      })
-      .then(function() {
-          enqueueSnackbar("Cadastro editado com sucesso!", { variant: "success", anchorOrigin: { vertical: "bottom", horizontal: "right" }});
-          navigate('/cadastros/produtos');
-      }).catch(function(error) {
-          if (api.isAxiosError(error)) {
-              if (error.response) {
-                  enqueueSnackbar(`Erro ${error.response.status}: ${error.response.data.message}`, { variant: "error", anchorOrigin: { vertical: "bottom", horizontal: "right" } });
-              } else if (error.request) {
-                  enqueueSnackbar("Erro de rede: Servidor não respondeu", { variant: "warning", anchorOrigin: { vertical: "bottom", horizontal: "right" } });
-              } else {
-                  enqueueSnackbar("Erro desconhecido: " + error.message, { variant: "error", anchorOrigin: { vertical: "bottom", horizontal: "right" } });
-              }
+        updateUser: defaultUser
+      },
+
+      stockAlert: Number(data.estoque_alertas) || 0,
+      color: data.color || "",
+      size: data.tamanho || "",
+      barCodeField: data.codigo_barras || "",
+      description: data.descricao || "",
+      
+      category: {
+        category_id: Number(selectedCategory.id) || 0,
+        categoryName: selectedCategory.label || "",
+        updateDate: formattedDate,
+        updateUser: defaultUser
+      },
+
+      packagingQuantity: Number(data.quantidade_embalagem) || 0,
+      unity: data.unidade_medida || "",
+      netWeight: Number(data.peso_liquido) || 0,
+      grossWeight: Number(data.peso_bruto) || 0,
+      dimension: data.dimensoes || "",
+      anvisaRegister: data.registro_anvisa || "",
+      origin: data.origem_produto || "",
+      stockLocation: data.localizacao_estoque || "",
+      icms: data.icms || 0,
+      cfop: data.cfop || "",
+      ncm: data.ncm || "",
+      cst: data.cst || "",
+      image: Array.isArray(data.imagens_produtos) ? data.imagens_produtos.join(",") : "",
+      active: Boolean(data.produto_ativo),
+      sterility: Boolean(data.esterilidade),
+      freeShipping: Boolean(data.frete_gratis),
+      perishable: Boolean(data.produto_perecivel),
+      updateDate: formattedDate,
+      updateUser: sessionStorage.getItem("user")
+    };
+
+    api.put(`/editar/produtos/${id}`, productData, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+      .then(function () {
+        enqueueSnackbar("Cadastro editado com sucesso!", { variant: "success", anchorOrigin: { vertical: "bottom", horizontal: "right" } });
+        navigate('/cadastros/produtos');
+      }).catch(function (error) {
+        if (api.isAxiosError(error)) {
+          if (error.response) {
+            enqueueSnackbar(`Erro ${error.response.status}: ${error.response.data.message}`, { variant: "error", anchorOrigin: { vertical: "bottom", horizontal: "right" } });
+          } else if (error.request) {
+            enqueueSnackbar("Erro de rede: Servidor não respondeu", { variant: "warning", anchorOrigin: { vertical: "bottom", horizontal: "right" } });
           } else {
-              enqueueSnackbar("Erro inesperado", { variant: "error" });
+            enqueueSnackbar("Erro desconhecido: " + error.message, { variant: "error", anchorOrigin: { vertical: "bottom", horizontal: "right" } });
           }
+        } else {
+          enqueueSnackbar("Erro inesperado", { variant: "error" });
+        }
       })
   };
 
-   useEffect(() => {  
+  useEffect(() => {
     if (id) {
-      setLoading(true)
+      setLoading(true);
       api.get(`editar/produtos/${id}`)
-      .then(response => {
-        const product = response.data;
-        
-        setSelectedOptionProvider({ id: product.provider.provider_id, label: product.provider.provider });
-        setSelectedOptionCategory({ id: product.category.category_id, label: product.category.categoryName });
-
-        reset({
-          nome_produto: product.productName,
-          codigo_referencia: product.referenceCode,
-          preco_venda: product.price,
-          preco_promocional: product.pricePromocional,
-
-          fornecedor: product.provider.provider_id,
-
-          estoque_alertas: product.stockAlert,
-          cor: product.color,
-          tamanho: product.size,
-          codigo_barras: product.barCodeField,
-          descricao: product.description,
-
-          categoria: product.category.category_id,
+        .then(response => {
+          const product = response.data;
           
-          quantidade_embalagem: product.packagingQuantity,
-          unidade_medida: product.unity,
-          peso_liquido: product.netWeight,
-          peso_bruto: product.grossWeight,
-          dimensoes: product.dimension,
-          registro_anvisa: product.anvisaRegister,
-          origem_produto: product.origin,
-          localizacao_estoque: product.stockLocation,
-          icms: product.icms,
-          cfop: product.cfop,
-          ncm: product.ncm,
-          cst: product.cst,
-          produto_ativo: product.active,
-          esterilidade: product.sterility,
-          frete_gratis: product.freeShipping,
-          produto_perecivel: product.perishable,
-          updateDate: product.updateDate,
-          updateUser: product.updateUser
-        });
-      }) 
-      .catch(error => {
-        enqueueSnackbar("Erro ao carregar produto", { variant: "error", anchorOrigin: { vertical: "bottom", horizontal: "right"}});
-      })
+          const currentUser = sessionStorage.getItem("user");
+          
+          if (product.provider) {
+            const provider = {
+              id: product.provider.provider_id,
+              label: product.provider.providerName, 
+              cnpj: product.provider.cnpj || ""
+            };
+            
+            setSelectedOptionProvider(provider);
+            setValue('provider', {
+              provider_id: provider.id,
+              providerName: provider.label,
+              cnpj: provider.cnpj,
+              updateDate: product.provider.updateDate || formattedDate,
+              updateUser: product.provider.updateUser || currentUser
+            }, { shouldValidate: true });
+          }
+          
+          // 2. Tratamento da categoria
+          if (product.category) {
+            const category = {
+              id: product.category.category_id,
+              label: product.category.categoryName
+            };
+            
+            setSelectedOptionCategory(category);
+            setValue('category', {
+              category_id: category.id,
+              categoryName: category.label,
+              updateDate: product.category.updateDate || formattedDate,
+              updateUser: product.category.updateUser || currentUser
+            }, { shouldValidate: true });
+          }
+          
+          console.log(product)
+          reset({
+            nome_produto: product.productName || "",
+            codigo_referencia: product.referenceCode || "",
+            preco_venda: product.price || 0,
+            preco_promocional: product.pricePromocional || 0,
+            estoque_alertas: product.stockAlert || 0,
+            color: product.color || "",
+            tamanho: product.size || "",
+            codigo_barras: product.barCodeField || "",
+            descricao: product.description || "",
+            quantidade_embalagem: product.packagingQuantity || 0,
+            unidade_medida: product.unity || "Unidade", 
+            peso_liquido: product.netWeight || 0,
+            peso_bruto: product.grossWeight || 0,
+            dimensoes: product.dimension || "",
+            registro_anvisa: product.anvisaRegister || "",
+            origem_produto: product.origin || "Nacional", 
+            localizacao_estoque: product.stockLocation || "",
+            icms: product.icms || 0,
+            cfop: product.cfop || "",
+            ncm: product.ncm || "",
+            cst: product.cst || "",
+            produto_ativo: product.active ?? true,
+            esterilidade: product.sterility ?? false,
+            frete_gratis: product.freeShipping ?? false,
+            produto_perecivel: product.perishable ?? false,
+            fornecedor: {
+              provider_id: product.provider.provider_id,
+              providerName: product.provider.providerName,
+              cnpj: product.provider.cnpj,
+              updateDate: product.provider.updateDate || formattedDate,
+              updateUser: product.provider.updateUser || currentUser
+            },
+            categoria: {
+              category_id: product.category.category_id,
+              categoryName: product.category.categoryName,
+              updateDate: product.category.updateDate || formattedDate,
+              updateUser: product.category.updateUser || currentUser
+            }
+          });
+        })
+        .catch(error => {
+          console.error("Erro ao carregar produto:", error);
+          enqueueSnackbar("Erro ao carregar dados do produto", { variant: "error" });
+        })
         .finally(() => setLoading(false));
-      }
-  }, [id])
+    }
+  }, [id, reset, setValue, enqueueSnackbar]);
 
   return (
     <section className={styled.appContainer}>
-      <HeaderForm title={"Novo Produto"} />
+      <HeaderForm title={id ? "Editar Produto" : "Novo Produto"} />
       <form onSubmit={id ? handleSubmit(editProduct) : handleSubmit(createProduct)} onKeyDown={handleKeyDown} autoComplete="off">
         <Box sx={{ width: '100%' }}>
           <Box sx={{ borderBottom: 2, borderColor: 'divider' }}>
@@ -403,7 +506,7 @@ const ProductForm = () => {
             </Tabs>
           </Box>
 
-          <CustomTabPanel className={styled.contextForm} value={tabValue} index={0}>
+        <CustomTabPanel className={styled.contextForm} value={tabValue} index={0}>
             <section className={styled.tabs}>
               <div className={styled.row}>
                 
@@ -418,330 +521,330 @@ const ProductForm = () => {
                   {errors?.nome_produto?.message && <p className={styled.errorMessage}>{errors.nome_produto.message}</p>}
                 </div>
 
-                <div className={styled.formGroup} id={styled.referenceCodeField}>
-                  <label htmlFor="codigo_referencia">Código de Referência*</label>
-                  <input
-                    className={errors?.codigo_referencia && (styled.inputError)}
-                    id="codigo_referencia"
-                    type="text"
-                    maxLength={50}
-                    {...register('codigo_referencia')} />
-                  {errors?.codigo_referencia?.message && <p className={styled.errorMessage}>{errors.codigo_referencia.message}</p>}
-                </div>
-              </div>
+            <div className={styled.formGroup} id={styled.referenceCodeField}>
+              <label htmlFor="codigo_referencia">Código de Referência*</label>
+              <input
+                className={errors?.codigo_referencia && (styled.inputError)}
+                id="codigo_referencia"
+                type="text"
+                maxLength={50}
+                {...register('codigo_referencia')} />
+              {errors?.codigo_referencia?.message && <p className={styled.errorMessage}>{errors.codigo_referencia.message}</p>}
+            </div>
+          </div>
 
-              <div className={styled.row}>
-                <div className={styled.formGroup} id={styled.priceField}>
-                  <label htmlFor="preco_venda">Preço de Venda*</label>
-                  <input
-                    className={errors?.preco_venda && (styled.inputError)}
-                    id="preco_venda"
-                    type="number"
-                    min={0}
-                    {...register('preco_venda', { valueAsNumber: true })} />
-                  {errors?.preco_venda?.message && <p className={styled.errorMessage}>{errors.preco_venda.message}</p>}
-                </div>
+          <div className={styled.row}>
+            <div className={styled.formGroup} id={styled.priceField}>
+              <label htmlFor="preco_venda">Preço de Venda*</label>
+              <input
+                className={errors?.preco_venda && (styled.inputError)}
+                id="preco_venda"
+                type="number"
+                min={0}
+                {...register('preco_venda', { valueAsNumber: true })} />
+              {errors?.preco_venda?.message && <p className={styled.errorMessage}>{errors.preco_venda.message}</p>}
+            </div>
 
-                <div className={styled.formGroup} id={styled.pricePromocionalField}>
-                  <label htmlFor="preco_promocional">Preço Promocional*</label>
-                  <input
-                    id="preco_promocional"
-                    type="number"
-                    min={0}
-                    {...register('preco_promocional', { valueAsNumber: true })}
-                  />
-                  {errors?.preco_promocional?.message && <p className={styled.errorMessage}>{errors.preco_promocional.message}</p>}
-                </div>
+            <div className={styled.formGroup} id={styled.pricePromocionalField}>
+              <label htmlFor="preco_promocional">Preço Promocional*</label>
+              <input
+                id="preco_promocional"
+                type="number"
+                min={0}
+                {...register('preco_promocional', { valueAsNumber: true })}
+              />
+              {errors?.preco_promocional?.message && <p className={styled.errorMessage}>{errors.preco_promocional.message}</p>}
+            </div>
 
-                <div className={styled.formGroup} id={styled.brandField}>
-                  <label htmlFor="fornecedor">Fornecedor*</label>
-                  <div>
-                    <AsyncSelect
-                      id="fornecedor"
-                      cacheOptions
-                      defaultOptions
-                      value={selectedOptionProvider}
-                      loadOptions={(inputValue) => promiseOptions(inputValue, 'fornecedores', 'provider', 'provider_id')}
-                      onChange={handleChangeSelectedProvider}
-                      placeholder="Digite para buscar o fornecedor..."
-                      className={errors?.fornecedor && (styled.inputError)}
-                    />
-                  </div>
-                </div>
-              </div>
-
-              <div className={styled.row}>
-                <div className={styled.formGroup} id={styled.stockAlertField}>
-                  <label htmlFor="estoque_alertas">Estoque para Alerta*</label>
-                  <input
-                    id="estoque_alertas"
-                    type="number"
-                    min={0}
-                    {...register('estoque_alertas', { valueAsNumber: true })}
-                  />
-                  {errors?.estoque_alertas?.message && <p className={styled.errorMessage}>{errors.estoque_alertas.message}</p>}
-                </div>
-
-                <div className={styled.formGroup} id={styled.colorField}>
-                  <label htmlFor="color">Cor(es)</label>
-                  <input
-                    id="color"
-                    type="text"
-                    maxLength={50}
-                    {...register('color')}
-                  />
-                </div>
-
-                <div className={styled.formGroup} id={styled.sizeField}>
-                  <label htmlFor="tamanho">Tamanho(s)</label>
-                  <input
-                    id="tamanho"
-                    type="text"
-                    maxLength={50}
-                    {...register('tamanho')}
-                  />
-                </div>
-
-                <div className={styled.formGroup} id={styled.barCodeField}>
-                  <label htmlFor="codigo_barras">Código de Barras</label>
-                  <input
-                    id="codigo_barras"
-                    type="text"
-                    maxLength={50}
-                    {...register('codigo_barras')}
-                  />
-                </div>
-              </div>
-
-              <div className={styled.formGroup} id={styled.descriptionField}>
-                <label htmlFor="descricao">Descrição do Produto*</label>
-                <textarea
-                  className={errors?.descricao && (styled.inputError)}
-                  id="descricao"
-                  type="text"
-                  maxLength={1500}
-                  {...register('descricao')}
+            <div className={styled.formGroup} id={styled.brandField}>
+              <label htmlFor="fornecedor">Fornecedor*</label>
+              <div>
+                <AsyncSelect
+                  id="fornecedor"
+                  cacheOptions
+                  defaultOptions
+                  value={selectedOptionProvider}
+                  loadOptions={(inputValue) => promiseOptions(inputValue, 'fornecedores', 'provider', 'provider_id')}
+                  onChange={handleChangeSelectedProvider}
+                  placeholder="Digite para buscar o fornecedor..."
+                  className={errors?.fornecedor && (styled.inputError)}
                 />
-                {errors?.descricao?.message && <p className={styled.errorMessage}>{errors.descricao.message}</p>}
               </div>
-            </section>
-          </CustomTabPanel>
+            </div>
+          </div>
 
-          <CustomTabPanel className={styled.contextForm} value={tabValue} index={1}>
-            <section className={styled.tabs}>
-              <div className={styled.row}>
+          <div className={styled.row}>
+            <div className={styled.formGroup} id={styled.stockAlertField}>
+              <label htmlFor="estoque_alertas">Estoque para Alerta*</label>
+              <input
+                id="estoque_alertas"
+                type="number"
+                min={0}
+                {...register('estoque_alertas', { valueAsNumber: true })}
+              />
+              {errors?.estoque_alertas?.message && <p className={styled.errorMessage}>{errors.estoque_alertas.message}</p>}
+            </div>
 
-                <div className={styled.formGroup} id={styled.categoryField}>
-                  <label htmlFor="categoria">Categoria*</label>
-                  <div>
-                    <AsyncSelect
-                      id="categoria"
-                      cacheOptions
-                      defaultOptions
-                      value={selectedOptionCategory}
-                      loadOptions={(inputValue) => promiseOptions(inputValue, 'categorias', 'categoryName', 'category_id')}
-                      onChange={handleChangeSelectedCategory}
-                      placeholder="Digite para buscar a categoria..."
-                      className={errors?.categoria && (styled.inputError)}
-                    />
-                  </div>
-                </div>
+            <div className={styled.formGroup} id={styled.colorField}>
+              <label htmlFor="color">Cor(es)</label>
+              <input
+                id="color"
+                type="text"
+                maxLength={50}
+                {...register('color')}
+              />
+            </div>
 
-                <div className={styled.formGroup} id={styled.packagingQuantityField}>
-                  <label htmlFor="quantidade_embalagem">Quantidade por Embalagem*</label>
-                  <input
-                    id="quantidade_embalagem"
-                    type="number" 
-                    min={0}
-                    {...register('quantidade_embalagem', {valueAsNumber: true})}
-                  />
-                  {errors?.quantidade_embalagem?.message && <p className={styled.errorMessage}>{errors.quantidade_embalagem.message}</p>}
-                </div>
+            <div className={styled.formGroup} id={styled.sizeField}>
+              <label htmlFor="tamanho">Tamanho(s)</label>
+              <input
+                id="tamanho"
+                type="text"
+                maxLength={50}
+                {...register('tamanho')}
+              />
+            </div>
+
+            <div className={styled.formGroup} id={styled.barCodeField}>
+              <label htmlFor="codigo_barras">Código de Barras</label>
+              <input
+                id="codigo_barras"
+                type="text"
+                maxLength={50}
+                {...register('codigo_barras')}
+              />
+            </div>
+          </div>
+
+          <div className={styled.formGroup} id={styled.descriptionField}>
+            <label htmlFor="descricao">Descrição do Produto*</label>
+            <textarea
+              className={errors?.descricao && (styled.inputError)}
+              id="descricao"
+              type="text"
+              maxLength={1500}
+              {...register('descricao')}
+            />
+            {errors?.descricao?.message && <p className={styled.errorMessage}>{errors.descricao.message}</p>}
+          </div>
+        </section>
+        </CustomTabPanel>
+
+        <CustomTabPanel className={styled.contextForm} value={tabValue} index={1}>
+        <section className={styled.tabs}>
+          <div className={styled.row}>
+
+            <div className={styled.formGroup} id={styled.categoryField}>
+              <label htmlFor="categoria">Categoria*</label>
+              <div>
+                <AsyncSelect
+                  id="categoria"
+                  cacheOptions
+                  defaultOptions
+                  value={selectedOptionCategory}
+                  loadOptions={(inputValue) => promiseOptions(inputValue, 'categorias', 'categoryName', 'category_id')}
+                  onChange={handleChangeSelectedCategory}
+                  placeholder="Digite para buscar a categoria..."
+                  className={errors?.categoria && (styled.inputError)}
+                />
+              </div>
+            </div>
+
+            <div className={styled.formGroup} id={styled.packagingQuantityField}>
+              <label htmlFor="quantidade_embalagem">Quantidade por Embalagem*</label>
+              <input
+                id="quantidade_embalagem"
+                type="number"
+                min={0}
+                {...register('quantidade_embalagem', { valueAsNumber: true })}
+              />
+              {errors?.quantidade_embalagem?.message && <p className={styled.errorMessage}>{errors.quantidade_embalagem.message}</p>}
+            </div>
+          </div>
+
+          <div className={styled.row}>
+            <div className={styled.formGroup} id={styled.unitField}>
+              <label htmlFor="unidade_medida">Unidade de Medida*</label>
+              <select {...register('unidade_medida', {
+                validate: (value) => {
+                  return value !== "0";
+                }
+              })}>
+                <option id="unidade_medida" value="">Selecione uma unidade</option>
+                <option value="Unidade">Unidade</option>
+                <option value="Pacote">Pacote</option>
+                <option value="Caixa">Caixa</option>
+              </select>
+              {errors?.unidade_medida?.message && (<p className={styled.errorMessage}>{errors.unidade_medida.message}</p>)}
+            </div>
+
+            <div className={styled.formGroup} id={styled.netWeight}>
+              <label htmlFor="peso_liquido">Peso Líquido*</label>
+              <input
+                className={errors?.peso && (styled.inputError)}
+                id="peso_liquido"
+                type="number"
+                min={0}
+                {...register('peso_liquido', { valueAsNumber: true })}
+              />
+              {errors?.peso_liquido?.message === 'Required'
+                ? <p className={styled.errorMessage}>Peso líquido é obrigatório</p>
+                : <p className={styled.errorMessage}>{errors?.peso_liquido?.message}</p>}
+            </div>
+
+            <div className={styled.formGroup} id={styled.grossWeight}>
+              <label htmlFor="peso_bruto">Peso Bruto*</label>
+              <input
+                className={errors?.peso && (styled.inputError)}
+                id="peso_bruto"
+                type="number"
+                min={0}
+                {...register('peso_bruto', { valueAsNumber: true })}
+              />
+              {errors?.peso_bruto?.message === 'Required'
+                ? <p className={styled.errorMessage}>Peso bruto é obrigatório</p>
+                : <p className={styled.errorMessage}>{errors?.peso_bruto?.message}</p>}
+            </div>
+
+            <div className={styled.formGroup} id={styled.dimensionField}>
+              <label htmlFor="dimensoes">Dimensões</label>
+              <input
+                id="dimensoes"
+                type="text"
+                placeholder="C x L x A"
+                {...register('dimensoes')}
+              />
+            </div>
+          </div>
+
+          <div className={styled.row}>
+            <div className={styled.formGroup} id={styled.anvisaRegisterField}>
+              <label htmlFor="registro_anvisa">Registro ANVISA</label>
+              <input
+                id="registro_anvisa"
+                type="text"
+                {...register('registro_anvisa')} />
+            </div>
+
+            <div className={styled.formGroup} id={styled.originField}>
+              <label htmlFor="origem_produto">Origem do produto*</label>
+              <select {...register('origem_produto')}>
+                <option id="origem_produto" value="0">Selecione a origem do produto</option>
+                <option value="Nacional">Nacional</option>
+                <option value="Importado">Importado</option>
+              </select>
+              {errors?.origem_produto?.message && (<p className={styled.errorMessage}>{errors.origem_produto.message}</p>)}
+            </div>
+
+            <div className={styled.formGroup} id={styled.stockLocationField}>
+              <label htmlFor="localizacao_estoque">Localização no estoque</label>
+              <input
+                id="localizacao_estoque"
+                type="text" {...register('localizacao_estoque')}
+              />
+            </div>
+          </div>
+
+          <div className={styled.row}>
+            <div className={styled.formGroup} id={styled.icmsField}>
+              <label htmlFor="icms">ICMS</label>
+              <input
+                id='icms'
+                type="number"
+                min={0}
+                {...register('icms', { valueAsNumber: true })} />
+            </div>
+
+            <div className={styled.formGroup} id={styled.cfopField}>
+              <label htmlFor="cfop">CFOP</label>
+              <input
+                id='cfop'
+                type="text"
+                {...register('cfop')}
+              />
+            </div>
+
+            <div className={styled.formGroup} id={styled.ncmField}>
+              <label htmlFor="ncm">NCM</label>
+              <input
+                id='ncm'
+                type="text"
+                {...register('ncm')}
+              />
+            </div>
+
+            <div className={styled.formGroup} id={styled.cstField}>
+              <label htmlFor="cst">CST</label>
+              <input
+                id='cst'
+                type="text"
+                {...register('cst')}
+              />
+            </div>
+          </div>
+        </section>
+        </CustomTabPanel>
+
+        <CustomTabPanel className={styled.contextForm} value={tabValue} index={2}>
+        <section className={styled.tabs}>
+          <div className={styled.row}>
+            <div className={styled.formGroup} id={styled.imageField}>
+              <label>Imagem do Produto</label>
+              <input
+                type="file"
+                accept="image/*"
+                {...register('imagens_produtos')}
+              />
+            </div>
+
+            <div id={styled.options}>
+              <div className={styled.formGroup}>
+                <label htmlFor="produto_ativo">Ativo</label>
+                <input
+                  type='checkbox'
+                  defaultChecked
+                  id={styled.activeField}
+                  className={errors?.produto_ativo && "input-error"}
+                  {...register('produto_ativo')}
+                />
               </div>
 
-              <div className={styled.row}>
-                <div className={styled.formGroup} id={styled.unitField}>
-                  <label htmlFor="unidade_medida">Unidade de Medida*</label>
-                  <select {...register('unidade_medida', {
-                    validate: (value) => {
-                      return value !== "0";
-                    }
-                  })}>
-                    <option id="unidade_medida" value="">Selecione uma unidade</option>
-                    <option value="Unidade">Unidade</option>
-                    <option value="Pacote">Pacote</option>
-                    <option value="Caixa">Caixa</option>
-                  </select>
-                  {errors?.unidade_medida?.message && (<p className={styled.errorMessage}>{errors.unidade_medida.message}</p>)}
-                </div>
-
-                <div className={styled.formGroup} id={styled.netWeight}>
-                  <label htmlFor="peso_liquido">Peso Líquido*</label>
-                  <input
-                    className={errors?.peso && (styled.inputError)}
-                    id="peso_liquido"
-                    type="number"
-                    min={0}
-                    {...register('peso_liquido', {valueAsNumber: true})}
-                  />
-                  {errors?.peso_liquido?.message === 'Required'
-                    ? <p className={styled.errorMessage}>Peso líquido é obrigatório</p>
-                    : <p className={styled.errorMessage}>{errors?.peso_liquido?.message}</p>}
-                </div>
-
-                <div className={styled.formGroup} id={styled.grossWeight}>
-                  <label htmlFor="peso_bruto">Peso Bruto*</label>
-                  <input
-                    className={errors?.peso && (styled.inputError)}
-                    id="peso_bruto"
-                    type="number"
-                    min={0}
-                    {...register('peso_bruto', {valueAsNumber: true})}
-                  />
-                  {errors?.peso_bruto?.message === 'Required'
-                    ? <p className={styled.errorMessage}>Peso bruto é obrigatório</p>
-                    : <p className={styled.errorMessage}>{errors?.peso_bruto?.message}</p>}
-                </div>
-
-                <div className={styled.formGroup} id={styled.dimensionField}>
-                  <label htmlFor="dimensoes">Dimensões</label>
-                  <input
-                    id="dimensoes"
-                    type="text"
-                    placeholder="C x L x A"
-                    {...register('dimensoes')}
-                  />
-                </div>
+              <div className={styled.formGroup} >
+                <label htmlFor='esterilidade'>Esterilidade</label>
+                <input
+                  defaultChecked={false}
+                  type='checkbox'
+                  id={styled.sterilityField} className={errors?.esterilidade && "input-error"}
+                  {...register('esterilidade')}
+                />
               </div>
 
-              <div className={styled.row}>
-                <div className={styled.formGroup} id={styled.anvisaRegisterField}>
-                  <label htmlFor="registro_anvisa">Registro ANVISA</label>
-                  <input
-                    id="registro_anvisa"
-                    type="text"
-                    {...register('registro_anvisa')} />
-                </div>
-
-                <div className={styled.formGroup} id={styled.originField}>
-                  <label htmlFor="origem_produto">Origem do produto*</label>
-                  <select {...register('origem_produto')}>
-                    <option id="origem_produto" value="0">Selecione a origem do produto</option>
-                    <option value="Nacional">Nacional</option>
-                    <option value="Importado">Importado</option>
-                  </select>
-                  {errors?.origem_produto?.message && (<p className={styled.errorMessage}>{errors.origem_produto.message}</p>)}
-                </div>
-
-                <div className={styled.formGroup} id={styled.stockLocationField}>
-                  <label htmlFor="localizacao_estoque">Localização no estoque</label>
-                  <input
-                    id="localizacao_estoque"
-                    type="text" {...register('localizacao_estoque')}
-                  />
-                </div>
+              <div className={styled.formGroup}>
+                <label htmlFor='frete_gratis'>Frete Grátis</label>
+                <input
+                  defaultChecked={false}
+                  type='checkbox'
+                  id={styled.freeShippingField}
+                  className={errors?.frete_gratis && "input-error"}
+                  {...register('frete_gratis')}
+                />
               </div>
 
-              <div className={styled.row}>
-                <div className={styled.formGroup} id={styled.icmsField}>
-                  <label htmlFor="icms">ICMS</label>
-                  <input
-                    id='icms'
-                    type="number"
-                    min={0}
-                    {...register('icms', {valueAsNumber: true})} />
-                </div>
-
-                <div className={styled.formGroup} id={styled.cfopField}>
-                  <label htmlFor="cfop">CFOP</label>
-                  <input
-                    id='cfop'
-                    type="text"
-                    {...register('cfop')}
-                  />
-                </div>
-
-                <div className={styled.formGroup} id={styled.ncmField}>
-                  <label htmlFor="ncm">NCM</label>
-                  <input
-                    id='ncm'
-                    type="text"
-                    {...register('ncm')}
-                  />
-                </div>
-
-                <div className={styled.formGroup} id={styled.cstField}>
-                  <label htmlFor="cst">CST</label>
-                  <input
-                    id='cst'
-                    type="text"
-                    {...register('cst')}
-                  />
-                </div>
+              <div className={styled.formGroup}>
+                <label htmlFor='produto_perecivel'>Produto Perecível</label>
+                <input
+                  defaultChecked={false}
+                  type='checkbox'
+                  id={styled.perishableField}
+                  className={errors?.frete_gratis && "input-error"}
+                  {...register('produto_perecivel')}
+                />
               </div>
-            </section>
-          </CustomTabPanel>
-
-          <CustomTabPanel className={styled.contextForm} value={tabValue} index={2}>
-            <section className={styled.tabs}>
-              <div className={styled.row}>
-                <div className={styled.formGroup} id={styled.imageField}>
-                  <label>Imagem do Produto</label>
-                  <input
-                    type="file"
-                    accept="image/*"
-                    {...register('imagens_produtos')}
-                  />
-                </div>
-
-                <div id={styled.options}>
-                  <div className={styled.formGroup}>
-                    <label htmlFor="produto_ativo">Ativo</label>
-                    <input
-                      type='checkbox'
-                      defaultChecked
-                      id={styled.activeField}
-                      className={errors?.produto_ativo && "input-error"}
-                      {...register('produto_ativo')}
-                    />
-                  </div>
-
-                  <div className={styled.formGroup} >
-                    <label htmlFor='esterilidade'>Esterilidade</label>
-                    <input
-                      defaultChecked={false}
-                      type='checkbox'
-                      id={styled.sterilityField} className={errors?.esterilidade && "input-error"}
-                      {...register('esterilidade')}
-                    />
-                  </div>
-
-                  <div className={styled.formGroup}>
-                    <label htmlFor='frete_gratis'>Frete Grátis</label>
-                    <input
-                      defaultChecked={false}
-                      type='checkbox'
-                      id={styled.freeShippingField}
-                      className={errors?.frete_gratis && "input-error"}
-                      {...register('frete_gratis')}
-                    />
-                  </div>
-
-                  <div className={styled.formGroup}>
-                    <label htmlFor='produto_perecivel'>Produto Perecível</label>
-                    <input
-                      defaultChecked={false}
-                      type='checkbox'
-                      id={styled.perishableField}
-                      className={errors?.frete_gratis && "input-error"}
-                      {...register('produto_perecivel')}
-                    />
-                  </div>
-                </div>
-              </div>
-            </section>
-          </CustomTabPanel>
-          <FooterForm title={id ? "Atualizar" : "Adicionar"}/>
+            </div>
+          </div>
+        </section>
+        </CustomTabPanel>
+        <FooterForm title={id ? "Atualizar" : "Adicionar"} />
         </Box>
       </form>
     </section>
