@@ -8,6 +8,11 @@
   margin-bottom: 0.313rem;
 }
 
+.labelAutocomplete {
+  color: var(--textColor);
+  margin-bottom: 0.313rem;
+}
+
 .formGroup input,
 textarea,
 select {
@@ -17,6 +22,11 @@ select {
   border-radius: 0.313rem;
   outline: none;
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.autoCompleteField {
+  width: 25%;
+  border-radius: 0.313rem;
 }
 
 #nameField {

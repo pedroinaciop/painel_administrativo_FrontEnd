@@ -6,6 +6,8 @@ function InputField({
     label,
     type,
     min,
+    max,
+    text,
     register,
     validation,
     error,
@@ -21,6 +23,8 @@ function InputField({
             <label htmlFor={idInput}>{label}</label>
             <input
                 min={min}
+                max={max}
+                value={text}
                 id={idInput}
                 type={type}
                 maxLength={maxLength}

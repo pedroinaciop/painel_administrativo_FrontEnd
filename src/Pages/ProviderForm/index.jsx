@@ -20,7 +20,6 @@ const ProviderForm = () => {
     const { enqueueSnackbar } = useSnackbar();
     const formattedDate = `${updateDate.toLocaleDateString('pt-BR')} ${updateDate.toLocaleTimeString('pt-BR')}`;
 
-    
     const createBrandSchema = z.object({
         cnpj: z.string()
             .regex(/^\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}$/, "Formato de CNPJ inválido")
@@ -52,8 +51,8 @@ const ProviderForm = () => {
         api.post('cadastros/fornecedores/novo', {
             cnpj: formattedData.cnpj,
             provider: formattedData.provider.toUpperCase(),
-            updateDate: formattedDate,
-            updateUser: "ADM",
+            createDate: formattedDate,
+            createUser: sessionStorage.getItem('user'),
         }, {
             headers: {
                 'Content-Type': 'application/json'
@@ -79,10 +78,11 @@ const ProviderForm = () => {
     };
 
     const editProvider = (data) => {
+        console.log(data);
         api.put(`/editar/fornecedores/${id}`, {
             providerName: data.provider.toUpperCase(),
             updateDate: formattedDate,
-            updateUser: sessionStorage.getItem("user")
+            updateUser: sessionStorage.getItem("user"),
         }, {
             headers: {
                 'Content-Type': 'application/json'
@@ -122,9 +122,11 @@ const ProviderForm = () => {
                 const cnpjMascarado = VMasker.toPattern(fornecedor.cnpj, '99.999.999/9999-99');
                 reset ({
                     cnpj: cnpjMascarado,
-                    provider: fornecedor.provider,
+                    provider: fornecedor.providerName,
                     updateDate: fornecedor.updateDate,
-                    updateUser: fornecedor.updateUser
+                    updateUser: fornecedor.updateUser,
+                    createDate: fornecedor.createDate,
+                    createUser: fornecedor.createUser,
                 })
             }).catch(error => {
                 enqueueSnackbar("Erro ao carregar fornecedor", { variant: "error", anchorOrigin: { vertical: "bottom", horizontal: "right"}});
@@ -135,6 +137,8 @@ const ProviderForm = () => {
 
     const updateDateField = watch("updateDate");
     const updateUserField = watch("updateUser");
+    const createUserField = watch("createUser");
+    const createDateField = watch("createDate");
 
     return (
         <section className={styled.appContainer}>
@@ -162,7 +166,7 @@ const ProviderForm = () => {
                         error={errors?.provider}
                     />
                 </div>
-                <FooterForm title={id ? "Atualizar" : "Adicionar"} updateDateField={updateDateField} updateUserField={updateUserField}/>
+                <FooterForm title={id ? "Atualizar" : "Adicionar"} updateDateField={updateDateField} updateUserField={updateUserField} createDateField={createDateField} createUserField={createUserField}/>
             </form>
         </section>
     );

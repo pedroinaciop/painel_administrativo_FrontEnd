@@ -95,15 +95,14 @@ const ProductsPage = () => {
       });
   }, [])
 
-  const filterData = (data, keywords) =>
-    data.filter(
-      (item) =>
-        item.product_id.toString().includes(keywords.toString()) ||
-        item.productName.toLowerCase().includes(keywords.toLowerCase()) ||
-        item.referenceCode.toLowerCase().includes(keywords.toLowerCase()) ||
-        item.price.toString().includes(keywords.toString()) ||
-        item.pricePromocional.toString().includes(keywords.toString())
+  const filterData = (data, keywords) => {
+    if (!keywords) return data;
+    
+    return data.filter((item) =>
+       item.productName?.toLowerCase().includes(keywords.toLowerCase()) ||
+        item.referenceCode?.toLowerCase().includes(keywords.toLowerCase()) 
     );
+  };  
 
   return (
     <>
@@ -156,11 +155,7 @@ const ProductsPage = () => {
           bordered={false} 
           columns={columns} 
           params={{ keywords }}
-          dataSource={product}
-          request={async (params) => {
-            const filteredData = filterData(product, params.keywords || keywords);
-            return { data: filteredData, success: true };
-          }}
+          dataSource={filterData(product, keywords)}
           pagination={{
             pageSize: 8,
             showQuickJumper: true,

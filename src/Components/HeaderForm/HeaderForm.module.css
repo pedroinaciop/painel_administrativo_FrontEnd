@@ -22,19 +22,25 @@
   .titleHeader {
     display: flex;
     flex-direction: row;
-    gap: 15px;
+    gap: 10px;
   }
-  
+
+   .backButton {
+    height: 30px;
+ 
+  }
+
+  .btnVoltar {
+    border: 0px;
+    box-shadow: 0px;
+  }
+   
   .header h1 {
     font-size: 1.875rem;
   }
   
   .header p {
     color: var(--red);
-  }
-
-  .backButton {
-    height: 25px;
   }
   
   .contextForm {

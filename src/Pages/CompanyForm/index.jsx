@@ -111,15 +111,22 @@ const CompanyForm = () => {
   }
 
   const createCompany = (data) => {
-    const formattedData = {
-      ...data,
-      cnpj: data.cnpj.replace(/\D/g, ""),
-      telefone: data.telefone.replace(/\D/g, ""),
-      cep: data.cep.replace(/\D/g, ""),
-    };
-
-    api.post('cadastros/empresas/novo', buildPayload(data), {
-    }, {
+    api.post('cadastros/empresas/novo', {
+    cnpj: data.cnpj.replace(/\D/g, ""),
+    corporateReason: data.razao_social,
+    stateRegistration: data.inscricao_estadual,
+    email: data.email,
+    phone: data.telefone.replace(/\D/g, ""),
+    cep: data.cep.replace(/\D/g, ""),
+    numberAddress: data.numero_endereco,
+    street: data.logradouro,
+    neighborhood: data.bairro,
+    city: data.cidade,
+    state: data.estado,
+    complement: data.complemento,
+    createDate: formattedDate,
+    createUser: sessionStorage.getItem("user"),
+  }, {
       headers: {
         'Content-Type': 'application/json'
       }
@@ -145,14 +152,22 @@ const CompanyForm = () => {
   };
 
    const editCompany = (data) => {
-    const formattedData = {
-      ...data,
-      cnpj: data.cnpj.replace(/\D/g, ""),
-      telefone: data.telefone.replace(/\D/g, ""),
-      cep: data.cep.replace(/\D/g, ""),
-    };
-
-    api.put(`/editar/empresas/${id}`, buildPayload(data), {
+    api.put(`/editar/empresas/${id}`,  {
+    cnpj: data.cnpj.replace(/\D/g, ""),
+    corporateReason: data.razao_social,
+    stateRegistration: data.inscricao_estadual,
+    email: data.email,
+    phone: data.telefone.replace(/\D/g, ""),
+    cep: data.cep.replace(/\D/g, ""),
+    numberAddress: data.numero_endereco,
+    street: data.logradouro,
+    neighborhood: data.bairro,
+    city: data.cidade,
+    state: data.estado,
+    complement: data.complemento,
+    updateDate: formattedDate,
+    updateUser: sessionStorage.getItem("user"),
+  }, {
         headers: {
             'Content-Type': 'application/json'
         }
@@ -196,8 +211,12 @@ const CompanyForm = () => {
             cidade: company.city,
             estado: company.state,
             complemento: company.complement,
+
             updateDate: company.updateDate,
-            updateUser: company.updateUser
+            updateUser: company.updateUser,
+
+            createUser: company.createUser,
+            createDate: company.createDate,
           });
         }) 
         .catch(error => {
@@ -207,27 +226,10 @@ const CompanyForm = () => {
     }
   }, [id])
 
-  const buildPayload = (data) => {
-  return {
-    cnpj: data.cnpj.replace(/\D/g, ""),
-    corporateReason: data.razao_social,
-    stateRegistration: data.inscricao_estadual,
-    email: data.email,
-    phone: data.telefone.replace(/\D/g, ""),
-    cep: data.cep.replace(/\D/g, ""),
-    numberAddress: data.numero_endereco,
-    street: data.logradouro,
-    neighborhood: data.bairro,
-    city: data.cidade,
-    state: data.estado,
-    complement: data.complemento,
-    updateDate: formattedDate,
-    updateUser: sessionStorage.getItem("user"),
-  };
-};
-
   const updateDateField = watch("updateDate");
   const updateUserField = watch("updateUser");
+  const createUserField = watch("createUser");
+  const createDateField = watch("createDate");
 
   return (
     <section className={styled.appContainer}>
@@ -367,7 +369,7 @@ const CompanyForm = () => {
             />
           </div>
         </section>
-        <FooterForm title={id ? "Atualizar" : "Adicionar"} updateDateField={updateDateField} updateUserField={updateUserField}/>
+        <FooterForm title={id ? "Atualizar" : "Adicionar"} updateDateField={updateDateField} updateUserField={updateUserField} createUserField={createUserField} createDateField={createDateField}/>
       </form>
     </section>
   );

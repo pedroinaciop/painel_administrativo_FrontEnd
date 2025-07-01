@@ -133,7 +133,7 @@ const ProductForm = () => {
     path: ["preco_promocional"]
   });
 
-  const { register, handleSubmit, formState: { errors }, setValue, reset } = useForm({
+  const { register, handleSubmit, formState: { errors }, setValue, reset, watch } = useForm({
     resolver: zodResolver(createProductSchema),
   });
 
@@ -285,13 +285,9 @@ const ProductForm = () => {
       sterility: Boolean(data.esterilidade),
       freeShipping: Boolean(data.frete_gratis),
       perishable: Boolean(data.produto_perecivel),
-      updateDate: formattedDate,
-      updateUser: sessionStorage.getItem("user")
+      createDate: formattedDate,
+      createUser: sessionStorage.getItem("user"),
     };
-
-    console.log("Enviando JSON:", JSON.stringify(productData, null, 2));
-    console.log("C" + JSON.stringify(selectedOptionCategory));
-    console.log("P" + selectedOptionProvider);
 
     api.post('cadastros/produtos/novo', productData, {
       headers: {
@@ -407,8 +403,8 @@ const ProductForm = () => {
       api.get(`editar/produtos/${id}`)
         .then(response => {
           const product = response.data;
-          
           const currentUser = sessionStorage.getItem("user");
+          console.log(product);
           
           if (product.provider) {
             const provider = {
@@ -443,7 +439,6 @@ const ProductForm = () => {
             }, { shouldValidate: true });
           }
           
-          console.log(product)
           reset({
             nome_produto: product.productName || "",
             codigo_referencia: product.referenceCode || "",
@@ -470,6 +465,10 @@ const ProductForm = () => {
             esterilidade: product.sterility ?? false,
             frete_gratis: product.freeShipping ?? false,
             produto_perecivel: product.perishable ?? false,
+            updateUser: product.updateUser,
+            updateDate: product.updateDate,
+            createUser: product.createUser,
+            createDate: product.createDate,
             fornecedor: {
               provider_id: product.provider.provider_id,
               providerName: product.provider.providerName,
@@ -492,6 +491,11 @@ const ProductForm = () => {
         .finally(() => setLoading(false));
     }
   }, [id, reset, setValue, enqueueSnackbar]);
+
+  const updateDateField = watch("updateDate");
+  const updateUserField = watch("updateUser");
+  const createUserField = watch("createUser");
+  const createDateField = watch("createDate");
 
   return (
     <section className={styled.appContainer}>
@@ -844,7 +848,7 @@ const ProductForm = () => {
           </div>
         </section>
         </CustomTabPanel>
-        <FooterForm title={id ? "Atualizar" : "Adicionar"} />
+        <FooterForm title={id ? "Atualizar" : "Adicionar"} updateDateField={updateDateField} updateUserField={updateUserField} createDateField={createDateField} createUserField={createUserField}/>
         </Box>
       </form>
     </section>

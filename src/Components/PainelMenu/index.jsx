@@ -22,6 +22,7 @@ const items = [
     getItem('Produtos', '4', null, null, '/cadastros/produtos'),
     getItem('Fornecedores', '5', null, null, '/cadastros/fornecedores'),
     getItem('Categorias', '6', null, null, '/cadastros/categorias'),
+    getItem('Cidades', '7', null, null, '/cadastros/cidades'),
   ]),
   getItem('Operações', '9', <SnippetsOutlined />, [
     getItem('Entrada de produto', '10', null, null, '/cadastros/entrada'),

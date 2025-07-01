@@ -104,14 +104,14 @@ const CompanyPage = () => {
             });
     }, [])
 
-    const filterData = (data, keywords) =>
-        data.filter(
-            (item) =>
-                item.company_id.toString().includes(keywords.toString()) ||
-                item.cnpj.toLowerCase().includes(keywords.toLowerCase()) ||
-                item.corporateReason.toLowerCase().includes(keywords.toLowerCase()) ||
-                item.updateDate.toString().includes(keywords.toString())
+    const filterData = (data, keywords) => {
+    if (!keywords) return data;
+    
+    return data.filter((item) =>
+            item.cnpj?.toLowerCase()?.includes(keywords.toLowerCase()) ||
+            item.corporateReason?.toLowerCase()?.includes(keywords.toLowerCase())
         );
+    };
 
     return (
         <>
@@ -146,11 +146,7 @@ const CompanyPage = () => {
                     bordered={false}
                     columns={columns}
                     params={{ keywords }}
-                    dataSource={company}
-                    request={async (params) => {
-                        const filteredData = filterData(company, params.keywords || keywords);
-                        return { data: filteredData, success: true };
-                    }}
+                    dataSource={filterData(company, keywords)}
                     pagination={{
                         pageSize: 8,
                         showQuickJumper: true,

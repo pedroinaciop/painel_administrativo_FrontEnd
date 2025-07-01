@@ -36,10 +36,11 @@ const CategoryForm = () => {
     };
 
     const createCategory = (data) => {
+        console.log(data);
         api.post("cadastros/categorias/novo", {
             categoryName: data.nome_categoria.toUpperCase(),
-            updateDate: formattedDate,
-            updateUser: sessionStorage.getItem("user"),
+            createDate: formattedDate,
+            createUser: sessionStorage.getItem("user"),
         }, {
             headers: {
                 'Content-Type': 'application/json'
@@ -64,6 +65,7 @@ const CategoryForm = () => {
     };
 
     const editCategory = (data) => {
+        console.log(data);
         api.put(`/editar/categorias/${id}`, {
             categoryName: data.nome_categoria.toUpperCase(),
             updateDate: formattedDate,
@@ -91,17 +93,17 @@ const CategoryForm = () => {
         })
     };
 
-    const updateDateField = watch("updateDate");
-    const updateUserField = watch("updateUser");
-
     useEffect(() => {
         if (id) {
             setLoading(true);
             api.get(`/editar/categorias/${id}`)
                 .then(response => {
-                    const category = response.data;   
+                    const category = response.data;  
+                    console.log(category);
                     reset({
                         nome_categoria: category.categoryName,
+                        createUser: category.createUser,
+                        createDate: category.createDate,
                         updateDate: category.updateDate,
                         updateUser: category.updateUser,
                     });
@@ -112,6 +114,11 @@ const CategoryForm = () => {
                 .finally(() => setLoading(false));
         }
     }, [id]);
+
+    const updateDateField = watch("updateDate");
+    const updateUserField = watch("updateUser");
+    const createUserField = watch("createUser");
+    const createDateField = watch("createDate");
 
     return (
         <section className={styled.appContainer}>
@@ -127,7 +134,7 @@ const CategoryForm = () => {
                         error={errors?.nome_categoria}
                     />
                 </div>
-                <FooterForm title={id ? "Atualizar" : "Adicionar"} updateDateField={updateDateField} updateUserField={updateUserField}/>
+                <FooterForm title={id ? "Atualizar" : "Adicionar"} updateDateField={updateDateField} updateUserField={updateUserField} createUserField={createUserField} createDateField={createDateField}/>
             </form>
         </section>
     );

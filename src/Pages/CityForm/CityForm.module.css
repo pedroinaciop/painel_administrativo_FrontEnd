@@ -1,0 +1,26 @@
+@import url("../../App.css");
+
+.appContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1.3rem;
+  padding: 1.25rem 1.25rem 0.125rem 1.25rem;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+  padding: 1.5rem;
+}
+
+#cityNameField, #ibgeCodeField {
+  width: 70%;
+}
+
+.errorMessage {
+  height: 0rem;
+  color: var(--red);
+  font-size: 0.75rem;
+  position: relative;
+  top: 0.125rem;
+}

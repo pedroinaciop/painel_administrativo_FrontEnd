@@ -98,6 +98,7 @@ const ProviderPage = () => {
             }
         })
             .then(function (resposta) {
+                console.log(resposta.data);
                 setProviders(resposta.data);
             })
             .catch(function (error) {
@@ -108,11 +109,11 @@ const ProviderPage = () => {
     const filterData = (data, keywords) =>
         data.filter(
             (item) =>
-                item.provider_id.toString().includes(keywords.toString()) ||
-                item.cnpj.toLowerCase().includes(keywords.toLowerCase()) ||
-                item.provider.toLowerCase().includes(keywords.toLowerCase()) || 
-                item.updateDate.toString().includes(keywords.toString())
+                item.cnpj?.toLowerCase().includes(keywords.toLowerCase()) ||
+                item.provider?.toLowerCase().includes(keywords.toLowerCase())
         );
+
+      
 
     return (
         <>
@@ -147,11 +148,7 @@ const ProviderPage = () => {
                     bordered={false}
                     columns={columns}
                     params={{ keywords }}
-                    dataSource={providers}
-                    request={async (params) => {
-                        const filteredData = filterData(providers, params.keywords || keywords);
-                        return { data: filteredData, success: true };
-                    }}
+                    dataSource={filterData(providers, keywords)}
                     pagination={{
                         pageSize: 4,
                         showQuickJumper: true,

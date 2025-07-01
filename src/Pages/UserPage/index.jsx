@@ -92,15 +92,15 @@ const UserPage = () => {
             enqueueSnackbar('Nenhum usuário cadastrado', { variant: 'info', anchorOrigin: { vertical: "bottom", horizontal: "right" } });
         }
     };
-
-    const filterData = (data, keywords) =>
-        data.filter(
-            (item) =>
-                item.user_id.toString().includes(keywords.toString()) ||
-                item.fullName.toLowerCase().includes(keywords.toLowerCase()) ||
-                item.email.toLowerCase().includes(keywords.toLowerCase()) ||
-                item.updateDate.toString().includes(keywords.toString())
+     
+    const filterData = (data, keywords) => {
+        if (!keywords) return data;
+    
+        return data.filter((item) =>
+            item.fullName?.toLowerCase().includes(keywords.toLowerCase()) ||
+            item.email?.toLowerCase().includes(keywords.toLowerCase()) 
         );
+    };        
 
     return (
         <>
@@ -134,12 +134,8 @@ const UserPage = () => {
                     search={false}
                     bordered={false}
                     columns={columns}
-                    dataSource={users}
+                    dataSource={filterData(users, keywords)}
                     params={{ keywords }}
-                    request={async (params) => {
-                        const filteredData = filterData(users, params.keywords || keywords);
-                        return { data: filteredData, success: true };
-                    }}
                     pagination={{
                         pageSize: 4,
                         showQuickJumper: true,
