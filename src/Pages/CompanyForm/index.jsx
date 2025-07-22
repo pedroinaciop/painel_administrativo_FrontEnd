@@ -198,12 +198,13 @@ const CompanyForm = () => {
           const company = response.data;
           const cnpjMascarado = VMasker.toPattern(company.cnpj, '99.999.999/9999-99');
           const cepMascarado = VMasker.toPattern(company.cep, '99999-999');
+          const phoneMascarado = VMasker.toPattern(company.phone, '(99) 99999-9999')
           reset({
             cnpj: cnpjMascarado,
             razao_social: company.corporateReason,
             inscricao_estadual: company.stateRegistration,
             email: company.email,
-            telefone: company.phone,
+            telefone: phoneMascarado,
             cep: cepMascarado,
             logradouro: company.street,
             numero_endereco: company.numberAddress,
