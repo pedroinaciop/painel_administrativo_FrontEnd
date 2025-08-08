@@ -1,0 +1,132 @@
+@import url("../../App.css");
+
+.appContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 1.3rem;
+  padding: 1.25rem 1rem 0.125rem 1rem;
+}
+
+.tabs {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.contextForm {
+  height: 445px;
+}
+
+.row {
+  display: flex;
+  justify-content: space-between;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.formGroup label {
+  color: var(--textColor);
+  margin-bottom: 0.313rem;
+}
+
+.formGroup input,
+textarea,
+select {
+  padding: 0.5rem 0.625rem;
+  font-size: 0.875rem;
+  border: 0.063rem solid var(--gray);
+  border-radius: 0.313rem;
+  outline: none;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/**/
+
+#nameField {
+  width: 48%;
+}
+
+#fantasyNameField {
+  width: 48%;
+}
+
+
+#clientType {
+  width: 31%;
+}
+
+#cpfCnpjField {
+  width: 31%;
+}
+
+#taxStatus {
+   width: 31%;
+}
+
+#stateRegistrationField  {
+  width: 15%;
+}
+
+#municipalRegistrationField,
+#rgField {
+  width: 19%;
+}
+
+#taxRegimeCodeField {
+   width: 30%;
+}
+
+#notesField textarea {
+  resize: none;
+  height: 7rem;
+}
+
+/**/
+
+#emailField {
+  width: 19%;
+}
+
+#phone,
+#phoneSecundary {
+   width: 13%;
+}
+
+#cepField {
+  width: 15%;
+}
+
+#streetField {
+  width: 62%;
+}
+
+#numberAdressField {
+  width: 15%;
+}
+
+#neighborhoodField,
+#cityField,
+#stateField {
+  width: 30%;
+}
+
+#complementField {
+  width: 100%;
+}
+
+/**/
+
+input:focus {
+  border: 0.063rem solid var(--activeButton);
+}
+
+.errorMessage {
+  height: 0px;
+  color: var(--red);
+  font-size: 0.75rem;
+  position: relative;
+  top: 0.125rem;
+}

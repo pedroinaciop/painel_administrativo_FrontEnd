@@ -13,10 +13,13 @@ import CompanyForm from "./Pages/CompanyForm";
 import BasePage from "./Components/BasePage";
 import CityPage from "./Pages/CityPage";
 import CityForm from "./Pages/CityForm";
-import { SnackbarProvider } from "notistack";
-import "@ant-design/v5-patch-for-react-19";
 import UserForm from "./Pages/UserForm";
 import UserPage from "./Pages/UserPage";
+import ClientPage from "./Pages/ClientPage";
+import ClientForm from "./Pages/ClientForm";
+
+import "@ant-design/v5-patch-for-react-19";
+import { SnackbarProvider } from "notistack";
 import "./App.css";
 
 function App() {
@@ -52,6 +55,10 @@ function App() {
                   <Route path="/cadastros/cidades/" element={<CityPage/>}/>
                   <Route path="/cadastros/cidades/novo" element={<CityForm/>}/>
                   <Route path="/editar/cidades/:id" element={<CityForm/>}/>
+
+                  <Route path="/cadastros/clientes/" element={<ClientPage/>}/>
+                  <Route path="/cadastros/clientes/novo" element={<ClientForm/>}/>
+                  <Route path="/editar/clientes/:id" element={<ClientForm/>}/>
                 </Route>
             </Route>
           </Routes>
