@@ -29,7 +29,7 @@ const ProviderPage = () => {
             const cnpj = text.props.children;
             return cnpjMask(cnpj);
         }},
-        { title: 'NOME', dataIndex: 'provider', ellipsis: true},
+        { title: 'NOME', dataIndex: 'providerName', ellipsis: true},
         { title: 'ÚLTIMA ALTERAÇÃO', dataIndex: 'updateDate'},
         { title: 'USUÁRIO ALTERAÇÃO', dataIndex: 'updateUser', ellipsis: true},
         {

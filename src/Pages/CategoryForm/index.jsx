@@ -21,7 +21,7 @@ const CategoryForm = () => {
 
     const createCategorySchema = z.object({
         nome_categoria: z.string()
-        .min(5, "Categoria deve ter ao menos 5 caracteres")
+        .min(4, "Categoria deve ter ao menos 4 caracteres")
         .nonempty("O nome da categoria é obrigatório")
     })
 

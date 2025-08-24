@@ -39,9 +39,9 @@ const ProductForm = () => {
       .nonempty("Código de referência é obrigatório"),
 
     preco_venda: z.number({
-      required_error: "Preço de venda é obrigatório",
-      invalid_type_error: "O preço de venda deve ser maior ou igual a 0",
-    }).min(0, "O preço de venda deve ser maior ou igual a R$ 0,00"),
+      required_error: "Preço é obrigatório",
+      invalid_type_error: "O preço deve ser maior ou igual a 0",
+    }).min(0, "O preço deve ser maior ou igual a R$ 0,00"),
 
     preco_promocional: z.number({
       required_error: "Preço promocional é obrigatório",
@@ -71,7 +71,7 @@ const ProductForm = () => {
       .optional(),
 
     descricao: z.string()
-      .nonempty("Descrição é obrigatória"),
+      .optional(),
 
     categoria: z.object({
       category_id: z.number(),
@@ -80,15 +80,18 @@ const ProductForm = () => {
       updateUser: z.string().optional()
     }).required(),
 
-    quantidade_embalagem: z.number(),
+    quantidade_embalagem: z.number()
+      .optional(),
 
     unidade_medida: z.enum(["Unidade", "Pacote", "Caixa"], {
       errorMap: () => ({ message: "Unidade de medida é obrigatória" })
     }),
 
-    peso_liquido: z.number(),
+    peso_liquido: z.number()
+      .optional(),
 
-    peso_bruto: z.number(),
+    peso_bruto: z.number()
+      .optional(),
 
     dimensoes: z.string()
       .optional(),
@@ -103,15 +106,16 @@ const ProductForm = () => {
     localizacao_estoque: z.string()
       .optional(),
 
-    icms: z.number(),
-
-    cfop: z.string()
+    icms: z.number()
       .optional(),
 
-    ncm: z.string()
+    cfop: z.number()
       .optional(),
 
-    cst: z.string()
+    ncm: z.number()
+      .optional(),
+
+    cst: z.number()
       .optional(),
 
     imagens_produtos: z.any()
@@ -135,6 +139,7 @@ const ProductForm = () => {
 
   const { register, handleSubmit, formState: { errors }, setValue, reset, watch } = useForm({
     resolver: zodResolver(createProductSchema),
+    
   });
 
   function CustomTabPanel(props) {
@@ -219,16 +224,25 @@ const ProductForm = () => {
     }
   };
 
-  const promiseOptions = (inputValue, path, labelField, id) => {
-    return new Promise((resolve) => {
-      setTimeout(async () => {
-        resolve(await fetchData(inputValue, path, labelField, id));
-      }, 1000);
-    });
+    const promiseOptions = async (inputValue, path, labelField, id, cnpjField) => {
+
+    const url = inputValue
+      ? `http://localhost:8080/api/${path}/${encodeURIComponent(inputValue)}`
+      : `http://localhost:8080/api/${path}?limit=5`;
+
+    const response = await fetch(url);
+    const data = await response.json();
+
+    return data.map(data => ({
+      id: data[id],
+      label: data[labelField],
+      cnpj: cnpjField ? data[cnpjField] : undefined
+    }));
   };
 
+
   const createProduct = (data) => {
-     const defaultUser = sessionStorage.getItem("user");
+    const defaultUser = sessionStorage.getItem("user");
 
     const selectedProvider = selectedOptionProvider || {
       id: 0,
@@ -242,7 +256,7 @@ const ProductForm = () => {
     };
 
     const productData = {
-      productName: data.nome_produto,
+      productName:  data.nome_produto.toUpperCase(),
       referenceCode: data.codigo_referencia,
       price: Number(data.preco_venda) || 0,
       pricePromocional: Number(data.preco_promocional) || 0,
@@ -250,7 +264,7 @@ const ProductForm = () => {
        provider: {
         provider_id: Number(selectedProvider.id) || 0,
         cnpj: selectedProvider.cnpj || "",
-        name: selectedProvider.name || "",
+        providerName: selectedProvider.providerName || "",
         updateDate: formattedDate,
         updateUser: defaultUser
       },
@@ -277,9 +291,9 @@ const ProductForm = () => {
       origin: data.origem_produto || "",
       stockLocation: data.localizacao_estoque || "",
       icms: data.icms || 0,
-      cfop: data.cfop || "",
-      ncm: data.ncm || "",
-      cst: data.cst || "",
+      cfop: data.cfop || 0,
+      ncm: data.ncm || 0,
+      cst: data.cst || 0,
       image: Array.isArray(data.imagens_produtos) ? data.imagens_produtos.join(",") : "",
       active: Boolean(data.produto_ativo),
       sterility: Boolean(data.esterilidade),
@@ -288,6 +302,7 @@ const ProductForm = () => {
       createDate: formattedDate,
       createUser: sessionStorage.getItem("user"),
     };
+    console.log("Produto que será enviado:", productData);
 
     api.post('cadastros/produtos/novo', productData, {
       headers: {
@@ -301,13 +316,18 @@ const ProductForm = () => {
       .catch((error) => {
         if (api.isAxiosError(error)) {
           if (error.response) {
-            enqueueSnackbar(`Erro ${error.response.status}: ${error.response.data.message}`, { variant: "error", anchorOrigin: { vertical: "bottom", horizontal: "right" } });
+            console.error("Erro do servidor:", error.response.data);
+            console.error("Status:", error.response.status);
+            enqueueSnackbar(`Erro ${error.response.status}: ${JSON.stringify(error.response.data)}`, { variant: "error" });
           } else if (error.request) {
-            enqueueSnackbar("Erro de rede: Servidor não respondeu", { variant: "warning", anchorOrigin: { vertical: "bottom", horizontal: "right" } });
+            console.error("Sem resposta do servidor:", error.request);
+            enqueueSnackbar("Erro de rede: Servidor não respondeu", { variant: "warning" });
           } else {
-            enqueueSnackbar("Erro desconhecido: " + error.message, { variant: "error", anchorOrigin: { vertical: "bottom", horizontal: "right" } });
+            console.error("Erro na configuração da requisição:", error.message);
+            enqueueSnackbar("Erro desconhecido: " + error.message, { variant: "error" });
           }
         } else {
+          console.error("Erro inesperado:", error);
           enqueueSnackbar("Erro inesperado", { variant: "error" });
         }
       });
@@ -327,7 +347,7 @@ const ProductForm = () => {
     };
 
     const productData = {
-      productName: data.nome_produto,
+      productName: data.nome_produto.toUpperCase(),
       referenceCode: data.codigo_referencia,
       price: Number(data.preco_venda) || 0,
       pricePromocional: Number(data.preco_promocional) || 0,
@@ -335,7 +355,7 @@ const ProductForm = () => {
        provider: {
         provider_id: Number(selectedProvider.id) || 0,
         cnpj: selectedProvider.cnpj || "",
-        name: selectedProvider.name || "",
+        providerName: selectedProvider.providerName || "",
         updateDate: formattedDate,
         updateUser: defaultUser
       },
@@ -423,7 +443,6 @@ const ProductForm = () => {
             }, { shouldValidate: true });
           }
           
-          // 2. Tratamento da categoria
           if (product.category) {
             const category = {
               id: product.category.category_id,
@@ -458,10 +477,10 @@ const ProductForm = () => {
             origem_produto: product.origin || "Nacional", 
             localizacao_estoque: product.stockLocation || "",
             icms: product.icms || 0,
-            cfop: product.cfop || "",
-            ncm: product.ncm || "",
-            cst: product.cst || "",
-            produto_ativo: product.active ?? true,
+            cfop: product.cfop || 0,
+            ncm: product.ncm || 0,
+            cst: product.cst || 0,
+            produto_ativo: product.active,
             esterilidade: product.sterility ?? false,
             frete_gratis: product.freeShipping ?? false,
             produto_perecivel: product.perishable ?? false,
@@ -531,6 +550,7 @@ const ProductForm = () => {
                 className={errors?.codigo_referencia && (styled.inputError)}
                 id="codigo_referencia"
                 type="text"
+                readOnly={id ? true : false}
                 maxLength={50}
                 {...register('codigo_referencia')} />
               {errors?.codigo_referencia?.message && <p className={styled.errorMessage}>{errors.codigo_referencia.message}</p>}
@@ -544,8 +564,9 @@ const ProductForm = () => {
                 className={errors?.preco_venda && (styled.inputError)}
                 id="preco_venda"
                 type="number"
-                min={0}
-                {...register('preco_venda', { valueAsNumber: true })} />
+                step="0.01"
+                min="0.01"
+               {...register('preco_venda', {valueAsNumber: true})} />
               {errors?.preco_venda?.message && <p className={styled.errorMessage}>{errors.preco_venda.message}</p>}
             </div>
 
@@ -554,7 +575,8 @@ const ProductForm = () => {
               <input
                 id="preco_promocional"
                 type="number"
-                min={0}
+                step="0.01"
+                min="0.01"
                 {...register('preco_promocional', { valueAsNumber: true })}
               />
               {errors?.preco_promocional?.message && <p className={styled.errorMessage}>{errors.preco_promocional.message}</p>}
@@ -568,7 +590,7 @@ const ProductForm = () => {
                   cacheOptions
                   defaultOptions
                   value={selectedOptionProvider}
-                  loadOptions={(inputValue) => promiseOptions(inputValue, 'fornecedores', 'provider', 'provider_id')}
+                  loadOptions={(inputValue) => promiseOptions(inputValue, 'fornecedores', 'providerName', 'provider_id', 'cnpj')}
                   onChange={handleChangeSelectedProvider}
                   placeholder="Digite para buscar o fornecedor..."
                   className={errors?.fornecedor && (styled.inputError)}
@@ -659,7 +681,8 @@ const ProductForm = () => {
               <input
                 id="quantidade_embalagem"
                 type="number"
-                min={0}
+                defaultValue={1}
+                min={1}
                 {...register('quantidade_embalagem', { valueAsNumber: true })}
               />
               {errors?.quantidade_embalagem?.message && <p className={styled.errorMessage}>{errors.quantidade_embalagem.message}</p>}
@@ -688,6 +711,7 @@ const ProductForm = () => {
                 className={errors?.peso && (styled.inputError)}
                 id="peso_liquido"
                 type="number"
+                defaultValue={1}
                 min={0}
                 {...register('peso_liquido', { valueAsNumber: true })}
               />
@@ -702,6 +726,7 @@ const ProductForm = () => {
                 className={errors?.peso && (styled.inputError)}
                 id="peso_bruto"
                 type="number"
+                defaultValue={1}
                 min={0}
                 {...register('peso_bruto', { valueAsNumber: true })}
               />
@@ -753,36 +778,42 @@ const ProductForm = () => {
             <div className={styled.formGroup} id={styled.icmsField}>
               <label htmlFor="icms">ICMS</label>
               <input
-                id='icms'
+                id="icms"
                 type="number"
+                defaultValue={0}
                 min={0}
-                {...register('icms', { valueAsNumber: true })} />
+                {...register("icms", { valueAsNumber: true })} />
             </div>
 
             <div className={styled.formGroup} id={styled.cfopField}>
               <label htmlFor="cfop">CFOP</label>
               <input
-                id='cfop'
-                type="text"
-                {...register('cfop')}
+                id="cfop"
+                defaultValue={0}
+                min={0}
+                type="number"
+                {...register("cfop", {valueAsNumber: true})}
               />
             </div>
 
             <div className={styled.formGroup} id={styled.ncmField}>
               <label htmlFor="ncm">NCM</label>
               <input
-                id='ncm'
-                type="text"
-                {...register('ncm')}
+                id="ncm"
+                type="number"
+                defaultValue={0}
+                {...register('ncm', {valueAsNumber: true})}
               />
             </div>
 
             <div className={styled.formGroup} id={styled.cstField}>
               <label htmlFor="cst">CST</label>
               <input
-                id='cst'
-                type="text"
-                {...register('cst')}
+                id="cst"
+                type="number"
+                defaultValue={0}
+                 min={0}
+                {...register("cst", {valueAsNumber: true})}
               />
             </div>
           </div>

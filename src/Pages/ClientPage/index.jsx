@@ -52,9 +52,22 @@ const ClientPage = () => {
   }
 
   const columns = [
-    { title: 'ID', dataIndex: 'clientId', width: 50},
+    { title: 'ID', dataIndex: 'client_id', width: 50},
     { title: 'NOME', dataIndex: 'fullName'},
-    { title: 'TIPO CLIENTE', dataIndex: 'clientType'},
+    { title: 'TIPO CLIENTE', dataIndex: 'clientType',
+      render: (text) => {
+        switch (text) {
+          case "PESSOA_FISICA":
+            return "PESSOA FÍSICA";
+          case "PESSOA_JURIDICA":
+            return "PESSOA JURÍDICA";
+          case "ESTRANGEIRO":
+            return "ESTRANGEIRO";
+          default:
+            return "";
+        }
+      }
+    },
     { title: 'CPF/CNPJ', dataIndex: 'cpfCnpj', copyable: 'true', 
         render: (text) => {
         const document = text.props.children;
@@ -63,14 +76,13 @@ const ClientPage = () => {
         } else {
           return cpfMask(document);
         }
-        
     }},
     { title: 'E-MAIL', dataIndex: 'email', valueType: 'email'},
     {
       title: 'EDITAR',
       width: 140,
       render: (_, row) => (
-        <Button key="editar" onClick={() => navigate(`/editar/clientes/${row.clientId}`)} icon={<EditOutlined />} >
+        <Button key="editar" onClick={() => navigate(`/editar/clientes/${row.client_id}`)} icon={<EditOutlined />} >
           Editar
         </Button>
       ),

@@ -113,7 +113,7 @@ const CompanyForm = () => {
   const createCompany = (data) => {
     api.post('cadastros/empresas/novo', {
     cnpj: data.cnpj.replace(/\D/g, ""),
-    corporateReason: data.razao_social,
+    corporateReason: data.razao_social.toUpperCase(),
     stateRegistration: data.inscricao_estadual,
     email: data.email,
     phone: data.telefone.replace(/\D/g, ""),
@@ -154,7 +154,7 @@ const CompanyForm = () => {
    const editCompany = (data) => {
     api.put(`/editar/empresas/${id}`,  {
     cnpj: data.cnpj.replace(/\D/g, ""),
-    corporateReason: data.razao_social,
+    corporateReason: data.razao_social.toUpperCase(),
     stateRegistration: data.inscricao_estadual,
     email: data.email,
     phone: data.telefone.replace(/\D/g, ""),

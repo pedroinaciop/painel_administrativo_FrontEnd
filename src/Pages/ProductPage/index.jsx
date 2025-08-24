@@ -124,28 +124,6 @@ const ProductsPage = () => {
             </NavLink>
           </div>
         </div>
-        <article className={styled.stockInfo}>
-          <div>
-            <p className={styled.values}>R$ 893.512,99</p>
-            <p className={styled.description}>Valor em estoque</p>
-          </div>
-          <div>
-            <p className={styled.values}>R$ 1.253.512,99</p>
-            <p className={styled.description}>Lucro previsto</p>
-          </div>
-          <div>
-            <p className={styled.values}>153</p>
-            <p className={styled.description}>Estoque baixo</p>
-          </div>
-          <div>
-            <p className={styled.values}>29</p>
-            <p className={styled.description}>Sem estoque</p>
-          </div>
-          <div>
-            <p className={styled.values}>895</p>
-            <p className={styled.description}>Em estoque</p>
-          </div>
-        </article>
       </section>
       <ConfigProvider locale={ptBR}>
         <ProTable 

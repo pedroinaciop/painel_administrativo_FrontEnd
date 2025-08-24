@@ -1,7 +1,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import FooterForm from '../../Components/FooterForm';
 import HeaderForm from '../../Components/HeaderForm';
-import { data, useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import styled from './ClientForm.module.css';
 import { useForm } from "react-hook-form";
 import { useSnackbar } from 'notistack';
@@ -226,9 +226,9 @@ const ClientForm = () => {
 
     const clientData = {
       clientType: data.tipo_cliente,
-      fullName: data.nome_cliente,
-      fantasyName: data.nome_fantasia,
-      stateRegistration: data.inscricao_estadual,
+      fullName: data.nome_cliente.toUpperCase(),
+      fantasyName: data.nome_fantasia.toUpperCase(),
+      stateRegistration: data.inscricao_estadual || "ISENTO",
       municipalRegistration: data.inscricao_municipal,
       statusTax: data.status_imposto,
       cpfCnpj: data.cpfCnpj.replace(/\D/g, ""),
@@ -282,8 +282,8 @@ const ClientForm = () => {
   const editClient = (data) => {
     const clientData = {
       clientType: data.tipo_cliente,
-      fullName: data.nome_cliente,
-      fantasyName: data.nome_fantasia,
+      fullName: data.nome_cliente.toUpperCase(),
+      fantasyName: data.nome_fantasia.toUpperCase(),
       stateRegistration: data.inscricao_estadual,
       municipalRegistration: data.inscricao_municipal,
       statusTax: data.status_imposto,
@@ -336,7 +336,7 @@ const ClientForm = () => {
   useEffect(() => {
     if (id) {
       setLoading(true);
-
+      console.log(id);
       api.get(`editar/clientes/${id}`)
         .then(response => {
           const client = response.data;

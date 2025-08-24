@@ -11,8 +11,6 @@ import ProductPage from "./Pages/ProductPage";
 import CompanyPage from "./Pages/CompanyPage";
 import CompanyForm from "./Pages/CompanyForm";
 import BasePage from "./Components/BasePage";
-import CityPage from "./Pages/CityPage";
-import CityForm from "./Pages/CityForm";
 import UserForm from "./Pages/UserForm";
 import UserPage from "./Pages/UserPage";
 import ClientPage from "./Pages/ClientPage";
@@ -51,10 +49,6 @@ function App() {
                   <Route path="/cadastros/categorias" element={<CategoryPage/>}/>
                   <Route path="/cadastros/categorias/novo" element={<CategoryForm/>}/>
                   <Route path="/editar/categorias/:id" element={<CategoryForm/>}/>
-
-                  <Route path="/cadastros/cidades/" element={<CityPage/>}/>
-                  <Route path="/cadastros/cidades/novo" element={<CityForm/>}/>
-                  <Route path="/editar/cidades/:id" element={<CityForm/>}/>
 
                   <Route path="/cadastros/clientes/" element={<ClientPage/>}/>
                   <Route path="/cadastros/clientes/novo" element={<ClientForm/>}/>

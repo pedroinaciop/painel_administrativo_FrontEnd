@@ -87,12 +87,12 @@ select {
 /**/
 
 #emailField {
-  width: 19%;
+  width: 25%;
 }
 
 #phone,
 #phoneSecundary {
-   width: 13%;
+   width: 15%;
 }
 
 #cepField {
@@ -111,6 +111,10 @@ select {
 #cityField,
 #stateField {
   width: 30%;
+}
+
+#ibgeCityCodeField {
+  display: none;
 }
 
 #complementField {
